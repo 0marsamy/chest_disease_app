@@ -1,0 +1,138 @@
+import 'package:chest_disease_app/core/components/cubits/app_cubit/app_cubit.dart';
+import 'package:chest_disease_app/core/components/widgets/custom_app_shimmer.dart';
+import 'package:chest_disease_app/core/components/widgets/custom_empty_widget.dart';
+import 'package:chest_disease_app/core/components/widgets/custom_sliver_search_bar.dart';
+import 'package:chest_disease_app/core/components/widgets/custom_welcome_row.dart';
+import 'package:chest_disease_app/core/utils/assets/assets_svg.dart';
+import 'package:chest_disease_app/core/utils/extenstions/nb_extenstions.dart';
+import 'package:chest_disease_app/core/utils/extenstions/responsive_design_extenstions.dart';
+import 'package:chest_disease_app/features/doctors/presentation/view/widgets/doctor_card_doctors.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../generated/l10n.dart';
+
+class DoctorsPage extends StatefulWidget {
+  const DoctorsPage({super.key});
+
+  @override
+  State<DoctorsPage> createState() => _DoctorsPageState();
+}
+
+class _DoctorsPageState extends State<DoctorsPage> {
+  late final ScrollController _scrollController;
+  late final AppCubit _cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = context.read<AppCubit>();
+    _cubit.getDoctorsClinics(reset: true);
+    _scrollController = ScrollController()..addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // when we're within 200px of the bottom, try to load more
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _cubit.getDoctorsClinics(reset: false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: BlocBuilder<AppCubit, AppState>(
+        builder: (context, state) {
+          try {
+            final items = _cubit.doctorsList;
+            final isLoading =
+                state is GetDoctorsClinicsLoading && !state.isPaging;
+            final isLoadingMore =
+                state is GetDoctorsClinicsLoading && state.isPaging;
+
+            return CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                const CustomWelcomeAppBar(),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: CustomSliverSearchBar(S.of(context).searchForDoctor,
+                      suffixIcon: AssetsSvg.cancel,
+                      controller: _cubit.searchController),
+                ),
+                if (isLoading)
+                  SliverFillRemaining(
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: 10,
+                      itemBuilder: (ctx, i) {
+                        return CustomAppShimmer(
+                          height: 150.h,
+                        ).paddingOnly(top: 13.h, left: 16.w, right: 16.w);
+                      },
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (ctx, i) {
+                        // Add bounds checking to prevent index out of range errors
+                        if (i < 0 || i >= items.length) {
+                          return const SizedBox.shrink();
+                        }
+                        return DoctorCardDoctors(
+                          doctor: items[i],
+                        ).paddingOnly(top: 10.h, left: 16.w, right: 16.w);
+                      },
+                      childCount: items.length,
+                    ),
+                  ),
+                if (items.isEmpty)
+                  SliverFillRemaining(child: CustomEmptyWidget.doctors()),
+                if (isLoadingMore)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16.h, horizontal: 16.w),
+                      child: CustomAppShimmer(
+                        height: 150.h,
+                      ),
+                    ),
+                  ),
+                SliverPadding(padding: EdgeInsets.symmetric(vertical: 65.h)),
+              ],
+            );
+          } catch (e) {
+            // Fallback UI in case of rendering errors
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Something went wrong',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () => _cubit.getDoctorsClinics(reset: true),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+

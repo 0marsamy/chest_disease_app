@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "521983128363",
+    "project_id": "chestdiseaseapp",
+    "storage_bucket": "chestdiseaseapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521983128363:android:0aaf13839adff7de6e8b6e",
+        "android_client_info": {
+          "package_name": "com.example.chest_disease_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDe3eZALCGxE2Oi2IMw2rOz88-LzMfq4-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
