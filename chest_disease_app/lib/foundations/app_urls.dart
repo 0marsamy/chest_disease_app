@@ -1,5 +1,6 @@
 class AppUrls {
- static const String baseUrl = "http://10.0.2.2:8000";
+  /// Use 10.0.2.2:8000 for Android emulator; use your PC's IP (e.g. 192.168.1.4:8000) for physical phone (same WiFi).
+  static const String baseUrl = "http://192.168.1.4:8000";
 
   //Auth
   static const String login = "Auth/login";
@@ -34,6 +35,11 @@ class AppUrls {
   // scan
   static const String uploadScan = "MriScan/upload";
   static const String reviewScan = "MriScan/review";
+
+  /// Hugging Face Gradio proxy (run gradio_proxy/server.py).
+  /// Android emulator: http://10.0.2.2:5000 | iOS sim: http://localhost:5000
+  static const String gradioProxyBaseUrl = "http://10.0.2.2:5000";
+  static const String gradioProxyPredict = "/predict";
 
   static const String getScans = "MriScan";
 

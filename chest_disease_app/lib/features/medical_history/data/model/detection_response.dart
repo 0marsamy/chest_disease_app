@@ -32,6 +32,8 @@ class DetectionItem {
   final bool isReviewed;
   final DateTime uploadDate;
   final DoctorReview? doctorReview;
+  final double? confidence;
+  final String? description;
 
   DetectionItem({
     required this.imagePath,
@@ -39,17 +41,21 @@ class DetectionItem {
     required this.isReviewed,
     required this.uploadDate,
     this.doctorReview,
+    this.confidence,
+    this.description,
   });
 
   factory DetectionItem.fromJson(Map<String, dynamic> json) {
     return DetectionItem(
-      imagePath: json['imagePath'],
-      detectionClass: json['detectionClass'],
-      isReviewed: json['isReviewed'],
-      uploadDate: DateTime.parse(json['uploadDate']),
+      imagePath: json['imagePath'] as String? ?? '',
+      detectionClass: json['detectionClass'] as String? ?? '',
+      isReviewed: json['isReviewed'] == true,
+      uploadDate: DateTime.tryParse(json['uploadDate']?.toString() ?? '') ?? DateTime.now(),
       doctorReview: json['doctorReview'] != null
-          ? DoctorReview.fromJson(json['doctorReview'])
+          ? DoctorReview.fromJson(json['doctorReview'] as Map<String, dynamic>)
           : null,
+      confidence: json['confidence'] != null ? (json['confidence'] as num).toDouble() : null,
+      description: json['description'] as String?,
     );
   }
 }

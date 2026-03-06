@@ -140,9 +140,9 @@ class _ProfilePageState extends State<ProfilePage> {
     // ✅ تجهيز رابط الصورة الصحيح
     String? imageUrl;
     if (AppConstants.user?.profilePicture != null) {
-      // 1. إضافة رابط السيرفر
+      // 1. إضافة رابط السيرفر (استخدم IP جهازك على الشبكة)
       // 2. استبدال الشرطة المائلة العكسية بالعادية
-      imageUrl = "http://10.0.2.2:8000/${AppConstants.user!.profilePicture!.replaceAll(r'\', '/')}";
+      imageUrl = "http://192.168.1.4:8000/${AppConstants.user!.profilePicture!.replaceAll(r'\', '/')}";
     }
 
     return Container(

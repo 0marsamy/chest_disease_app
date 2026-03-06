@@ -1,11 +1,10 @@
-import 'dart:io';
 import 'package:chest_disease_app/core/data/network_services/api_error_handler.dart';
 import 'package:chest_disease_app/features/edit_profile/data/models/edit_profile_request_model.dart';
 import 'package:chest_disease_app/features/login/data/models/login_model.dart';
 import 'package:chest_disease_app/foundations/app_constants.dart';
+import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:injectable/injectable.dart';
 
 @singleton
@@ -15,13 +14,13 @@ class EditProfileRepo {
   Future<Either<ApiErrorModel, String>> editProfile(
       EditProfileRequestModel editProfileModel) async {
     try {
-      final dio = Dio();
-      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-        final client = HttpClient();
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return client;
-      };
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: AppUrls.baseUrl,
+          connectTimeout: const Duration(minutes: 2),
+          receiveTimeout: const Duration(minutes: 2),
+        ),
+      );
 
       Map<String, dynamic> dataMap = await editProfileModel.toMap();
       if (AppConstants.user != null) {
@@ -31,7 +30,7 @@ class EditProfileRepo {
       FormData formData = FormData.fromMap(dataMap);
 
       final response = await dio.post(
-        "http://10.0.2.2:8000/api/Account/UpdateProfile",
+        "${AppUrls.baseUrl}/api/Account/UpdateProfile",
         data: formData,
         options: Options(
           headers: {

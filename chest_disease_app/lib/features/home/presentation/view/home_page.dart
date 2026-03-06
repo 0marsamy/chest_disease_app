@@ -1,13 +1,18 @@
 import 'package:chest_disease_app/core/components/cubits/navigation_cubit/navigation_cubit.dart';
-import 'package:chest_disease_app/foundations/app_constants.dart';
 import 'package:chest_disease_app/core/config/app_routing.dart';
 import 'package:chest_disease_app/core/services/service_locator/service_locator.dart';
 import 'package:chest_disease_app/core/utils/theme/colors/app_colors.dart';
-import 'package:chest_disease_app/features/chats/presentation/view/screen/chat_list_screen.dart'; 
+import 'package:chest_disease_app/features/chats/presentation/view/screen/chat_list_screen.dart';
+import 'package:chest_disease_app/features/medical_history/data/model/detection_response.dart';
+import 'package:chest_disease_app/features/medical_history/data/repository/medical_history_repository.dart';
 import 'package:chest_disease_app/features/profle/presentation/view/screens/profile_page.dart';
 import 'package:chest_disease_app/features/profle/presentation/view_model/settings_cubit.dart';
+import 'package:chest_disease_app/features/scan/domain/entities/chest_prediction_entity.dart';
 import 'package:chest_disease_app/features/scan/presentation/view/screens/scan_page.dart';
+import 'package:chest_disease_app/features/scan/presentation/view/widgets/scan_result_view.dart';
 import 'package:chest_disease_app/features/scan/presentation/view_model/scan_cubit.dart';
+import 'package:chest_disease_app/foundations/app_constants.dart';
+import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -219,8 +224,46 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-class _RecentHistory extends StatelessWidget {
+class _RecentHistory extends StatefulWidget {
   const _RecentHistory();
+
+  @override
+  State<_RecentHistory> createState() => _RecentHistoryState();
+}
+
+class _RecentHistoryState extends State<_RecentHistory> {
+  List<DetectionItem> _items = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final repo = getIt<MedicalHistoryRepository>();
+    final result = await repo.getPatientScans(DetectionRequest(pageIndex: 0, pageSize: 3));
+    result.fold(
+      (_) => setState(() {
+        _loading = false;
+        _items = [];
+      }),
+      (response) => setState(() {
+        _loading = false;
+        _items = response.data;
+      }),
+    );
+  }
+
+  String _timeAgo(DateTime d) {
+    final now = DateTime.now();
+    final diff = now.difference(d);
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    if (diff.inHours < 24) return '${diff.inHours} hours ago';
+    if (diff.inDays < 7) return '${diff.inDays} days ago';
+    return '${d.day}/${d.month}/${d.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -232,23 +275,49 @@ class _RecentHistory extends StatelessWidget {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: 3,
-          itemBuilder: (context, index) {
-            return const Card(
-              elevation: 2,
-              margin: EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                leading: Icon(Icons.person, color: AppColors.buttonsAndNav),
-                title: Text('Patient #1024 - Viral Pneumonia'),
-                subtitle: Text('2 hours ago'),
-                trailing: Icon(Icons.arrow_forward_ios),
-              ),
-            );
-          },
-        ),
+        if (_loading)
+          const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+        else if (_items.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text('No recent scans. Start a new diagnosis to see results here.'),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _items.length,
+            itemBuilder: (context, index) {
+              final d = _items[index];
+              final imageUrl = d.imagePath.startsWith('http') ? d.imagePath : '${AppUrls.baseUrl}${d.imagePath}';
+              final entity = ChestPredictionEntity(
+                prediction: d.detectionClass,
+                confidence: d.confidence ?? 0,
+                description: d.description ?? 'Result from X-ray AI: ${d.detectionClass}',
+              );
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: const Icon(Icons.medical_services, color: AppColors.buttonsAndNav),
+                  title: Text('${d.detectionClass}'),
+                  subtitle: Text(_timeAgo(d.uploadDate)),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScanResultView(
+                          entity: entity,
+                          imageUrl: imageUrl,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
       ],
     );
   }

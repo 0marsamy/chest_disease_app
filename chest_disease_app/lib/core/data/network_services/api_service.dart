@@ -15,7 +15,6 @@ import 'dio_service.dart';
 
 import 'package:injectable/injectable.dart';
 
-
 @lazySingleton
 class AppDio {
   AppDio();
@@ -26,15 +25,13 @@ class AppDio {
 
   // download File
   Future<void> downloadFile(String url, String filename) async {
-    final dio = Dio();
-
-    // Step 1: Request storage permissions (Android only)
-    if (Platform.isAndroid) {
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
-    }
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: "http://192.168.1.4:8000",
+        connectTimeout: const Duration(minutes: 2),
+        receiveTimeout: const Duration(minutes: 2),
+      ),
+    );
 
     // Step 2: Define the directory paths
     Directory? directory;
@@ -50,8 +47,10 @@ class AppDio {
     }
 
     // Step 3: Sanitize the filename
-    String sanitizedFileName =
-        filename.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+    String sanitizedFileName = filename.replaceAll(
+      RegExp(r'[<>:"/\\|?*]'),
+      '_',
+    );
     String filePath = '${directory.path}/$sanitizedFileName';
 
     // Step 4: Attempt the download
@@ -100,7 +99,7 @@ class AppDio {
     }
   }
 
-// Read (GET)
+  // Read (GET)
   Future<Response> get({
     required String path,
     Map<String, dynamic>? queryParams,
@@ -217,10 +216,11 @@ class AppDio {
       // Iterate over each image, convert it to MultipartFile and add it to formData
       for (File image in images) {
         File compressedImage = await compressImageInIsolate(image);
-        Uint8List uint8list =
-            await compressedImage.readAsBytes(); // Get image bytes
-        String fileName =
-            compressedImage.path.split("/").last; // Get the file name
+        Uint8List uint8list = await compressedImage
+            .readAsBytes(); // Get image bytes
+        String fileName = compressedImage.path
+            .split("/")
+            .last; // Get the file name
 
         // Get MIME type of the file (e.g., image/jpeg, image/png)
         String? mimeType = lookupMimeType(compressedImage.path);
@@ -235,7 +235,9 @@ class AppDio {
               uint8list,
               filename: fileName,
               contentType: MediaType(
-                  mimeTypePrimary, mimeTypeSecondary), // Set correct MIME type
+                mimeTypePrimary,
+                mimeTypeSecondary,
+              ), // Set correct MIME type
             ),
           ),
         );
@@ -268,7 +270,7 @@ class AppDio {
     return File(result);
   }
 
-// Isolate function
+  // Isolate function
   void _compressImage(List<dynamic> args) {
     SendPort sendPort = args[0];
     String filePath = args[1];

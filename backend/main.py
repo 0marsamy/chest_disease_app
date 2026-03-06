@@ -5,9 +5,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import os
 import shutil
+import tempfile
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-import time # عشان timestamp الصورة
+import time  # عشان timestamp الصورة
+from gradio_client import Client, handle_file
+from fastapi.middleware.cors import CORSMiddleware
 
 # --- 1. إعدادات قاعدة البيانات ---
 SQLALCHEMY_DATABASE_URL = "sqlite:///./doctors.db"
@@ -25,12 +28,34 @@ class Doctor(Base):
     password = Column(String)
     phone = Column(String, nullable=True)
     gender = Column(String)
-    profileImage = Column(String) # مسار الصورة
+    profileImage = Column(String)  # مسار الصورة
+
+
+# جدول سجلات الأشعة (للتاريخ والواجهة)
+class ScanRecord(Base):
+    __tablename__ = "scan_records"
+    id = Column(Integer, primary_key=True, index=True)
+    imagePath = Column(String)
+    detectionClass = Column(String)
+    confidence = Column(String, default="0")
+    description = Column(String, nullable=True)
+    isReviewed = Column(String, default="false")
+    uploadDate = Column(String)
+
 
 # إنشاء الجدول لو مش موجود
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# سماح بالوصول من الموبايل وأي دومين (CORS)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # فولدر حفظ الصور
 UPLOAD_DIR = "uploads"
@@ -219,3 +244,156 @@ async def update_profile(
         }
     }
 }
+
+
+# --- 5. X-Ray / Chest Scan prediction (Hugging Face Space Ibrahim2002/xray_ai) ---
+HF_SPACE = "Ibrahim2002/xray_ai"
+API_NAME = "/predict"
+
+
+def _parse_label_result(result):
+    """Parse Gradio Label output: dict[str,float], or list containing it, or confidences list."""
+    prediction_str = "Unknown"
+    confidence = 0.0
+
+    # Unwrap if API returns a list (e.g. single output as [dict])
+    if isinstance(result, (list, tuple)) and len(result) > 0:
+        result = result[0]
+
+    if result is None:
+        return prediction_str, confidence
+
+    if isinstance(result, dict):
+        # Format 1: {"Covid": 0.1, "Lung Cancer": 0.2, "Normal": 0.6, "Pneumonia": 0.1}
+        items = []
+        for k, v in result.items():
+            if k in ("label", "confidences") or (isinstance(k, str) and k.startswith("_")):
+                continue
+            try:
+                items.append((str(k), float(v)))
+            except (TypeError, ValueError):
+                pass
+        if items:
+            top_class, top_prob = max(items, key=lambda x: x[1])
+            return top_class, round(top_prob * 100, 1)
+
+        # Format 2: {"label": "Covid", "confidences": [{"label": "Covid", "confidence": 0.85}, ...]}
+        if "label" in result and "confidences" in result:
+            pred = result.get("label")
+            conf_list = result.get("confidences") or []
+            for c in conf_list:
+                if isinstance(c, dict) and c.get("label") == pred:
+                    conf = c.get("confidence")
+                    if conf is not None:
+                        return str(pred), round(float(conf) * 100, 1)
+            # Fallback: use first confidence (top class)
+            if conf_list and isinstance(conf_list[0], dict):
+                c0 = conf_list[0]
+                return str(c0.get("label", pred)), round(float(c0.get("confidence", 0)) * 100, 1)
+            return str(pred), confidence
+
+        if "label" in result:
+            return str(result["label"]), confidence
+
+    if isinstance(result, str):
+        return result, confidence
+
+    return prediction_str, confidence
+
+
+@app.post("/api/ChestScan/upload")
+async def chest_scan_upload(
+    image: UploadFile = File(...),
+    Longitude: Optional[float] = Form(None),
+    Latitude: Optional[float] = Form(None),
+    db: Session = Depends(get_db),
+):
+    """Accepts X-ray image, calls Hugging Face Gradio Space, returns prediction and saves to history."""
+    if not image.filename:
+        raise HTTPException(status_code=400, detail="No image file provided")
+
+    suffix = os.path.splitext(image.filename)[1] or ".png"
+    image.file.seek(0)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        shutil.copyfileobj(image.file, tmp)
+        tmp_path = tmp.name
+
+    try:
+        client = Client(HF_SPACE)
+        result = client.predict(
+            image=handle_file(tmp_path),
+            api_name=API_NAME,
+        )
+        print(f"[ChestScan] HF Space raw result type={type(result).__name__!r} value={result!r}")
+
+        prediction_str, confidence = _parse_label_result(result)
+        description = f"Result from X-ray AI: {prediction_str} ({confidence}%)"
+
+        # Save image to uploads and store record for history
+        from datetime import datetime
+        ts = int(time.time())
+        saved_filename = f"scan_{ts}_{image.filename or 'image'}"
+        saved_path = f"{UPLOAD_DIR}/{saved_filename}"
+        shutil.copy(tmp_path, saved_path)
+
+        scan_record = ScanRecord(
+            imagePath=saved_path,
+            detectionClass=prediction_str,
+            confidence=str(confidence),
+            description=description,
+            isReviewed="false",
+            uploadDate=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+        )
+        db.add(scan_record)
+        db.commit()
+        db.refresh(scan_record)
+
+        return {
+            "prediction": prediction_str,
+            "confidence": confidence,
+            "description": description,
+            "heatmap_base64": None,
+            "imagePath": f"/{scan_record.imagePath}",
+            "id": scan_record.id,
+        }
+    except Exception as e:
+        print(f"[ChestScan] Error calling HF Space: {e!r}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except Exception:
+            pass
+
+
+@app.get("/MriScan")
+def get_scan_history(
+    pageIndex: int = 0,
+    pageSize: int = 10,
+    db: Session = Depends(get_db),
+):
+    """Returns paginated scan history for History and Recent History screens."""
+    from math import ceil
+    query = db.query(ScanRecord).order_by(ScanRecord.id.desc())
+    total = query.count()
+    total_pages = ceil(total / pageSize) if pageSize > 0 else 0
+    items = query.offset(pageIndex * pageSize).limit(pageSize).all()
+    data = [
+        {
+            "imagePath": f"/{r.imagePath}",
+            "detectionClass": r.detectionClass,
+            "isReviewed": r.isReviewed == "true",
+            "uploadDate": r.uploadDate,
+            "doctorReview": None,
+            "confidence": float(r.confidence) if r.confidence else 0,
+            "description": r.description or "",
+        }
+        for r in items
+    ]
+    return {
+        "pageIndex": pageIndex,
+        "pageSize": pageSize,
+        "count": len(data),
+        "totalPages": total_pages,
+        "data": data,
+    }

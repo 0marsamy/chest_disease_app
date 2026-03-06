@@ -48,12 +48,16 @@ class ChestPredictionModel {
   final String description;
   @JsonKey(name: 'heatmap_base64')
   final String? heatmapBase64;
+  final String? imagePath;
+  final int? id;
 
   const ChestPredictionModel({
     required this.prediction,
     required this.confidence,
     required this.description,
     this.heatmapBase64,
+    this.imagePath,
+    this.id,
   });
 
   factory ChestPredictionModel.fromJson(Map<String, dynamic> json) {
@@ -62,6 +66,8 @@ class ChestPredictionModel {
       confidence: (json['confidence'] as num).toDouble(),
       description: json['description'] as String,
       heatmapBase64: json['heatmap_base64'] as String?,
+      imagePath: json['imagePath'] as String?,
+      id: json['id'] as int?,
     );
   }
 
@@ -71,6 +77,8 @@ class ChestPredictionModel {
       'confidence': confidence,
       'description': description,
       'heatmap_base64': heatmapBase64,
+      'imagePath': imagePath,
+      'id': id,
     };
   }
 
@@ -81,6 +89,8 @@ class ChestPredictionModel {
       confidence: confidence,
       description: description,
       heatmapBase64: heatmapBase64,
+      imagePath: imagePath,
+      id: id,
     );
   }
 }

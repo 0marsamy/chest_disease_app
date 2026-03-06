@@ -1,7 +1,6 @@
-import 'dart:io'; // 1. استيراد IO
+import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart'; // 2. استيراد Dio
-import 'package:dio/io.dart'; // 3. استيراد Adapter
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/data/network_services/api_error_handler.dart';
@@ -18,20 +17,16 @@ class LoginRepository {
   Future<Either<ApiErrorModel, LoginResponseModel>> login(
       LoginRequestModel parameters) async {
     try {
-      // 1. إعداد Dio جديد خاص باللوجين
-      final dio = Dio();
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: AppUrls.baseUrl,
+          connectTimeout: const Duration(minutes: 2),
+          receiveTimeout: const Duration(minutes: 2),
+        ),
+      );
 
-      // 2. كود تجاوز شهادات الأمان (SSL Bypass) للسيرفر المحلي
-      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-        final client = HttpClient();
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return client;
-      };
-
-      // 3. إرسال الطلب للسيرفر المحلي مباشرة
       final response = await dio.post(
-        "http://10.0.2.2:8000/api/Auth/login", // الرابط المباشر
+        "${AppUrls.baseUrl}/api/Auth/login",
         data: {
           "email": parameters.email, 
           "password": parameters.password, 

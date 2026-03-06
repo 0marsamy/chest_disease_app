@@ -92,6 +92,8 @@ import '../../../features/reset_password/data/repo/reset_password_repository.dar
     as _i25;
 import '../../../features/reset_password/presentation/view_model/reset_password_cubit.dart'
     as _i545;
+import '../../../features/scan/data/remote/huggingface_scan_remote_data_source.dart'
+    as _i530;
 import '../../../features/scan/data/remote/upload_scan_remote_data_source.dart'
     as _i89;
 import '../../../features/scan/data/repo/upload_scan_repository_impl.dart'
@@ -171,6 +173,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i301.RegisterRemoteDataSource());
     gh.singleton<_i643.DoctorReportsRemoteDataSource>(
         () => _i643.DoctorReportsRemoteDataSource());
+    gh.singleton<_i530.HuggingFaceScanRemoteDataSource>(
+        () => _i530.HuggingFaceScanRemoteDataSource());
     gh.singleton<_i1013.ClinicsRemoteDataSource>(
         () => _i1013.ClinicsRemoteDataSource());
     gh.singleton<_i790.VerifyCodeRemoteDataSource>(
@@ -188,8 +192,6 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i727.DoctorAppointmentDataSource>()));
     gh.singleton<_i89.UploadScanRemoteDataSource>(
         () => _i89.UploadScanRemoteDataSource(gh<_i860.AppDio>()));
-    gh.lazySingleton<_i727.UploadScanRepository>(
-        () => _i597.UploadScanRepositoryImpl());
     gh.factory<_i844.VerificationCodeCubit>(() => _i844.VerificationCodeCubit(
         repository: gh<_i487.VerifyCodeRepository>()));
     gh.factory<_i25.ResetPasswordRepository>(() =>
@@ -238,6 +240,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i355.ClinicManagementRepository>(() =>
         _i355.ClinicManagementRepository(
             remoteDataSource: gh<_i127.ClinicManagementRemoteDataSource>()));
+    gh.lazySingleton<_i727.UploadScanRepository>(() =>
+        _i597.UploadScanRepositoryImpl(gh<_i89.UploadScanRemoteDataSource>()));
     gh.factory<_i7.NotificationCubit>(() => _i7.NotificationCubit(
         notificationRepository: gh<_i577.NotificationRepository>()));
     gh.factory<_i300.MedicalHistoryRepository>(() =>

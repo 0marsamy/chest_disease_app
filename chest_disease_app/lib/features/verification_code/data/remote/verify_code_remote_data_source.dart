@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
@@ -8,22 +7,20 @@ import '../models/verification_code_model.dart';
 @singleton
 class VerifyCodeRemoteDataSource {
   Dio _getDio() {
-    final dio = Dio();
-    // This is insecure; only use for local development.
-    (dio.httpClientAdapter as dynamic).onHttpClientCreate =
-        (HttpClient client) {
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-      return client;
-    };
-    return dio;
+    return Dio(
+      BaseOptions(
+        baseUrl: AppUrls.baseUrl,
+        connectTimeout: const Duration(minutes: 2),
+        receiveTimeout: const Duration(minutes: 2),
+      ),
+    );
   }
 
   Future<String> verifyCode(VerificationCodeRequestModel body) async {
     final dio = _getDio();
     try {
       final response = await dio.post(
-        "http://10.0.2.2:8000/api/Auth/verify",
+        "${AppUrls.baseUrl}/api/Auth/verify",
         data: body.toJson(),
         options: Options(
           headers: {
@@ -47,7 +44,7 @@ class VerifyCodeRemoteDataSource {
     final dio = _getDio();
     try {
       final response = await dio.post(
-        'http://10.0.2.2:8000/api/Account/VerifyForgetCode',
+        '${AppUrls.baseUrl}/api/Account/VerifyForgetCode',
         data: body.toJson(),
         options: Options(
           headers: {
