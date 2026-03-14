@@ -8,6 +8,7 @@ import 'package:chest_disease_app/core/utils/theme/colors/app_colors.dart';
 import 'package:chest_disease_app/core/utils/theme/text_styles/app_text_styles.dart';
 import 'package:chest_disease_app/features/profle/presentation/view_model/settings_cubit.dart';
 import 'package:chest_disease_app/foundations/app_constants.dart';
+import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:chest_disease_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -140,9 +141,10 @@ class _ProfilePageState extends State<ProfilePage> {
     // ✅ تجهيز رابط الصورة الصحيح
     String? imageUrl;
     if (AppConstants.user?.profilePicture != null) {
-      // 1. إضافة رابط السيرفر (استخدم IP جهازك على الشبكة)
-      // 2. استبدال الشرطة المائلة العكسية بالعادية
-      imageUrl = "http://192.168.1.4:8000/${AppConstants.user!.profilePicture!.replaceAll(r'\', '/')}";
+      final normalized = AppConstants.user!.profilePicture!.replaceAll(r'\', '/');
+      final base = AppUrls.baseUrl.endsWith('/') ? AppUrls.baseUrl.substring(0, AppUrls.baseUrl.length - 1) : AppUrls.baseUrl;
+      final path = normalized.startsWith('/') ? normalized : '/$normalized';
+      imageUrl = '$base$path';
     }
 
     return Container(

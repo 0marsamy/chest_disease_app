@@ -11,6 +11,8 @@ import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'package:chest_disease_app/foundations/app_urls.dart';
+
 import 'dio_service.dart';
 
 import 'package:injectable/injectable.dart';
@@ -27,7 +29,7 @@ class AppDio {
   Future<void> downloadFile(String url, String filename) async {
     final dio = Dio(
       BaseOptions(
-        baseUrl: "http://192.168.1.4:8000",
+        baseUrl: AppUrls.baseUrl,
         connectTimeout: const Duration(minutes: 2),
         receiveTimeout: const Duration(minutes: 2),
       ),

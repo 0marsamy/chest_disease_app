@@ -1,6 +1,6 @@
 class AppUrls {
   /// Use 10.0.2.2:8000 for Android emulator; use your PC's IP (e.g. 192.168.1.4:8000) for physical phone (same WiFi).
-  static const String baseUrl = "http://192.168.1.4:8000";
+  static const String baseUrl = "https://ibrahim2002-backend.hf.space";
 
   //Auth
   static const String login = "Auth/login";
