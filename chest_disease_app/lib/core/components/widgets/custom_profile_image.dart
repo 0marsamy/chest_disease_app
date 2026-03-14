@@ -1,5 +1,6 @@
-import 'package:chest_disease_app/core/utils/extenstions/responsive_design_extenstions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chest_disease_app/core/utils/extenstions/responsive_design_extenstions.dart';
+import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -24,9 +25,27 @@ class _CustomProfileImageState extends State<CustomProfileImage> {
   }
 
   Widget _buildImage() {
-    final isSvg = (widget.imageUrl?.toLowerCase().endsWith('.svg')) ?? false;
+    if (widget.imageUrl == null || widget.imageUrl!.isEmpty) {
+      return _buildePlaceHolder();
+    }
+
+    // Support both absolute URLs and backend-relative paths
+    final raw = widget.imageUrl!;
+    String resolvedUrl;
+    if (raw.startsWith('http')) {
+      resolvedUrl = raw;
+    } else {
+      final base = AppUrls.baseUrl.endsWith('/')
+          ? AppUrls.baseUrl.substring(0, AppUrls.baseUrl.length - 1)
+          : AppUrls.baseUrl;
+      final path = raw.startsWith('/') ? raw : '/$raw';
+      resolvedUrl = '$base$path';
+    }
+
+    final isSvg = resolvedUrl.toLowerCase().endsWith('.svg');
     final size = widget.size ?? (isSvg ? 38 : 18.r);
-    final finalImageUrl = "${widget.imageUrl}?t=${DateTime.now().millisecondsSinceEpoch}";
+    final finalImageUrl =
+        "$resolvedUrl?t=${DateTime.now().millisecondsSinceEpoch}";
 
     if (isSvg) {
       return CircleAvatar(

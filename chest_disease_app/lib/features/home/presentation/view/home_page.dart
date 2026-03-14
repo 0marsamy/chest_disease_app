@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chest_disease_app/core/components/cubits/navigation_cubit/navigation_cubit.dart';
 import 'package:chest_disease_app/core/config/app_routing.dart';
 import 'package:chest_disease_app/core/services/service_locator/service_locator.dart';
@@ -234,25 +236,48 @@ class _RecentHistory extends StatefulWidget {
 class _RecentHistoryState extends State<_RecentHistory> {
   List<DetectionItem> _items = [];
   bool _loading = true;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _load(showLoader: true);
+    // Refresh recent history periodically while on the home screen
+    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
+      _load();
+    });
   }
 
-  Future<void> _load() async {
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _load({bool showLoader = false}) async {
+    if (!mounted) return;
+    if (showLoader) {
+      setState(() {
+        _loading = true;
+      });
+    }
     final repo = getIt<MedicalHistoryRepository>();
     final result = await repo.getPatientScans(DetectionRequest(pageIndex: 0, pageSize: 3));
     result.fold(
-      (_) => setState(() {
-        _loading = false;
-        _items = [];
-      }),
-      (response) => setState(() {
-        _loading = false;
-        _items = response.data;
-      }),
+      (_) {
+        if (!mounted) return;
+        setState(() {
+          if (showLoader) _loading = false;
+          _items = [];
+        });
+      },
+      (response) {
+        if (!mounted) return;
+        setState(() {
+          if (showLoader) _loading = false;
+          _items = response.data;
+        });
+      },
     );
   }
 

@@ -71,10 +71,18 @@ class DioService {
     String? customBaseUrl, // Add this parameter for custom base URL
   }) async {
     try {
-      final String url = customBaseUrl != null ? '$customBaseUrl$path' : path;
+      // When using the shared Dio instance with a baseUrl, `path` must start
+      // with a leading slash, otherwise Dio will concatenate it directly to
+      // the host (e.g. `...hf.spacemriscan`). This normalizes the path.
+      final String normalizedPath =
+          path.startsWith('/') ? path : '/$path';
+
+      final String url = customBaseUrl != null
+          ? '$customBaseUrl$path'
+          : normalizedPath;
 
       final response = await _dio.request(
-        url, // Use full URL if customBaseUrl is provided
+        url,
         data: data,
         queryParameters: queryParams,
         options: Options(
