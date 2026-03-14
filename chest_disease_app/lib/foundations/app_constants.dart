@@ -24,6 +24,13 @@ class AppConstants {
   static String accessToken = '';
   static User? user;
   static String? location;
+
+  /// API key for Gemiai / Gemini (used by the in-app medical chatbot)
+  ///
+  /// NOTE: Hard-coding keys in source is not secure for production.
+  /// Replace this value with a secure storage approach before releasing.
+  static const String gemiaiApiKey = 'AIzaSyAfYXRtlOMiZYuaVJVpQyUN-PkucA6O8fc';
+
   static bool langCode = true;
   static LatLng? currentLocation;
 
@@ -33,20 +40,25 @@ class AppConstants {
 
   static setToken(String token) async {
     await AppCacheHelper.setSecuredString(
-        key: AppCacheHelper.tokenKey, value: token);
+      key: AppCacheHelper.tokenKey,
+      value: token,
+    );
     accessToken = token;
   }
 
   static setLanguage(bool language) async {
     await AppCacheHelper.setSecuredString(
-        key: AppCacheHelper.language, value: language.toString());
+      key: AppCacheHelper.language,
+      value: language.toString(),
+    );
     langCode = language;
   }
 
   static Future<bool> getLanguage() async {
     // Try to get cached language
-    String? cachedLang =
-        await AppCacheHelper.getSecuredString(key: AppCacheHelper.language);
+    String? cachedLang = await AppCacheHelper.getSecuredString(
+      key: AppCacheHelper.language,
+    );
     print("Get Language From Cache: $cachedLang");
     if (cachedLang == null || cachedLang.isEmpty) {
       // If not found, get system language
@@ -64,7 +76,9 @@ class AppConstants {
   static setOnBoardingBoolean(bool value) async {
     print("setting boolean value ${value.toString()}");
     await AppCacheHelper.setSecuredString(
-        key: AppCacheHelper.onBoardingKey, value: value.toString());
+      key: AppCacheHelper.onBoardingKey,
+      value: value.toString(),
+    );
     onBoarding = value;
   }
 
@@ -138,7 +152,9 @@ class AppConstants {
 
   static setBiometricToken(String token) async {
     await AppCacheHelper.setSecuredString(
-        key: AppCacheHelper.biometricTokenKey, value: token);
+      key: AppCacheHelper.biometricTokenKey,
+      value: token,
+    );
     accessToken = token;
   }
 
@@ -150,27 +166,12 @@ class AppConstants {
   }
 
   static List<Map<int, String>> days = [
-    {
-      0: S.of(AppConstants.context).sunday,
-    },
-    {
-      1: S.of(AppConstants.context).monday,
-    },
-    {
-      2: S.of(AppConstants.context).tuesday,
-    },
-    {
-      3: S.of(AppConstants.context).wednesday,
-    },
-    {
-      4: S.of(AppConstants.context).thursday,
-    },
-    {
-      5: S.of(AppConstants.context).friday,
-    },
-    {
-      6: S.of(AppConstants.context).saturday,
-    }
+    {0: S.of(AppConstants.context).sunday},
+    {1: S.of(AppConstants.context).monday},
+    {2: S.of(AppConstants.context).tuesday},
+    {3: S.of(AppConstants.context).wednesday},
+    {4: S.of(AppConstants.context).thursday},
+    {5: S.of(AppConstants.context).friday},
+    {6: S.of(AppConstants.context).saturday},
   ];
 }
-

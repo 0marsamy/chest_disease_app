@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chest_disease_app/core/data/network_services/gemiai_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,10 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
+
+  // Gemiai (Gemini) chatbot service used to generate replies.
+  final GemiaiService _gemiaiService = GemiaiService();
+  bool _isSending = false;
 
   File? _attachedFile;
   String? _attachedFileName;
@@ -49,23 +54,28 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
     });
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty && _attachedFile == null) return;
+
+    // Capture file before clearing (needed for image analysis)
+    final fileToSend = _attachedFile;
+    final attachmentName = _attachedFileName;
 
     setState(() {
       _messages.insert(0, {
         "sender": "user",
-        "text": text.isEmpty ? "[Attachment]" : text,
-        if (_attachedFileName != null) "attachment": _attachedFileName,
+        "text": text.isEmpty ? (attachmentName ?? "[Image]") : text,
+        if (attachmentName != null) "attachment": attachmentName,
       });
+      _isSending = true;
     });
 
     _controller.clear();
     _attachedFile = null;
     _attachedFileName = null;
 
-    // Scroll to the bottom
+    // Scroll to the bottom quickly so user sees their message.
     Timer(const Duration(milliseconds: 100), () {
       _scrollController.animateTo(
         0.0,
@@ -74,23 +84,34 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
       );
     });
 
-    // Simulate bot response
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _messages.insert(0, {
-          "sender": "bot",
-          "text":
-              "Thanks for your message. While this in-app assistant is a demo and doesn't analyze images on-device, "
-              "you can describe the findings or symptoms and I’ll help with general guidance.",
-        });
-      });
-      Timer(const Duration(milliseconds: 100), () {
-        _scrollController.animateTo(
-          0.0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      });
+    final prompt = text.isEmpty
+        ? "Please analyze this medical/X-ray image and describe what you see. If it's an X-ray, note any findings, abnormalities, or areas of concern."
+        : text;
+
+    String botReply;
+    try {
+      botReply = await _gemiaiService.generateText(prompt, imageFile: fileToSend);
+    } catch (e, st) {
+      // Include error details for easier troubleshooting.
+      final errorMessage = e.toString();
+      debugPrint('GemiaiService error: $errorMessage');
+      debugPrintStack(label: 'GemiaiService stacktrace', stackTrace: st);
+
+      botReply =
+          "Sorry, I couldn't reach the AI service.\nError: $errorMessage";
+    }
+
+    setState(() {
+      _messages.insert(0, {"sender": "bot", "text": botReply});
+      _isSending = false;
+    });
+
+    Timer(const Duration(milliseconds: 100), () {
+      _scrollController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     });
   }
 
@@ -152,8 +173,10 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 6),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(16),
@@ -184,8 +207,7 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.attach_file,
-                      color: Color(0xFF007AFF)),
+                  icon: const Icon(Icons.attach_file, color: Color(0xFF007AFF)),
                   onPressed: _pickAttachment,
                 ),
                 Expanded(
@@ -201,16 +223,35 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
                         borderSide: BorderSide.none,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                     ),
                     onSubmitted: (value) => _sendMessage(),
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Color(0xFF007AFF)),
-                  onPressed: _sendMessage,
-                ),
+                _isSending
+                    ? const SizedBox(
+                        height: 36,
+                        width: 36,
+                        child: Center(
+                          child: SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.2,
+                              valueColor: AlwaysStoppedAnimation(
+                                Color(0xFF007AFF),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.send, color: Color(0xFF007AFF)),
+                        onPressed: _sendMessage,
+                      ),
               ],
             ),
           ],
@@ -250,15 +291,18 @@ class _ChatBubble extends StatelessWidget {
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
-            bottomLeft:
-                isUser ? const Radius.circular(20) : const Radius.circular(0),
-            bottomRight:
-                isUser ? const Radius.circular(0) : const Radius.circular(20),
+            bottomLeft: isUser
+                ? const Radius.circular(20)
+                : const Radius.circular(0),
+            bottomRight: isUser
+                ? const Radius.circular(0)
+                : const Radius.circular(20),
           ),
         ),
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (attachmentName != null) ...[
