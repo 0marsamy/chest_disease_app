@@ -38,8 +38,16 @@ class ServerFailure extends Failure {
 
   factory ServerFailure.fromResponse(int? statusCode, dynamic response) {
     if (statusCode == 400 || statusCode == 401 || statusCode == 403) {
-      // Assuming the error response has a 'message' key
-      return ServerFailure(response['error']['message'] ?? 'Authentication Error');
+      // invalid_image from ChestScan/upload OOD validation
+      if (response is Map && response['status'] == 'invalid_image') {
+        return ServerFailure(
+          (response['message'] as String?) ?? 'Please upload a valid chest X-ray image.',
+        );
+      }
+      final msg = response is Map
+          ? (response['error']?['message'] ?? response['message']) as String?
+          : null;
+      return ServerFailure(msg ?? 'Authentication Error');
     } else if (statusCode == 404) {
       return const ServerFailure('Your request not found, please try later.');
     } else if (statusCode == 500) {

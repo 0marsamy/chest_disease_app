@@ -29,7 +29,7 @@ class AppConstants {
   ///
   /// NOTE: Hard-coding keys in source is not secure for production.
   /// Replace this value with a secure storage approach before releasing.
-  static const String gemiaiApiKey = 'AIzaSyAfYXRtlOMiZYuaVJVpQyUN-PkucA6O8fc';
+  static const String gemiaiApiKey = 'AIzaSyDit_UdKFWWdMAMx4DFPwVX-vr_g6-0q74';
 
   static bool langCode = true;
   static LatLng? currentLocation;

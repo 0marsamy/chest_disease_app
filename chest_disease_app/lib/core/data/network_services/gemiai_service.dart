@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:chest_disease_app/core/data/network_services/api_service.dart';
 import 'package:chest_disease_app/foundations/app_constants.dart';
 
 /// Wrapper for the Google Gemini generative text API.
@@ -13,9 +13,9 @@ import 'package:chest_disease_app/foundations/app_constants.dart';
 class GemiaiService {
   GemiaiService();
 
-  /// Restored to gemini-2.5-flash (was working). Keeps fixed parsing.
+  /// gemini-1.5-flash deprecated; use gemini-2.5-flash.
   static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
   /// Extracts plain text from various Gemini response shapes.
   /// Returns null if parsing fails (avoids showing raw JSON to users).
@@ -99,15 +99,18 @@ class GemiaiService {
     }
 
     try {
-      final response = await AppDio().sendRequestWithCustomBaseUrl(
-        method: 'POST',
-        fullUrl: url,
-        data: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-Goog-Api-Key': AppConstants.gemiaiApiKey,
-        },
+      // Use plain Dio as per Gemini API docs – key in URL, body as Map
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ));
+      final response = await dio.post(
+        url,
+        data: body,
+        options: Options(
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
       );
 
       final status = response.statusCode ?? 0;
@@ -115,7 +118,6 @@ class GemiaiService {
 
       if (kDebugMode) {
         debugPrint('GemiaiService: status=$status');
-        debugPrint('GemiaiService: response type=${data.runtimeType}');
         if (data is Map) {
           debugPrint('GemiaiService: keys=${data.keys.toList()}');
         }
@@ -126,15 +128,28 @@ class GemiaiService {
         if (text != null && text.isNotEmpty) {
           return text.trim();
         }
-        // Parsing failed – do NOT return raw JSON
-        debugPrint('GemiaiService: failed to extract text from response');
-        debugPrint('GemiaiService: raw response=$data');
+        debugPrint('GemiaiService: failed to extract text, raw=$data');
         return "I received a response I couldn't parse. Please try again.";
       }
 
       final errorDetail = data is Map ? (data['error'] ?? data) : data;
+      throw Exception('Gemini API error ($status): $errorDetail');
+    } on DioException catch (e, st) {
+      final status = e.response?.statusCode;
+      final errData = e.response?.data;
+      debugPrint('GemiaiService DioException: status=$status, body=$errData');
+      debugPrintStack(label: 'GemiaiService', stackTrace: st);
+
+      if (status == 429) {
+        throw Exception(
+          'Rate limit reached. Please try again in a minute. '
+          'If you\'re on the free tier, you may have hit the daily limit—try again tomorrow.',
+        );
+      }
       throw Exception(
-        'Gemini API error ($status): $errorDetail',
+        status != null
+            ? 'Gemini API error ($status): ${errData ?? e.message}'
+            : 'Network error: ${e.message}',
       );
     } on Exception catch (e, st) {
       debugPrint('GemiaiService error: $e');

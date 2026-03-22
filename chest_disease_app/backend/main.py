@@ -1,10 +1,21 @@
-from fastapi import FastAPI, File, UploadFile, Form, Depends, HTTPException
-from typing import Optional
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+import logging
 import os
 import shutil
+import tempfile
+import time
+from datetime import datetime
+from typing import Optional
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, sessionmaker
+
+from xray_services import classify_xray, validate_xray
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # --- 1. إعدادات قاعدة البيانات (ملف بسيط اسمه doctors.db) ---
 SQLALCHEMY_DATABASE_URL = "sqlite:///./doctors.db"
@@ -22,9 +33,20 @@ class Doctor(Base):
     password = Column(String)
     phone = Column(String, nullable=True)
     gender = Column(String)
-    profileImage = Column(String) # مسار الصورة
+    profileImage = Column(String)
 
-# إنشاء الجدول لو مش موجود
+
+class Scan(Base):
+    __tablename__ = "scans"
+    id = Column(Integer, primary_key=True, index=True)
+    imagePath = Column(String)
+    detectionClass = Column(String)
+    confidence = Column(Float)
+    description = Column(String)
+    isReviewed = Column(Boolean, default=False)
+    uploadDate = Column(DateTime, default=datetime.utcnow)
+
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -122,11 +144,127 @@ async def login(
             "fullName": doctor.fullName,
             "userName": doctor.userName,
             "email": doctor.email,
-            "dateOfBirth": None,  # Add this field
+            "dateOfBirth": None,
             "role": "Doctor",
             "gender": doctor.gender,
-            "latitude": None,     # Add this field
-            "longitude": None,    # Add this field
-            "age": None           # Add this field
+            "latitude": None,
+            "longitude": None,
+            "age": None,
         }
+    }
+
+
+# --- 4. Chest Scan Upload (with OOD validation) ---
+@app.post("/api/ChestScan/upload")
+async def chest_scan_upload(
+    image: UploadFile = File(...),
+    Longitude: Optional[float] = Form(None),
+    Latitude: Optional[float] = Form(None),
+    db: Session = Depends(get_db),
+):
+    """
+    Upload chest X-ray for classification.
+    1. Validate via OOD model (X-ray vs Not X-ray).
+    2. If valid, run main classification and save to DB.
+    """
+    suffix = os.path.splitext(image.filename or "")[1] or ".png"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        content = await image.read()
+        tmp.write(content)
+        tmp_path = tmp.name
+
+    try:
+        # Step 1: OOD validation
+        try:
+            is_valid_xray = validate_xray(tmp_path)
+        except Exception as e:
+            logger.exception("OOD API failed: %s", e)
+            raise HTTPException(
+                status_code=500,
+                detail="OOD validation service failed. Please try again later.",
+            ) from e
+
+        if not is_valid_xray:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "status": "invalid_image",
+                    "message": "Please upload a valid chest X-ray image.",
+                },
+            )
+
+        # Step 2: Main classification
+        try:
+            result = classify_xray(tmp_path)
+        except Exception as e:
+            logger.exception("Main classification model failed: %s", e)
+            raise HTTPException(
+                status_code=500,
+                detail="Classification service failed. Please try again later.",
+            ) from e
+
+        # Step 3: Save image and record to DB
+        timestamp = int(time.time())
+        safe_name = f"scan_{timestamp}_{(image.filename or 'image')}".replace(" ", "_")
+        save_path = os.path.join(UPLOAD_DIR, safe_name)
+        shutil.copy(tmp_path, save_path)
+        rel_path = f"/{UPLOAD_DIR}/{safe_name}".replace("//", "/")
+
+        scan = Scan(
+            imagePath=rel_path,
+            detectionClass=result["prediction"],
+            confidence=result["confidence"],
+            description=result["description"],
+        )
+        db.add(scan)
+        db.commit()
+        db.refresh(scan)
+
+        return {
+            "prediction": result["prediction"],
+            "confidence": result["confidence"],
+            "description": result["description"],
+            "heatmap_base64": result.get("heatmap_base64"),
+            "imagePath": rel_path,
+            "id": scan.id,
+        }
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+
+
+# --- 5. Get scan history (MriScan) ---
+@app.get("/MriScan")
+async def get_scans(
+    pageIndex: int = 0,
+    pageSize: int = 10,
+    db: Session = Depends(get_db),
+):
+    """Paginated scan history for History / Recent History screens."""
+    total = db.query(Scan).count()
+    offset = pageIndex * pageSize
+    rows = db.query(Scan).order_by(Scan.uploadDate.desc()).offset(offset).limit(pageSize).all()
+    total_pages = (total + pageSize - 1) // pageSize if pageSize > 0 else 0
+
+    data = [
+        {
+            "imagePath": r.imagePath,
+            "detectionClass": r.detectionClass,
+            "isReviewed": r.isReviewed or False,
+            "uploadDate": r.uploadDate.isoformat() + "Z" if r.uploadDate else datetime.utcnow().isoformat() + "Z",
+            "doctorReview": None,
+            "confidence": r.confidence,
+            "description": r.description,
+        }
+        for r in rows
+    ]
+
+    return {
+        "pageIndex": pageIndex,
+        "pageSize": pageSize,
+        "count": total,
+        "totalPages": total_pages,
+        "data": data,
     }

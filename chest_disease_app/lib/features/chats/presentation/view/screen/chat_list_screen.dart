@@ -97,8 +97,11 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
       debugPrint('GemiaiService error: $errorMessage');
       debugPrintStack(label: 'GemiaiService stacktrace', stackTrace: st);
 
-      botReply =
-          "Sorry, I couldn't reach the AI service.\nError: $errorMessage";
+      final msg = errorMessage.contains('Rate limit')
+          ? 'Rate limit reached. Please try again in a minute. '
+            'If you\'re on the free tier, you may have hit the daily limit—try again tomorrow.'
+          : "Sorry, I couldn't reach the AI service.\n$errorMessage";
+      botReply = msg;
     }
 
     setState(() {
