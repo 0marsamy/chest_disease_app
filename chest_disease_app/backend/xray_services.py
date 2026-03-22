@@ -3,49 +3,52 @@ Chest X-ray OOD validation and classification services.
 Calls Hugging Face Spaces for OOD detection and main classification.
 """
 
-import base64
 import logging
 import os
+import time
 from typing import Any
 
-import httpx
+from gradio_client import Client
 
 logger = logging.getLogger(__name__)
 
 # Configurable via environment variable
 OOD_THRESHOLD = float(os.getenv("OOD_XRAY_THRESHOLD", "0.8"))
-OOD_API_URL = "https://ibrahim2002-xray-ood-detector.hf.space/run/predict"
-MAIN_API_URL = "https://ibrahim2002-xray-ai.hf.space/run/predict"
-
+OOD_CLIENT = Client("Ibrahim2002/xray-ood-detector")
+MAIN_CLIENT = Client("Ibrahim2002/xray_ai")
 REQUEST_TIMEOUT = 120.0
+RATE_LIMIT_DELAY = 1.0  # seconds between calls
+RETRY_DELAY = 2.0  # seconds before retry
 
 
-def _image_to_base64_data_url(image_path: str, mime: str = "image/jpeg") -> str:
-    """Read image file and return as base64 data URL."""
-    with open(image_path, "rb") as f:
-        raw = f.read()
-    b64 = base64.b64encode(raw).decode("utf-8")
-    return f"data:{mime};base64,{b64}"
-
-
-def _call_gradio_predict(api_url: str, image_path: str, label: str) -> dict[str, Any]:
+def _call_gradio_with_retry(client: Client, image_path: str, label: str) -> dict[str, Any]:
     """
-    Call a Gradio /run/predict endpoint with an image.
+    Call a Gradio client with retry logic for rate limiting.
     Returns the raw JSON response. Raises on failure.
     """
-    ext = os.path.splitext(image_path)[1].lower()
-    mime = "image/png" if ext == ".png" else "image/jpeg"
-    data_url = _image_to_base64_data_url(image_path, mime)
-
-    payload = {"data": [data_url]}
-    logger.info("%s: POST %s", label, api_url)
-
-    with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
-        resp = client.post(api_url, json=payload)
-        resp.raise_for_status()
-        data = resp.json()
-        logger.info("%s response: %s", label, data)
-        return data
+    max_retries = 1
+    
+    for attempt in range(max_retries + 1):
+        try:
+            logger.info("%s: Calling Gradio API (attempt %d)", label, attempt + 1)
+            
+            # Predict using gradio_client
+            result = client.predict(
+                image_path,  # image input
+                api_name="/predict"
+            )
+            
+            logger.info("%s response: %s", label, result)
+            return {"data": [result]}
+            
+        except Exception as e:
+            if "Too many requests" in str(e).lower() and attempt < max_retries:
+                logger.warning("%s: Rate limited, retrying in %d seconds...", label, RETRY_DELAY)
+                time.sleep(RETRY_DELAY)
+                continue
+            else:
+                logger.error("%s: API call failed: %s", label, e)
+                raise
 
 
 def validate_xray(image_path: str, threshold: float | None = None) -> bool:
@@ -54,7 +57,7 @@ def validate_xray(image_path: str, threshold: float | None = None) -> bool:
     Returns True if "X-ray" confidence >= threshold, else False.
     """
     thresh = threshold if threshold is not None else OOD_THRESHOLD
-    data = _call_gradio_predict(OOD_API_URL, image_path, "OOD")
+    data = _call_gradio_with_retry(OOD_CLIENT, image_path, "OOD")
 
     if "data" not in data or not data["data"]:
         logger.error("OOD API returned unexpected format: %s", data)
@@ -77,7 +80,10 @@ def classify_xray(image_path: str) -> dict[str, Any]:
     Call the main classification model. Returns dict with:
     prediction, confidence, description (and optionally heatmap_base64).
     """
-    data = _call_gradio_predict(MAIN_API_URL, image_path, "Main model")
+    # Add rate limiting delay
+    time.sleep(RATE_LIMIT_DELAY)
+    
+    data = _call_gradio_with_retry(MAIN_CLIENT, image_path, "Main model")
 
     if "data" not in data or not data["data"]:
         logger.error("Main model returned unexpected format: %s", data)
