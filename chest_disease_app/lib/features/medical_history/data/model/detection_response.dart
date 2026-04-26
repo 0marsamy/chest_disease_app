@@ -50,11 +50,15 @@ class DetectionItem {
       imagePath: json['imagePath'] as String? ?? '',
       detectionClass: json['detectionClass'] as String? ?? '',
       isReviewed: json['isReviewed'] == true,
-      uploadDate: DateTime.tryParse(json['uploadDate']?.toString() ?? '') ?? DateTime.now(),
+      uploadDate:
+          DateTime.tryParse(json['uploadDate']?.toString() ?? '')?.toLocal() ??
+          DateTime.now(),
       doctorReview: json['doctorReview'] != null
           ? DoctorReview.fromJson(json['doctorReview'] as Map<String, dynamic>)
           : null,
-      confidence: json['confidence'] != null ? (json['confidence'] as num).toDouble() : null,
+      confidence: json['confidence'] != null
+          ? (json['confidence'] as num).toDouble()
+          : null,
       description: json['description'] as String?,
     );
   }
@@ -103,9 +107,6 @@ class DetectionRequest {
   DetectionRequest({required this.pageIndex, required this.pageSize});
 
   Map<String, dynamic> toJson() {
-    return {
-      'pageIndex': pageIndex,
-      'pageSize': pageSize,
-    };
+    return {'pageIndex': pageIndex, 'pageSize': pageSize};
   }
 }

@@ -2,6 +2,7 @@ import 'package:chest_disease_app/features/scan/data/models/upload_scan_model.da
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/data/network_services/api_service.dart';
+import '../../../../foundations/app_urls.dart';
 
 @singleton
 class UploadScanRemoteDataSource {
@@ -10,14 +11,12 @@ class UploadScanRemoteDataSource {
   UploadScanRemoteDataSource(this._dio);
 
   Future<ChestPredictionModel> uploadScan(
-      UploadScanRequestModel requestModel) async {
+    UploadScanRequestModel requestModel,
+  ) async {
     // The 'toFormData' method in UploadScanRequestModel already sets the 'image' key
     final formData = await requestModel.toFormData();
 
-    final response = await _dio.post(
-      path: '/api/ChestScan/upload',
-      data: formData,
-    );
+    final response = await _dio.post(path: AppUrls.uploadScan, data: formData);
 
     // Parse the response using the new model's fromJson factory
     return ChestPredictionModel.fromJson(response.data);

@@ -49,6 +49,27 @@ def _call_gradio_with_retry(client_name: str, image_path: str, label: str) -> di
                 api_name="/predict"
             )
             
+            # === TEMPORARY DEBUG LOGS ===
+            print(f"\n=== DEBUG: RAW OOD API RESPONSE ===")
+            print(f"Result type: {type(result)}")
+            print(f"Result content: {result}")
+            print(f"Result dir(): {dir(result)}")
+            
+            # Check if it has data attribute
+            if hasattr(result, 'data'):
+                print(f"Result.data: {result.data}")
+            if isinstance(result, dict):
+                print(f"Result keys: {list(result.keys())}")
+                if 'data' in result:
+                    print(f"Result['data']: {result['data']}")
+                    if result['data']:
+                        print(f"Result['data'][0]: {result['data'][0]}")
+                        print(f"Result['data'][0] type: {type(result['data'][0])}")
+                        if isinstance(result['data'][0], dict):
+                            print(f"Result['data'][0] keys: {list(result['data'][0].keys())}")
+            print(f"=== END DEBUG RAW RESPONSE ===\n")
+            # === END TEMPORARY DEBUG LOGS ===
+            
             logger.info("%s: Successfully got response on attempt %d", label, attempt + 1)
             logger.debug("%s response: %s", label, result)
             return {"data": [result]}
@@ -93,17 +114,38 @@ def validate_xray(image_path: str, threshold: float | None = None) -> bool:
     try:
         data = _call_gradio_with_retry(OOD_CLIENT_NAME, image_path, "OOD Validation")
         
+        # === TEMPORARY DEBUG LOGS ===
+        print(f"\n=== DEBUG: VALIDATE_XRAY PARSING ===")
+        print(f"Received data: {data}")
+        print(f"Data type: {type(data)}")
+        # === END TEMPORARY DEBUG LOGS ===
+        
         if "data" not in data or not data["data"]:
             logger.error("OOD API returned unexpected format: %s", data)
             raise ValueError("OOD API returned unexpected response format")
         
         first = data["data"][0]
+        
+        # === TEMPORARY DEBUG LOGS ===
+        print(f"First item: {first}")
+        print(f"First item type: {type(first)}")
+        # === END TEMPORARY DEBUG LOGS ===
+        
         if not isinstance(first, dict):
             logger.error("OOD API data[0] is not a dict: %s", first)
             raise ValueError("OOD API returned unexpected response format")
         
         xray_conf = float(first.get("X-ray", 0))
         not_xray_conf = float(first.get("Not X-ray", 0))
+        
+        # === TEMPORARY DEBUG LOGS ===
+        print(f"xray_conf: {xray_conf} (type: {type(xray_conf)})")
+        print(f"not_xray_conf: {not_xray_conf} (type: {type(not_xray_conf)})")
+        print(f"threshold: {thresh}")
+        print(f"xray_conf >= thresh: {xray_conf >= thresh}")
+        print(f"Final is_valid: {xray_conf >= thresh}")
+        print(f"=== END DEBUG PARSING ===\n")
+        # === END TEMPORARY DEBUG LOGS ===
         
         logger.info(
             "OOD validation result - X-ray: %.2f%%, Not X-ray: %.2f%%, Threshold: %.2f",
@@ -112,6 +154,12 @@ def validate_xray(image_path: str, threshold: float | None = None) -> bool:
         
         is_valid = xray_conf >= thresh
         logger.info("OOD validation %s", "PASSED" if is_valid else "FAILED")
+        
+        # === TEMPORARY DEBUG LOGS ===
+        print(f"=== DEBUG: FINAL DECISION ===")
+        print(f"RETURNING from validate_xray(): {is_valid}")
+        print(f"=== END FINAL DECISION ===\n")
+        # === END TEMPORARY DEBUG LOGS ===
         
         return is_valid
         

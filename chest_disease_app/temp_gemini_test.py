@@ -1,6 +1,6 @@
 ﻿import urllib.request, json, urllib.error
 
-url = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyAfYXRtlOMiZYuaVJVpQyUN-PkucA6O8fc'
+url = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyCLmFrKYM4Vsj6b81ofgaug6ZRompe2rCM'
 
 candidates = [
     ('text', {'parts':['Hello there']}),

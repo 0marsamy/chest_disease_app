@@ -2,7 +2,7 @@ import urllib.request
 import urllib.error
 import json
 
-url = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyAfYXRtlOMiZYuaVJVpQyUN-PkucA6O8fc'
+url = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyCLmFrKYM4Vsj6b81ofgaug6ZRompe2rCM'
 body = json.dumps({'model': 'models/gemini-2.5-flash', 'contents': [{'parts': [{'text': 'Hello'}]}]})
 req = urllib.request.Request(url, data=body.encode('utf-8'), headers={'Content-Type': 'application/json'})
 

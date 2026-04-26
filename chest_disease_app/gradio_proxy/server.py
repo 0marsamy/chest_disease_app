@@ -1,23 +1,31 @@
 """
-Gradio proxy server: accepts image upload and calls Hugging Face Space
-Ibrahim2002/xray_ai via gradio_client, returns JSON for the Flutter app.
-Run: pip install flask gradio_client
-     python server.py
-Then from Flutter use base URL http://10.0.2.2:5000 (Android emulator) or http://localhost:5000
+Gradio proxy server for Flutter scan flow.
+Calls Hugging Face Space:
+  Client("Ibrahim2002/chest-x-ray-ai-with-heatmap"), api_name="/predict"
+and returns normalized JSON (prediction + optional heatmap_base64).
 """
 
+import base64
 import os
 import tempfile
 from flask import Flask, request, jsonify
 from gradio_client import Client, handle_file
 
 app = Flask(__name__)
-# Hugging Face Space (same as in your Python snippet)
-HF_SPACE = "Ibrahim2002/xray_ai"
+# New Hugging Face Space with heatmap output
+HF_SPACE = "Ibrahim2002/chest-x-ray-ai-with-heatmap"
 API_NAME = "/predict"
 
 # Optional: increase for large images / slow HF response
 REQUEST_TIMEOUT = 120
+
+
+def _encode_file_to_base64(path: str) -> str | None:
+    """Read image file and return base64 string."""
+    if not path or not os.path.exists(path):
+        return None
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
 
 
 @app.route("/predict", methods=["POST"])
@@ -40,26 +48,79 @@ def predict():
             image=handle_file(tmp_path),
             api_name=API_NAME,
         )
-        # Your Space returns gr.Label = dict like {"Covid": 0.1, "Lung Cancer": 0.2, "Normal": 0.6, "Pneumonia": 0.1}
+
+        # Log full response structure for debugging/integration checks.
+        print(f"[predict] result type: {type(result)}")
+        print(f"[predict] result value: {result}")
+
+        # Expected shape from this Space is tuple:
+        # (
+        #   {'label': 'Covid', 'confidences': [{'label': 'Covid', 'confidence': 0.47}, ...]},
+        #   '/tmp/gradio/.../image.webp'
+        # )
+        label_output = None
+        heatmap_path = None
+        if isinstance(result, tuple):
+            if len(result) > 0:
+                label_output = result[0]
+            if len(result) > 1 and isinstance(result[1], str):
+                heatmap_path = result[1]
+        elif isinstance(result, list):
+            if len(result) > 0:
+                label_output = result[0]
+            if len(result) > 1 and isinstance(result[1], str):
+                heatmap_path = result[1]
+        else:
+            label_output = result
+
         prediction_str = "Unknown"
         confidence = 0.0
-        if isinstance(result, dict):
-            # Dict of class_name -> probability: pick top class
-            items = [(k, float(v)) for k, v in result.items() if isinstance(v, (int, float))]
+
+        # Parse gr.Label output
+        if isinstance(label_output, dict):
+            # Prefer label/confidences structure
+            if isinstance(label_output.get("label"), str):
+                prediction_str = label_output["label"]
+
+            confidences = label_output.get("confidences")
+            if isinstance(confidences, list) and confidences:
+                valid = [
+                    (
+                        c.get("label"),
+                        float(c.get("confidence")),
+                    )
+                    for c in confidences
+                    if isinstance(c, dict)
+                    and isinstance(c.get("label"), str)
+                    and isinstance(c.get("confidence"), (int, float))
+                ]
+                if valid:
+                    top_label, top_prob = max(valid, key=lambda x: x[1])
+                    prediction_str = top_label
+                    confidence = round(top_prob * 100, 1)
+
+        # Fallback: dict class->probability format
+        if confidence == 0.0 and isinstance(label_output, dict):
+            items = [
+                (k, float(v))
+                for k, v in label_output.items()
+                if isinstance(v, (int, float))
+            ]
             if items:
                 top_class, top_prob = max(items, key=lambda x: x[1])
                 prediction_str = top_class
                 confidence = round(top_prob * 100, 1)
-        elif isinstance(result, (list, tuple)) and result:
-            prediction_str = str(result[0])
-        else:
-            prediction_str = str(result) if result is not None else "Unknown"
+
+        if prediction_str == "Unknown" and label_output is not None:
+            prediction_str = str(label_output)
+
+        heatmap_base64 = _encode_file_to_base64(heatmap_path) if heatmap_path else None
 
         return jsonify({
             "prediction": prediction_str,
             "confidence": confidence,
             "description": f"Result from X-ray AI: {prediction_str} ({confidence}%)",
-            "heatmap_base64": None,
+            "heatmap_base64": heatmap_base64,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

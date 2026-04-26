@@ -22,10 +22,9 @@ class AppUrls {
   static const String addSlot = "Clinic/slot";
   static const String deleteSlot = "Clinic/slot/";
   static const String editSlot = "Clinic/slot/";
-  static const String assignedScans = "MriScan/assignedScans";
+  static const String assignedScans = "api/ChestScan/history";
   static const String getDoctorById = "Doctor/";
   static const String addClinic = "Clinic";
-
 
   //Chat
   static const String sendMessage = "Chat/sendMessage";
@@ -33,16 +32,15 @@ class AppUrls {
   static const String getUserConversationMessage = "Chat/";
 
   // scan
-  static const String uploadScan = "MriScan/upload";
-  static const String reviewScan = "MriScan/review";
+  static const String uploadScan = "api/ChestScan/upload";
+  static const String reviewScan = "api/ChestScan/review";
 
   /// Hugging Face Gradio proxy (run gradio_proxy/server.py).
   /// Android emulator: http://10.0.2.2:5000 | iOS sim: http://localhost:5000
   static const String gradioProxyBaseUrl = "http://10.0.2.2:5000";
   static const String gradioProxyPredict = "/predict";
 
-  static const String getScans = "MriScan";
-
+  static const String getScans = "api/ChestScan/history";
 
   //Patient
   static String getPatients(String id) => "Appointment/doctor/$id";
@@ -59,8 +57,7 @@ class AppUrls {
   // contact us
   static const String contactUs = "ContactUs";
 
-
-  // feed 
+  // feed
   static const String post = "Post";
   static const String toggleLike = "Post/toggleLike";
   static const String toggleSave = "Post/toggleSave";
@@ -69,5 +66,5 @@ class AppUrls {
   static const String savedPosts = "Post/saved";
 
   //Account
-static const String editProfile = "Account/UpdateProfile";
+  static const String editProfile = "Account/UpdateProfile";
 }

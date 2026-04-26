@@ -51,7 +51,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       _error = null;
     });
     final repo = getIt<MedicalHistoryRepository>();
-    final result = await repo.getPatientScans(DetectionRequest(pageIndex: 0, pageSize: 100));
+    final result = await repo.getPatientScans(
+      DetectionRequest(pageIndex: 0, pageSize: 100),
+    );
     result.fold(
       (err) => setState(() {
         _loading = false;
@@ -61,8 +63,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
       }),
       (response) {
         final items = response.data.map((d) {
-          final dateStr = '${d.uploadDate.year}-${d.uploadDate.month.toString().padLeft(2, '0')}-${d.uploadDate.day.toString().padLeft(2, '0')}';
-          final imageUrl = d.imagePath.startsWith('http') ? d.imagePath : '${AppUrls.baseUrl}${d.imagePath}';
+          final uploadDate = d.uploadDate.toLocal();
+          final dateStr =
+              '${uploadDate.year}-${uploadDate.month.toString().padLeft(2, '0')}-${uploadDate.day.toString().padLeft(2, '0')}';
+          final imageUrl = d.imagePath.startsWith('http')
+              ? d.imagePath
+              : '${AppUrls.baseUrl}${d.imagePath}';
           return _HistoryItem(
             displayName: 'Scan - $dateStr - ${d.detectionClass}',
             diagnosis: d.detectionClass,
@@ -133,73 +139,93 @@ class _ReportsScreenState extends State<ReportsScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(_error!, textAlign: TextAlign.center),
-                            const SizedBox(height: 16),
-                            TextButton(
-                              onPressed: _loadHistory,
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(_error!, textAlign: TextAlign.center),
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: _loadHistory,
+                          child: const Text('Retry'),
                         ),
-                      )
-                    : _filteredHistoryItems.isEmpty
-                        ? const Center(child: Text('No scan history yet.\nRun a scan to see results here.'))
-                        : ListView.builder(
-                            itemCount: _filteredHistoryItems.length,
-                            itemBuilder: (context, index) {
-                              final item = _filteredHistoryItems[index];
-                              final isDisease = item.diagnosis.toLowerCase() != 'normal';
-                              final diagnosisColor = isDisease ? Colors.red[400] : Colors.green[400];
+                      ],
+                    ),
+                  )
+                : _filteredHistoryItems.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No scan history yet.\nRun a scan to see results here.',
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _filteredHistoryItems.length,
+                    itemBuilder: (context, index) {
+                      final item = _filteredHistoryItems[index];
+                      final isDisease =
+                          item.diagnosis.toLowerCase() != 'normal';
+                      final diagnosisColor = isDisease
+                          ? Colors.red[400]
+                          : Colors.green[400];
 
-                              return Card(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                child: ListTile(
-                                  leading: const CircleAvatar(
-                                    backgroundColor: Colors.blueGrey,
-                                    child: Icon(Icons.medical_services, color: Colors.white),
-                                  ),
-                                  title: Text(item.displayName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.diagnosis,
-                                        style: TextStyle(
-                                          color: diagnosisColor,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(item.date),
-                                    ],
-                                  ),
-                                  trailing: const Icon(Icons.arrow_forward_ios),
-                                  onTap: () {
-                                    final entity = ChestPredictionEntity(
-                                      prediction: item.diagnosis,
-                                      confidence: item.confidence,
-                                      description: item.description ?? 'Result from X-ray AI: ${item.diagnosis} (${item.confidence.toStringAsFixed(1)}%)',
-                                    );
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ScanResultView(
-                                          entity: entity,
-                                          imageUrl: item.imageUrl,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            },
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          leading: const CircleAvatar(
+                            backgroundColor: Colors.blueGrey,
+                            child: Icon(
+                              Icons.medical_services,
+                              color: Colors.white,
+                            ),
                           ),
+                          title: Text(
+                            item.displayName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.diagnosis,
+                                style: TextStyle(
+                                  color: diagnosisColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(item.date),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.arrow_forward_ios),
+                          onTap: () {
+                            final entity = ChestPredictionEntity(
+                              prediction: item.diagnosis,
+                              confidence: item.confidence,
+                              description:
+                                  item.description ??
+                                  'Result from X-ray AI: ${item.diagnosis} (${item.confidence.toStringAsFixed(1)}%)',
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ScanResultView(
+                                  entity: entity,
+                                  imageUrl: item.imageUrl,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

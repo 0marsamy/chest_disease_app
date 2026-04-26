@@ -177,6 +177,13 @@ async def chest_scan_upload(
         # Step 1: OOD validation
         try:
             is_valid_xray = validate_xray(tmp_path)
+            # === TEMPORARY DEBUG LOGS ===
+            print(f"\n=== DEBUG: MAIN.PY RECEIVED ===")
+            print(f"validate_xray() returned: {is_valid_xray}")
+            print(f"Type: {type(is_valid_xray)}")
+            print(f"if not is_valid_xray: {not is_valid_xray}")
+            print(f"=== END MAIN.PY DEBUG ===\n")
+            # === END TEMPORARY DEBUG LOGS ===
         except Exception as e:
             logger.exception("OOD API failed: %s", e)
             raise HTTPException(
@@ -236,7 +243,7 @@ async def chest_scan_upload(
 
 
 # --- 5. Get scan history (MriScan) ---
-@app.get("/MriScan")
+@app.get("/api/ChestScan/history")
 async def get_scans(
     pageIndex: int = 0,
     pageSize: int = 10,

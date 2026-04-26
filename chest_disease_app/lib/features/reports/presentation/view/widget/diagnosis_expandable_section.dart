@@ -36,6 +36,14 @@ class _DiagnosisExpandableSectionState
     var cubit = context.read<ReportsCubit>();
     return BlocBuilder<ReportsCubit, ReportsState>(
       builder: (context, state) {
+        if (widget.report.detectionClass == "Not X-ray") {
+          return Center(
+            child: Text(
+              "Please upload a valid X-ray image",
+              style: AppTextStyles.font16BlueW700,
+            ),
+          );
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -44,8 +52,10 @@ class _DiagnosisExpandableSectionState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(S.of(context).diagnosis,
-                      style: AppTextStyles.font16BlueW700),
+                  Text(
+                    S.of(context).diagnosis,
+                    style: AppTextStyles.font16BlueW700,
+                  ),
                   Icon(
                     isExpanded ? Icons.expand_less : Icons.expand_more,
                     color: AppColors.buttonsAndNav,
@@ -72,40 +82,44 @@ class _DiagnosisExpandableSectionState
                     child: Column(
                       children: [
                         CustomTextField(
-                            validator: (v) => checkFieldValidation(
-                                val: cubit.findingsController.text,
-                                fieldName: S.of(context).findings,
-                                fieldType: ValidationType.text),
-                            controller: cubit.findingsController,
-                            subLabelStyle: AppTextStyles.font16GreenW400,
-                            labelStyle: AppTextStyles.font14BlueW700,
-                            subLabel: S
-                                .of(context)
-                                .pleaseWriteYourFindingsAboutThisResultKeepInMindThisWillBeShownToThePatient,
-                            // hintTextStyle: AppTextStyles.font15GreenW700,
-                            label: S.of(context).findings,
-                            keyboardType: TextInputType.multiline,
-                            minLines: 4,
-                            maxLines: 150,
-                            hintText: S.of(context).findings),
+                          validator: (v) => checkFieldValidation(
+                            val: cubit.findingsController.text,
+                            fieldName: S.of(context).findings,
+                            fieldType: ValidationType.text,
+                          ),
+                          controller: cubit.findingsController,
+                          subLabelStyle: AppTextStyles.font16GreenW400,
+                          labelStyle: AppTextStyles.font14BlueW700,
+                          subLabel: S
+                              .of(context)
+                              .pleaseWriteYourFindingsAboutThisResultKeepInMindThisWillBeShownToThePatient,
+                          // hintTextStyle: AppTextStyles.font15GreenW700,
+                          label: S.of(context).findings,
+                          keyboardType: TextInputType.multiline,
+                          minLines: 4,
+                          maxLines: 150,
+                          hintText: S.of(context).findings,
+                        ),
                         16.toHeight,
                         CustomTextField(
-                            controller: cubit.reasoningController,
-                            validator: (v) => checkFieldValidation(
-                                val: cubit.reasoningController.text,
-                                fieldName: S.of(context).reasoning,
-                                fieldType: ValidationType.text),
-                            subLabelStyle: AppTextStyles.font16GreenW400,
-                            labelStyle: AppTextStyles.font14BlueW700,
-                            subLabel: S
-                                .of(context)
-                                .inCaseOfRejectingTheResulOrAcceptItPleaseProvideYourReasoning,
-                            // hintTextStyle: AppTextStyles.font15GreenW700,
-                            label: S.of(context).reasoning,
-                            keyboardType: TextInputType.multiline,
-                            minLines: 4,
-                            maxLines: 150,
-                            hintText: S.of(context).reasoning),
+                          controller: cubit.reasoningController,
+                          validator: (v) => checkFieldValidation(
+                            val: cubit.reasoningController.text,
+                            fieldName: S.of(context).reasoning,
+                            fieldType: ValidationType.text,
+                          ),
+                          subLabelStyle: AppTextStyles.font16GreenW400,
+                          labelStyle: AppTextStyles.font14BlueW700,
+                          subLabel: S
+                              .of(context)
+                              .inCaseOfRejectingTheResulOrAcceptItPleaseProvideYourReasoning,
+                          // hintTextStyle: AppTextStyles.font15GreenW700,
+                          label: S.of(context).reasoning,
+                          keyboardType: TextInputType.multiline,
+                          minLines: 4,
+                          maxLines: 150,
+                          hintText: S.of(context).reasoning,
+                        ),
                       ],
                     ).paddingSymmetric(horizontal: 15.w),
                   ),
@@ -114,36 +128,42 @@ class _DiagnosisExpandableSectionState
                     children: [
                       Expanded(
                         child: CustomButton(
-                            raduis: 8.r,
-                            backgroundColor: AppColors.error,
-                            text: S.of(context).reject,
-                            onTap: () {
-                              if (cubit.formKey.currentState!.validate()) {
-                                showDefaultDialog(context,
-                                    child: BlocProvider.value(
-                                      value: cubit,
-                                      child: RejectingResultDialogWidget(
-                                        report: widget.report,
-                                      ),
-                                    ));
-                              }
-                            }),
+                          raduis: 8.r,
+                          backgroundColor: AppColors.error,
+                          text: S.of(context).reject,
+                          onTap: () {
+                            if (cubit.formKey.currentState!.validate()) {
+                              showDefaultDialog(
+                                context,
+                                child: BlocProvider.value(
+                                  value: cubit,
+                                  child: RejectingResultDialogWidget(
+                                    report: widget.report,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ),
                       12.toWidth,
                       Expanded(
-                          child: CustomButton(
-                              isLoading: state is ViewReportLoading &&
-                                  cubit.tumortypeController.text.trim().isEmpty,
-                              raduis: 8.r,
-                              backgroundColor: AppColors.typography,
-                              text: S.of(context).accept,
-                              onTap: () {
-                                if (cubit.formKey.currentState!.validate()) {
-                                  cubit.viewReport(widget.report, context);
-                                }
-                              }))
+                        child: CustomButton(
+                          isLoading:
+                              state is ViewReportLoading &&
+                              cubit.tumortypeController.text.trim().isEmpty,
+                          raduis: 8.r,
+                          backgroundColor: AppColors.typography,
+                          text: S.of(context).accept,
+                          onTap: () {
+                            if (cubit.formKey.currentState!.validate()) {
+                              cubit.viewReport(widget.report, context);
+                            }
+                          },
+                        ),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
               crossFadeState: isExpanded
@@ -156,4 +176,3 @@ class _DiagnosisExpandableSectionState
     ).paddingSymmetric(vertical: 20.h, horizontal: 20.w);
   }
 }
-
