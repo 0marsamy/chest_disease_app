@@ -11,6 +11,8 @@ import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
+enum _ImageMode { original, segmented, heatmap }
+
 class ScanResultView extends StatefulWidget {
   final ChestPredictionEntity entity;
   final File? originalImage;
@@ -28,11 +30,31 @@ class ScanResultView extends StatefulWidget {
 }
 
 class _ScanResultViewState extends State<ScanResultView> {
-  bool _showHeatmap = false;
+  _ImageMode _imageMode = _ImageMode.original;
   bool _isSaving = false;
 
-  Uint8List? get _decodedHeatmapBytes {
-    final raw = widget.entity.heatmapBase64;
+  Uint8List? get _segmentedBytes =>
+      _decodeBase64Image(widget.entity.segmentedBase64);
+
+  Uint8List? get _heatmapBytes =>
+      _decodeBase64Image(widget.entity.heatmapBase64);
+
+  _ImageMode get _effectiveImageMode {
+    if (_imageMode == _ImageMode.segmented && _segmentedBytes != null) {
+      return _ImageMode.segmented;
+    }
+    if (_imageMode == _ImageMode.heatmap && _heatmapBytes != null) {
+      return _ImageMode.heatmap;
+    }
+    return _ImageMode.original;
+  }
+
+  bool get isInvalid {
+    final prediction = widget.entity.prediction.toLowerCase();
+    return prediction == 'not x-ray' || prediction == 'invalid image';
+  }
+
+  Uint8List? _decodeBase64Image(String? raw) {
     if (raw == null || raw.isEmpty) return null;
     try {
       final payload = raw.contains(',') ? raw.split(',').last : raw;
@@ -42,10 +64,6 @@ class _ScanResultViewState extends State<ScanResultView> {
     }
   }
 
-  bool get isInvalid =>
-      widget.entity.prediction.toLowerCase() == 'not x-ray' ||
-      widget.entity.prediction.toLowerCase() == 'invalid image';
-
   Future<void> _saveReport() async {
     if (_isSaving) return;
 
@@ -53,9 +71,7 @@ class _ScanResultViewState extends State<ScanResultView> {
 
     try {
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-
       final predictionSlug = widget.entity.prediction.replaceAll(' ', '_');
-
       final filename =
           'scan_${predictionSlug}_${widget.entity.confidence.toStringAsFixed(1)}%_$timestamp.png';
 
@@ -88,7 +104,6 @@ class _ScanResultViewState extends State<ScanResultView> {
           );
 
           final filePath = '${directory.path}/$sanitizedFileName';
-
           await widget.originalImage!.copy(filePath);
         }
       }
@@ -111,13 +126,117 @@ class _ScanResultViewState extends State<ScanResultView> {
     }
   }
 
+  Widget _buildImagePreview() {
+    final segmentedBytes = _segmentedBytes;
+    final heatmapBytes = _heatmapBytes;
+
+    final bytesToShow = switch (_effectiveImageMode) {
+      _ImageMode.segmented => segmentedBytes,
+      _ImageMode.heatmap => heatmapBytes,
+      _ImageMode.original => null,
+    };
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: bytesToShow != null
+          ? Image.memory(
+              bytesToShow,
+              height: 300,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            )
+          : widget.originalImage != null
+          ? Image.file(
+              widget.originalImage!,
+              height: 300,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            )
+          : CachedNetworkImage(
+              imageUrl: widget.imageUrl!,
+              height: 300,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              progressIndicatorBuilder: (_, __, ___) => const SizedBox(
+                height: 300,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (_, __, ___) => const SizedBox(
+                height: 300,
+                child: Center(child: Icon(Icons.broken_image_outlined)),
+              ),
+            ),
+    );
+  }
+
+  Widget _buildImageModeButton({
+    required String label,
+    required IconData icon,
+    required _ImageMode mode,
+  }) {
+    final selected = _effectiveImageMode == mode;
+
+    return OutlinedButton.icon(
+      onPressed: () => setState(() => _imageMode = mode),
+      icon: Icon(icon, size: 18),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: selected ? Colors.white : const Color(0xFF08325C),
+        backgroundColor: selected ? const Color(0xFF08325C) : Colors.white,
+        side: BorderSide(
+          color: selected ? const Color(0xFF08325C) : Colors.grey.shade300,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      ),
+    );
+  }
+
+  Widget _buildImageModeSelector() {
+    final segmentedBytes = _segmentedBytes;
+    final heatmapBytes = _heatmapBytes;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildImageModeButton(
+              label: 'Original X-ray',
+              icon: Icons.image_outlined,
+              mode: _ImageMode.original,
+            ),
+            if (segmentedBytes != null)
+              _buildImageModeButton(
+                label: 'Show Segmented Lungs',
+                icon: Icons.air,
+                mode: _ImageMode.segmented,
+              ),
+            if (heatmapBytes != null)
+              _buildImageModeButton(
+                label: 'Show AI Heatmap',
+                icon: Icons.local_fire_department_outlined,
+                mode: _ImageMode.heatmap,
+              ),
+          ],
+        ),
+        if (segmentedBytes == null && heatmapBytes == null) ...[
+          const SizedBox(height: 8),
+          Text(
+            'AI overlay images are not available for this scan.',
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDisease = widget.entity.prediction.toLowerCase() != 'normal';
     final diagnosisColor = isDisease ? Colors.red[400] : Colors.green[400];
-    final heatmapBytes = _decodedHeatmapBytes;
-    final hasHeatmap = heatmapBytes != null;
-    final showHeatmapImage = _showHeatmap && hasHeatmap;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Scan Result'), centerTitle: true),
@@ -126,38 +245,14 @@ class _ScanResultViewState extends State<ScanResultView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            /// 🖼️ Display original image or heatmap from same API response
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: showHeatmapImage
-                  ? Image.memory(
-                      heatmapBytes,
-                      height: 300,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : widget.originalImage != null
-                      ? Image.file(
-                          widget.originalImage!,
-                          height: 300,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )
-                      : CachedNetworkImage(
-                          imageUrl: widget.imageUrl!,
-                          height: 300,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-            ),
-
+            _buildImagePreview(),
+            const SizedBox(height: 16),
+            _buildImageModeSelector(),
             const SizedBox(height: 24),
-
-            /// ❌ حالة Invalid
             if (isInvalid)
-              Center(
+              const Center(
                 child: Column(
-                  children: const [
+                  children: [
                     Icon(
                       Icons.warning_amber_rounded,
                       size: 60,
@@ -165,7 +260,7 @@ class _ScanResultViewState extends State<ScanResultView> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      "Invalid Image",
+                      'Invalid Image',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -173,33 +268,13 @@ class _ScanResultViewState extends State<ScanResultView> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      "Please upload a valid chest X-ray image",
+                      'Please upload a valid chest X-ray image',
                       textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-
-            /// ✅ الحالة الطبيعية
             if (!isInvalid) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    hasHeatmap
-                        ? 'Show Heatmap'
-                        : 'Show Heatmap (not available)',
-                  ),
-                  Switch(
-                    value: _showHeatmap,
-                    onChanged: hasHeatmap
-                        ? (v) => setState(() => _showHeatmap = v)
-                        : null,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
               Card(
                 color: diagnosisColor,
                 child: Padding(
@@ -222,24 +297,20 @@ class _ScanResultViewState extends State<ScanResultView> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Text(
                 'Confidence: ${widget.entity.confidence.toStringAsFixed(1)}%',
               ),
+              const SizedBox(height: 8),
               LinearProgressIndicator(value: widget.entity.confidence / 100),
-
               const SizedBox(height: 20),
-
               const Text('Recommendation'),
+              const SizedBox(height: 6),
               Text(widget.entity.description),
             ],
           ],
         ),
       ),
-
-      /// 🔽 الأزرار تحت (ثابتة)
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(

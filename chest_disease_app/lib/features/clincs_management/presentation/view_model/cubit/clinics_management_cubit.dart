@@ -65,8 +65,14 @@ class ClinicsManagementCubit extends Cubit<ClinicsManagementState> {
   }
 
   Future<void> addClinic(BuildContext context) async {
-    if (formKey.currentState!.validate()) {
-      emit(AddClinicLoadingState());
+    if (!formKey.currentState!.validate()) return;
+    if (clinicLicenseFile == null) {
+      emit(AddClinicErrorState());
+      "Please attach clinic license.".showToast();
+      return;
+    }
+    emit(AddClinicLoadingState());
+    try {
       final result = await repository.addClinic(
         AddClinicRequestModel(
           phoneNumber: clinicPhoneNumberController.text,
@@ -79,6 +85,7 @@ class ClinicsManagementCubit extends Cubit<ClinicsManagementState> {
       result.fold(
         (error) {
           emit(AddClinicErrorState());
+          (error.message ?? "Failed to submit report").showToast();
         },
         (success) {
           S.of(context).clinicAddedSuccessfully.showToast();
@@ -88,10 +95,12 @@ class ClinicsManagementCubit extends Cubit<ClinicsManagementState> {
           clinicLicenseFile = null;
           position = null;
           streetName = null;
-
           emit(AddClinicSuccessState());
         },
       );
+    } catch (_) {
+      emit(AddClinicErrorState());
+      "Something went wrong, please try again.".showToast();
     }
   }
 }

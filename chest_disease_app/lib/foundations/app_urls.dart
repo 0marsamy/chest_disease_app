@@ -3,13 +3,13 @@ class AppUrls {
   static const String baseUrl = "https://ibrahim2002-backend.hf.space";
 
   //Auth
-  static const String login = "Auth/login";
-  static const String registerPatient = "Auth/register/patient";
-  static const String registerDoctor = "Auth/register/doctor";
-  static const String verifyCode = "Auth/verifyEmail";
-  static const String forgetPassword = "Auth/forgetPassword";
-  static const String verifyForgetPassword = "Auth/verifyForgetPassword";
-  static const String resetPassword = "Auth/resetPassword";
+  static const String login = "api/Auth/login";
+  static const String registerPatient = "api/Auth/register/patient";
+  static const String registerDoctor = "api/Auth/register/doctor";
+  static const String verifyCode = "api/Auth/verifyEmail";
+  static const String forgetPassword = "api/Auth/forgetPassword";
+  static const String verifyForgetPassword = "api/Auth/verifyForgetPassword";
+  static const String resetPassword = "api/Auth/resetPassword";
   static const String addReview = "review";
 
   //Clinic

@@ -24,9 +24,7 @@ class DioService {
       receiveDataWhenStatusError: true,
       connectTimeout: const Duration(minutes: 1),
       receiveTimeout: const Duration(minutes: 1),
-      headers: {
-        'Accept-Language': AppConstants.langCode ? 'en' : 'en'
-      },
+      headers: {'Accept-Language': AppConstants.langCode ? 'en' : 'ar'},
     );
 
     _dio.options = baseOptions;
@@ -56,8 +54,9 @@ class DioService {
       // 'Content-Type': 'application/json', // Removed explicit Content-Type
       // 'app-version': await getAppVersion()
     };
-    if (withToken && AppConstants.getToken().toString().isNotEmpty) {
-      headers['Authorization'] = 'Bearer ${await AppConstants.getToken()}';
+    final token = await AppConstants.getToken();
+    if (withToken && token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
     }
     return headers;
   }
@@ -74,8 +73,7 @@ class DioService {
       // When using the shared Dio instance with a baseUrl, `path` must start
       // with a leading slash, otherwise Dio will concatenate it directly to
       // the host (e.g. `...hf.spacemriscan`). This normalizes the path.
-      final String normalizedPath =
-          path.startsWith('/') ? path : '/$path';
+      final String normalizedPath = path.startsWith('/') ? path : '/$path';
 
       final String url = customBaseUrl != null
           ? '$customBaseUrl$path'
@@ -105,8 +103,6 @@ class DioService {
         packageInfo.version; // The version of the app (e.g., "1.0.0")
     String buildNumber =
         packageInfo.buildNumber; // The build number of the app (e.g., "1")
-    print('***********$version+$buildNumber');
     return '$version+$buildNumber';
   }
 }
-

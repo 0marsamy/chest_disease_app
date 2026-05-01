@@ -84,7 +84,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   _buildSettingsRow(
                     title: S.of(context).notificationsSettings,
-                    onTap: () {},
+                    onTap: () {
+                      context.navigateTo(AppRoutes.alertSettingsScreen);
+                    },
                   ),
                   if (AppConstants.user?.role == "Patient")
                     _buildSettingsRow(

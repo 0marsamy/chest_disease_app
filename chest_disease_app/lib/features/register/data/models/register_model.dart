@@ -8,7 +8,10 @@ class RegisterResponseModel {
   RegisterResponseModel({this.email});
 
   RegisterResponseModel.fromJson(Map<String, dynamic> json) {
-    email = json['email'];
+    final payload = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
+    email = payload['email']?.toString();
   }
 }
 
@@ -105,7 +108,7 @@ class DoctorRegisterRequestModel {
       "clinicAddress": clinicAddress,
       "latitude": latitude,
       "longitude": longitude,
-      "profileProfile": profileProfile.path,
+      "profilePicture": profileProfile.path,
       "licenseFront": licenseFront?.path,
       "licenseBack": licenseBack?.path,
       "cliniclicense": cliniclicense?.path,
@@ -128,7 +131,7 @@ class DoctorRegisterRequestModel {
     };
 
     // 2. نضيف صورة البروفايل (إجباري)
-    data['profileProfile'] = await MultipartFile.fromFile(
+    data['profilePicture'] = await MultipartFile.fromFile(
       profileProfile.path,
       filename: profileProfile.path.split('/').last,
     );

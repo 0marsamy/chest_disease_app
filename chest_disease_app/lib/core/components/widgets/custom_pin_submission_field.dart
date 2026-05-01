@@ -29,20 +29,21 @@ class _CustomPinSubmissionWidgetState extends State<CustomPinSubmissionWidget> {
     super.initState();
     _focusNodes = List.generate(6, (index) => FocusNode());
     _controllers = List.generate(
-        6, (index) => TextEditingController()); // Initialize controllers
+      6,
+      (index) => TextEditingController(),
+    ); // Initialize controllers
   }
 
-  // @override
-  // void dispose() {
-  //   // Dispose focus nodes and controllers
-  //   for (var node in _focusNodes) {
-  //     node.dispose();
-  //   }
-  //   // for (var controller in _controllers) {
-  //   //   controller.dispose();
-  //   // }
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    for (final node in _focusNodes) {
+      node.dispose();
+    }
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,15 +57,13 @@ class _CustomPinSubmissionWidgetState extends State<CustomPinSubmissionWidget> {
             hintText: "*",
             width: 42.w,
             height: 42.w,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-            controller:
-                _controllers[index],
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            controller: _controllers[index],
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
-            style: AppTextStyles.font24GreenW500
-                .copyWith(fontWeight: FontWeight.w400),
+            style: AppTextStyles.font24GreenW500.copyWith(
+              fontWeight: FontWeight.w400,
+            ),
             onChanged: (value) {
               if (value.isNotEmpty && index < 5) {
                 _focusNodes[index + 1].requestFocus();
@@ -72,6 +71,7 @@ class _CustomPinSubmissionWidgetState extends State<CustomPinSubmissionWidget> {
                 _focusNodes[index - 1].requestFocus();
               }
               widget.verificationCode[index] = value;
+              widget.onChanged(index, value);
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -86,4 +86,3 @@ class _CustomPinSubmissionWidgetState extends State<CustomPinSubmissionWidget> {
     );
   }
 }
-

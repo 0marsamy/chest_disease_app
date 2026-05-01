@@ -3,10 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-
 import 'package:chest_disease_app/features/scan/domain/entities/chest_prediction_entity.dart';
-
-
 
 /// The request model used to upload the scan data.
 /// This remains as it is needed by the repository.
@@ -22,10 +19,7 @@ class UploadScanRequestModel {
   });
 
   Future<FormData> toFormData() async {
-    FormData formData = FormData.fromMap({
-      "Longitude": long,
-      "Latitude": lat,
-    });
+    FormData formData = FormData.fromMap({"Longitude": long, "Latitude": lat});
     formData.files.add(
       MapEntry(
         "image", // Key must match the backend API
@@ -46,6 +40,8 @@ class ChestPredictionModel {
   final String prediction;
   final double confidence;
   final String description;
+  @JsonKey(name: 'segmented_base64')
+  final String? segmentedBase64;
   @JsonKey(name: 'heatmap_base64')
   final String? heatmapBase64;
   final String? imagePath;
@@ -55,6 +51,7 @@ class ChestPredictionModel {
     required this.prediction,
     required this.confidence,
     required this.description,
+    this.segmentedBase64,
     this.heatmapBase64,
     this.imagePath,
     this.id,
@@ -65,6 +62,7 @@ class ChestPredictionModel {
       prediction: json['prediction'] as String,
       confidence: (json['confidence'] as num).toDouble(),
       description: json['description'] as String,
+      segmentedBase64: json['segmented_base64'] as String?,
       heatmapBase64: json['heatmap_base64'] as String?,
       imagePath: json['imagePath'] as String?,
       id: json['id'] as int?,
@@ -76,6 +74,7 @@ class ChestPredictionModel {
       'prediction': prediction,
       'confidence': confidence,
       'description': description,
+      'segmented_base64': segmentedBase64,
       'heatmap_base64': heatmapBase64,
       'imagePath': imagePath,
       'id': id,
@@ -88,10 +87,10 @@ class ChestPredictionModel {
       prediction: prediction,
       confidence: confidence,
       description: description,
+      segmentedBase64: segmentedBase64,
       heatmapBase64: heatmapBase64,
       imagePath: imagePath,
       id: id,
     );
   }
 }
-

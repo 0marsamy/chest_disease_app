@@ -16,16 +16,28 @@ class VerificationCodeCubit extends Cubit<VerificationCodeState> {
   final VerifyCodeRepository repository;
 
   VerificationCodeCubit({required this.repository})
-      : super(VerificationCodeInitial());
+    : super(VerificationCodeInitial());
 
   List<String> code = List.filled(6, "*");
   BuildContext context = NavigationExtensions.navigatorKey.currentContext!;
   final formKey = GlobalKey<FormState>();
 
+  String get _enteredCode => code.join();
+
+  bool _isCodeValid() {
+    final isFormValid = formKey.currentState?.validate() ?? false;
+    return isFormValid &&
+        _enteredCode.length == 6 &&
+        !_enteredCode.contains('*') &&
+        !_enteredCode.contains(' ');
+  }
+
   Future<void> verifyCode(String email) async {
+    if (!_isCodeValid()) return;
     emit(SubmitVerificationCodeLoadingState());
     final response = await repository.verifyCode(
-        VerificationCodeRequestModel(email: email, code: code.join()));
+      VerificationCodeRequestModel(email: email, code: _enteredCode),
+    );
     response.fold(
       (l) {
         l.message!.showToast();
@@ -40,9 +52,11 @@ class VerificationCodeCubit extends Cubit<VerificationCodeState> {
   }
 
   Future<void> verifyForgetCode(String email) async {
+    if (!_isCodeValid()) return;
     emit(SubmitVerificationCodeLoadingState());
     final response = await repository.verifyForgetCode(
-        VerificationCodeRequestModel(email: email, code: code.join()));
+      VerificationCodeRequestModel(email: email, code: _enteredCode),
+    );
     response.fold(
       (l) {
         l.message!.showToast();
@@ -50,10 +64,12 @@ class VerificationCodeCubit extends Cubit<VerificationCodeState> {
       },
       (r) {
         S.of(context).sucessOpertation.showToast();
-        context.navigateTo(AppRoutes.resetPasswordScreen);
+        context.navigateTo(
+          AppRoutes.resetPasswordScreen,
+          arguments: {'email': email, 'token': _enteredCode},
+        );
         emit(SubmitVerificationCodeSuccessState());
       },
     );
   }
 }
-

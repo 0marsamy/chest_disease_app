@@ -5,6 +5,8 @@ import 'package:chest_disease_app/core/utils/theme/text_styles/app_text_styles.d
 import 'package:chest_disease_app/features/clincs_management/presentation/view_model/cubit/clinics_management_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../../core/config/app_routing.dart';
 import '../../../../../core/utils/assets/assets_svg.dart';
 import '../../../../../foundations/validations.dart';
@@ -12,6 +14,44 @@ import '../../../../../generated/l10n.dart';
 
 class AddClinicScreen extends StatelessWidget {
   const AddClinicScreen({super.key});
+
+  Future<void> _setCurrentLocation(
+    BuildContext context,
+    ClinicsManagementCubit cubit,
+  ) async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permission denied.')),
+          );
+        }
+        return;
+      }
+
+      final p = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      final latLng = '${p.latitude.toStringAsFixed(6)}, ${p.longitude.toStringAsFixed(6)}';
+      cubit.setUserLocation(LatLng(p.latitude, p.longitude), latLng);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location updated.')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to get current location.')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +83,7 @@ class AddClinicScreen extends StatelessWidget {
                   ),
                   16.toHeight,
                   CustomTextField(
+                      controller: cubit.clinicAddressController,
                       hintText: cubit.streetName != null
                           ? cubit.streetName!
                           : S.of(context).setLocation,
@@ -52,7 +93,8 @@ class AddClinicScreen extends StatelessWidget {
                           : AppTextStyles.font15LightGreenW500,
                       label: S.of(context).setLocation,
                       suffixIcon: AssetsSvg.location,
-                      validator: (_) => cubit.streetName != null
+                      onSuffixTap: () => _setCurrentLocation(context, cubit),
+                      validator: (_) => cubit.clinicAddressController.text.isNotEmpty
                           ? null
                           : S.of(context).locationError,
                       onTap: () async {

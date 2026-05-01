@@ -27,6 +27,15 @@ class ResetPasswordCubit extends Cubit<ResetPasswordState> {
   bool isObscure = true;
   bool isConfirmObscure = true;
 
+  void prefill({String? email, String? token}) {
+    if (email != null && email.isNotEmpty) {
+      emailController.text = email;
+    }
+    if (token != null && token.isNotEmpty) {
+      otpController.text = token;
+    }
+  }
+
   void changeVisiblePassword() {
     isObscure = !isObscure;
     emit(ResetPasswordChangeVisibilty(isObscure));
@@ -40,10 +49,13 @@ class ResetPasswordCubit extends Cubit<ResetPasswordState> {
   Future<void> submitNewPassword() async {
     if (formKey.currentState!.validate()) {
       emit(ResetPasswordLoadingState());
-      final response = await repository.resetPassword(ResetPasswordRequestModel(
+      final response = await repository.resetPassword(
+        ResetPasswordRequestModel(
           email: emailController.text,
           token: otpController.text,
-          password: passwordController.text));
+          password: passwordController.text,
+        ),
+      );
       return response.fold(
         (l) {
           l.message!.showToast();
@@ -57,4 +69,3 @@ class ResetPasswordCubit extends Cubit<ResetPasswordState> {
     }
   }
 }
-

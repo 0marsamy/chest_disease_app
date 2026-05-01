@@ -1,24 +1,38 @@
-from fastapi import FastAPI, File, UploadFile, Form, Depends, HTTPException, APIRouter
-from typing import Optional
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+import logging
 import os
+import random
 import shutil
 import tempfile
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-import time  # عشان timestamp الصورة
-from gradio_client import Client, handle_file
-from fastapi.middleware.cors import CORSMiddleware
+import time
+from datetime import datetime
+from typing import Optional
 
-# --- 1. إعدادات قاعدة البيانات ---
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import JSONResponse
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    Integer,
+    String,
+    create_engine,
+    text,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, sessionmaker
+
+from xray_services import classify_xray, validate_xray
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 SQLALCHEMY_DATABASE_URL = "sqlite:///./doctors.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# جدول الدكاترة
+
 class Doctor(Base):
     __tablename__ = "doctors"
     id = Column(Integer, primary_key=True, index=True)
@@ -28,63 +42,44 @@ class Doctor(Base):
     password = Column(String)
     phone = Column(String, nullable=True)
     gender = Column(String)
-    profileImage = Column(String)  # مسار الصورة
+    profileImage = Column(String)
+    is_verified = Column(Boolean, default=False)
+    verification_code = Column(String, nullable=True)
 
 
-# جدول سجلات الأشعة (للتاريخ والواجهة)
-class ScanRecord(Base):
-    __tablename__ = "scan_records"
+class Scan(Base):
+    __tablename__ = "scans"
     id = Column(Integer, primary_key=True, index=True)
     imagePath = Column(String)
     detectionClass = Column(String)
-    confidence = Column(String, default="0")
-    description = Column(String, nullable=True)
-    isReviewed = Column(String, default="false")
-    uploadDate = Column(String)
+    confidence = Column(Float)
+    description = Column(String)
+    isReviewed = Column(Boolean, default=False)
+    uploadDate = Column(DateTime, default=datetime.utcnow)
 
 
-# إنشاء الجدول لو مش موجود
 Base.metadata.create_all(bind=engine)
+
+
+def _ensure_doctor_columns() -> None:
+    """Simple SQLite-safe migration for new verification fields."""
+    with engine.connect() as conn:
+        cols = {row[1] for row in conn.execute(text("PRAGMA table_info(doctors)")).fetchall()}
+        if "is_verified" not in cols:
+            conn.execute(text("ALTER TABLE doctors ADD COLUMN is_verified BOOLEAN DEFAULT 0"))
+        if "verification_code" not in cols:
+            conn.execute(text("ALTER TABLE doctors ADD COLUMN verification_code TEXT"))
+        conn.commit()
+
+
+_ensure_doctor_columns()
 
 app = FastAPI()
 
-# سماح بالوصول من الموبايل وأي دومين (CORS)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# فولدر حفظ الصور
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# تفعيل الـ Static Files عشان الصور تظهر في التطبيق
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# --- تعريف الـ Router (مهم جداً) ---
-router = APIRouter(prefix="/api/Auth", tags=["Auth"])
-
-# موديل استقبال كود التفعيل
-class VerifyCodeRequest(BaseModel):
-    email: str
-    code: str
-
-# 👇👇 دالة التفعيل (Verification Endpoint)
-@router.post("/verify")
-async def verify_code(request: VerifyCodeRequest):
-    # طباعة الكود في التيرمينال عشان تشوفه
-    print(f"\n✅✅ Verification Code Received for {request.email}: {request.code} ✅✅\n")
-    
-    # رد النجاح
-    return {"message": "Code verified successfully", "status": "Success"}
-
-# ⚠️⚠️ السطر الأهم: ربط الـ Router بالتطبيق ⚠️⚠️
-app.include_router(router)
-
-# دالة مساعدة للاتصال بالداتابيز
 def get_db():
     db = SessionLocal()
     try:
@@ -92,11 +87,16 @@ def get_db():
     finally:
         db.close()
 
+
+def _generate_otp() -> str:
+    return f"{random.randint(0, 999999):06d}"
+
+
 @app.get("/")
 def home():
     return {"message": "Server is Running... You are ready! 🚀"}
 
-# --- 2. نقطة التسجيل (Register API) ---
+
 @app.post("/api/Auth/register/doctor")
 async def register_doctor(
     fullName: str = Form(...),
@@ -112,14 +112,13 @@ async def register_doctor(
     latitude: Optional[str] = Form(None),
     longitude: Optional[str] = Form(None),
     dateOfBirth: Optional[str] = Form(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    # حفظ الصورة
-    file_path = f"{UPLOAD_DIR}/{int(time.time())}_{profileProfile.filename}"
+    file_path = f"{UPLOAD_DIR}/{profileProfile.filename}"
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(profileProfile.file, buffer)
 
-    # حفظ البيانات في الداتابيز
+    otp = _generate_otp()
     new_doctor = Doctor(
         fullName=fullName,
         userName=userName,
@@ -127,178 +126,113 @@ async def register_doctor(
         password=password,
         phone=phone,
         gender=gender,
-        profileImage=file_path
+        profileImage=file_path,
+        is_verified=False,
+        verification_code=otp,
     )
 
     try:
         db.add(new_doctor)
         db.commit()
         db.refresh(new_doctor)
+        logger.info("New signup needs verification: email=%s code=%s", email, otp)
     except Exception as e:
+        logger.exception("Register failed")
         return {"status": "error", "message": str(e)}
-
-    # توليد كود تفعيل وهمي وطباعته
-    import random
-    fake_code = random.randint(1000, 9999)
-    print(f"\n🔔 INFO: Verification code for {email} is: {fake_code} 🔔\n")
 
     return {
         "email": email,
-        "token": "fake-jwt-token",
         "userId": new_doctor.id,
-        "role": "Doctor"
+        "role": "Doctor",
+        "requiresVerification": True,
+        "message": "Verification code generated.",
     }
 
-# --- 3. نقطة تسجيل الدخول (Login API) ---
+
 @app.post("/api/Auth/login")
 async def login(
     email: str = Form(...),
     password: str = Form(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     doctor = db.query(Doctor).filter(Doctor.email == email).first()
-    
     if not doctor:
         raise HTTPException(status_code=400, detail="User not found")
-    
     if doctor.password != password:
         raise HTTPException(status_code=400, detail="Incorrect password")
-    
-    img_path = doctor.profileImage if doctor.profileImage else ""
-    user_id_str = str(doctor.id) 
+    if not bool(doctor.is_verified):
+        raise HTTPException(status_code=403, detail="Please verify your email before login.")
 
+    img_path = doctor.profileImage if doctor.profileImage else ""
     return {
         "token": "fake-login-token-123",
         "user": {
-            "id": user_id_str,
-            "userId": user_id_str,
-            "User_Id": user_id_str,
+            "id": doctor.id,
             "profilePicture": img_path,
             "fullName": doctor.fullName,
             "userName": doctor.userName,
             "email": doctor.email,
+            "dateOfBirth": None,
             "role": "Doctor",
             "gender": doctor.gender,
-            "dateOfBirth": None,
             "latitude": None,
             "longitude": None,
-            "age": None
-        }
+            "age": None,
+        },
     }
 
-# --- 4. نقطة تعديل البيانات (Update Profile API) ---
-@app.post("/api/Account/UpdateProfile")
-async def update_profile(
-    email: str = Form(...),
-    fullName: Optional[str] = Form(None),
-    phone: Optional[str] = Form(None),
-    gender: Optional[str] = Form(None),
-    photo: Optional[UploadFile] = File(None),
-    db: Session = Depends(get_db)
+
+@app.post("/forgot-password")
+@app.post("/api/Auth/forgetPassword")
+async def forgot_password(
+    request: Request,
+    email: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
 ):
+    if not email:
+        try:
+            payload = await request.json()
+            email = payload.get("email")
+        except Exception:
+            email = None
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required.")
     doctor = db.query(Doctor).filter(Doctor.email == email).first()
-    
     if not doctor:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    if fullName: doctor.fullName = fullName
-    if phone: doctor.phone = phone
-    if gender: doctor.gender = gender
-    
-    if photo:
-        filename = os.path.basename(photo.filename) 
-        filename = f"{int(time.time())}_{filename}"
-        file_path = f"{UPLOAD_DIR}/{filename}"
-        
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(photo.file, buffer)
-            
-        doctor.profileImage = file_path
-        
-    try:
-        db.commit()
-        db.refresh(doctor)
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
-    img_path = doctor.profileImage if doctor.profileImage else ""
-
-    return {
-    "status": True,
-    "message": "Profile updated successfully",
-    "data": {
-        "token": "fake-login-token-123",
-        "user": {
-            "id": str(doctor.id),
-            "email": doctor.email,
-            "fullName": doctor.fullName,
-            "userName": doctor.userName,
-            "phone": doctor.phone if doctor.phone else "",
-            "gender": doctor.gender,
-            "profilePicture": img_path,
-            "role": "Doctor",
-            "dateOfBirth": None,
-            "latitude": None,
-            "longitude": None,
-            "age": None
-        }
-    }
-}
+        raise HTTPException(status_code=404, detail="Email not found.")
+    doctor.verification_code = _generate_otp()
+    db.commit()
+    logger.info("Forgot password OTP generated: email=%s code=%s", email, doctor.verification_code)
+    return {"status": "success", "email": email, "message": "OTP generated."}
 
 
-# --- 5. X-Ray / Chest Scan prediction (Hugging Face Space Ibrahim2002/xray_ai) ---
-HF_SPACE = "Ibrahim2002/xray_ai"
-API_NAME = "/predict"
-
-
-def _parse_label_result(result):
-    """Parse Gradio Label output: dict[str,float], or list containing it, or confidences list."""
-    prediction_str = "Unknown"
-    confidence = 0.0
-
-    # Unwrap if API returns a list (e.g. single output as [dict])
-    if isinstance(result, (list, tuple)) and len(result) > 0:
-        result = result[0]
-
-    if result is None:
-        return prediction_str, confidence
-
-    if isinstance(result, dict):
-        # Format 1: {"Covid": 0.1, "Lung Cancer": 0.2, "Normal": 0.6, "Pneumonia": 0.1}
-        items = []
-        for k, v in result.items():
-            if k in ("label", "confidences") or (isinstance(k, str) and k.startswith("_")):
-                continue
-            try:
-                items.append((str(k), float(v)))
-            except (TypeError, ValueError):
-                pass
-        if items:
-            top_class, top_prob = max(items, key=lambda x: x[1])
-            return top_class, round(top_prob * 100, 1)
-
-        # Format 2: {"label": "Covid", "confidences": [{"label": "Covid", "confidence": 0.85}, ...]}
-        if "label" in result and "confidences" in result:
-            pred = result.get("label")
-            conf_list = result.get("confidences") or []
-            for c in conf_list:
-                if isinstance(c, dict) and c.get("label") == pred:
-                    conf = c.get("confidence")
-                    if conf is not None:
-                        return str(pred), round(float(conf) * 100, 1)
-            # Fallback: use first confidence (top class)
-            if conf_list and isinstance(conf_list[0], dict):
-                c0 = conf_list[0]
-                return str(c0.get("label", pred)), round(float(c0.get("confidence", 0)) * 100, 1)
-            return str(pred), confidence
-
-        if "label" in result:
-            return str(result["label"]), confidence
-
-    if isinstance(result, str):
-        return result, confidence
-
-    return prediction_str, confidence
+@app.post("/verify-email")
+@app.post("/api/Auth/verify")
+@app.post("/api/Auth/verifyEmail")
+async def verify_email(
+    request: Request,
+    email: Optional[str] = Form(None),
+    code: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+):
+    if not email or not code:
+        try:
+            payload = await request.json()
+            email = email or payload.get("email")
+            code = code or payload.get("code")
+        except Exception:
+            pass
+    if not email or not code:
+        raise HTTPException(status_code=400, detail="Email and code are required.")
+    doctor = db.query(Doctor).filter(Doctor.email == email).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="User not found.")
+    if doctor.verification_code != code:
+        raise HTTPException(status_code=400, detail="Invalid verification code.")
+    doctor.is_verified = True
+    doctor.verification_code = None
+    db.commit()
+    return {"status": "success", "message": "Email verified successfully."}
 
 
 @app.post("/api/ChestScan/upload")
@@ -308,92 +242,103 @@ async def chest_scan_upload(
     Latitude: Optional[float] = Form(None),
     db: Session = Depends(get_db),
 ):
-    """Accepts X-ray image, calls Hugging Face Gradio Space, returns prediction and saves to history."""
-    if not image.filename:
-        raise HTTPException(status_code=400, detail="No image file provided")
-
-    suffix = os.path.splitext(image.filename)[1] or ".png"
-    image.file.seek(0)
+    suffix = os.path.splitext(image.filename or "")[1] or ".png"
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-        shutil.copyfileobj(image.file, tmp)
+        content = await image.read()
+        tmp.write(content)
         tmp_path = tmp.name
 
     try:
-        client = Client(HF_SPACE)
-        result = client.predict(
-            image=handle_file(tmp_path),
-            api_name=API_NAME,
+        try:
+            is_valid_xray = validate_xray(tmp_path)
+        except Exception as e:
+            logger.exception("OOD API failed: %s", e)
+            raise HTTPException(
+                status_code=500,
+                detail="OOD validation service failed. Please try again later.",
+            ) from e
+
+        if not is_valid_xray:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "status": "invalid_image",
+                    "message": "Please upload a valid chest X-ray image.",
+                },
+            )
+
+        try:
+            result = classify_xray(tmp_path)
+        except Exception as e:
+            logger.exception("Main classification model failed: %s", e)
+            raise HTTPException(
+                status_code=500,
+                detail="Classification service failed. Please try again later.",
+            ) from e
+
+        timestamp = int(time.time())
+        safe_name = f"scan_{timestamp}_{(image.filename or 'image')}".replace(" ", "_")
+        save_path = os.path.join(UPLOAD_DIR, safe_name)
+        shutil.copy(tmp_path, save_path)
+        rel_path = f"/{UPLOAD_DIR}/{safe_name}".replace("//", "/")
+
+        scan = Scan(
+            imagePath=rel_path,
+            detectionClass=result["prediction"],
+            confidence=result["confidence"],
+            description=result["description"],
         )
-        print(f"[ChestScan] HF Space raw result type={type(result).__name__!r} value={result!r}")
-
-        prediction_str, confidence = _parse_label_result(result)
-        description = f"Result from X-ray AI: {prediction_str} ({confidence}%)"
-
-        # Save image to uploads and store record for history
-        from datetime import datetime
-        ts = int(time.time())
-        saved_filename = f"scan_{ts}_{image.filename or 'image'}"
-        saved_path = f"{UPLOAD_DIR}/{saved_filename}"
-        shutil.copy(tmp_path, saved_path)
-
-        scan_record = ScanRecord(
-            imagePath=saved_path,
-            detectionClass=prediction_str,
-            confidence=str(confidence),
-            description=description,
-            isReviewed="false",
-            uploadDate=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-        )
-        db.add(scan_record)
+        db.add(scan)
         db.commit()
-        db.refresh(scan_record)
+        db.refresh(scan)
 
         return {
-            "prediction": prediction_str,
-            "confidence": confidence,
-            "description": description,
-            "heatmap_base64": None,
-            "imagePath": f"/{scan_record.imagePath}",
-            "id": scan_record.id,
+            "prediction": result["prediction"],
+            "confidence": result["confidence"],
+            "description": result["description"],
+            "segmented_base64": result.get("segmented_base64"), # <--- الإضافة هنا
+            "heatmap_base64": result.get("heatmap_base64"),
+            "imagePath": rel_path,
+            "id": scan.id,
         }
-    except Exception as e:
-        print(f"[ChestScan] Error calling HF Space: {e!r}")
-        raise HTTPException(status_code=500, detail=str(e))
     finally:
         try:
             os.unlink(tmp_path)
-        except Exception:
+        except OSError:
             pass
 
 
+@app.get("/api/ChestScan/history")
 @app.get("/MriScan")
-def get_scan_history(
+async def get_scans(
     pageIndex: int = 0,
     pageSize: int = 10,
     db: Session = Depends(get_db),
 ):
-    """Returns paginated scan history for History and Recent History screens."""
-    from math import ceil
-    query = db.query(ScanRecord).order_by(ScanRecord.id.desc())
-    total = query.count()
-    total_pages = ceil(total / pageSize) if pageSize > 0 else 0
-    items = query.offset(pageIndex * pageSize).limit(pageSize).all()
+    total = db.query(Scan).count()
+    offset = pageIndex * pageSize
+    rows = db.query(Scan).order_by(Scan.uploadDate.desc()).offset(offset).limit(pageSize).all()
+    total_pages = (total + pageSize - 1) // pageSize if pageSize > 0 else 0
+
     data = [
         {
-            "imagePath": f"/{r.imagePath}",
+            "imagePath": r.imagePath,
             "detectionClass": r.detectionClass,
-            "isReviewed": r.isReviewed == "true",
-            "uploadDate": r.uploadDate,
+            "isReviewed": r.isReviewed or False,
+            "uploadDate": r.uploadDate.isoformat() + "Z"
+            if r.uploadDate
+            else datetime.utcnow().isoformat() + "Z",
             "doctorReview": None,
-            "confidence": float(r.confidence) if r.confidence else 0,
-            "description": r.description or "",
+            "confidence": r.confidence,
+            "description": r.description,
         }
-        for r in items
+        for r in rows
     ]
+
     return {
         "pageIndex": pageIndex,
         "pageSize": pageSize,
-        "count": len(data),
+        "count": total,
         "totalPages": total_pages,
         "data": data,
     }

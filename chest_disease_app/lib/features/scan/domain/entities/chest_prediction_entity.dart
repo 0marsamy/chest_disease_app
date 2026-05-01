@@ -4,6 +4,7 @@ class ChestPredictionEntity extends Equatable {
   final String prediction;
   final double confidence;
   final String description;
+  final String? segmentedBase64;
   final String? heatmapBase64;
   final String? imagePath;
   final int? id;
@@ -12,6 +13,7 @@ class ChestPredictionEntity extends Equatable {
     required this.prediction,
     required this.confidence,
     required this.description,
+    this.segmentedBase64,
     this.heatmapBase64,
     this.imagePath,
     this.id,
@@ -19,11 +21,12 @@ class ChestPredictionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        prediction,
-        confidence,
-        description,
-        heatmapBase64,
-        imagePath,
-        id,
-      ];
+    prediction,
+    confidence,
+    description,
+    segmentedBase64,
+    heatmapBase64,
+    imagePath,
+    id,
+  ];
 }

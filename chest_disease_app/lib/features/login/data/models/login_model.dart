@@ -5,8 +5,17 @@ class LoginResponseModel {
   LoginResponseModel({this.token, this.user});
 
   LoginResponseModel.fromJson(Map<String, dynamic> json) {
-    token = json['token'];
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
+    final payload = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
+
+    token =
+        payload['token']?.toString() ??
+        payload['accessToken']?.toString() ??
+        payload['access_token']?.toString();
+    user = payload['user'] is Map<String, dynamic>
+        ? User.fromJson(payload['user'] as Map<String, dynamic>)
+        : null;
     // ✅ إضافة التوكن لليوزر لو موجود في الريسبونس
     if (user != null && token != null) {
       user!.token = token;
@@ -55,19 +64,19 @@ class User {
   });
 
   User.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    profilePicture = json['profilePicture'];
-    fullName = json['fullName'];
-    role = json['role'];
-    userName = json['userName'];
-    email = json['email'];
-    phone = json['phone'];
-    dateOfBirth = json['dateOfBirth'];
-    gender = json['gender'];
-    token = json['token']; // ✅
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-    age = json['age'];
+    id = json['id']?.toString();
+    profilePicture = json['profilePicture']?.toString();
+    fullName = json['fullName']?.toString();
+    role = json['role']?.toString();
+    userName = json['userName']?.toString();
+    email = json['email']?.toString();
+    phone = json['phone']?.toString();
+    dateOfBirth = json['dateOfBirth']?.toString();
+    gender = json['gender']?.toString();
+    token = json['token']?.toString(); // ✅
+    latitude = (json['latitude'] as num?)?.toDouble();
+    longitude = (json['longitude'] as num?)?.toDouble();
+    age = (json['age'] as num?)?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -127,8 +136,5 @@ class LoginRequestModel {
 
   LoginRequestModel({required this.email, required this.password});
 
-  Map<String, dynamic> toJson() => {
-        'email': email,
-        'password': password,
-      };
+  Map<String, dynamic> toJson() => {'email': email, 'password': password};
 }

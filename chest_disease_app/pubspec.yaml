@@ -62,6 +62,7 @@ dependencies:
   # --- Firebase & Notifications ---
   onesignal_flutter: ^5.1.2
   firebase_core: ^2.32.0
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

@@ -13,11 +13,13 @@ import 'package:chest_disease_app/features/medical_history/data/model/detection_
 import 'package:chest_disease_app/features/medical_history/presentation/view/screens/detailed_scan_result_screen.dart';
 import 'package:chest_disease_app/features/medical_history/presentation/view/screens/medical_history_screen.dart';
 import 'package:chest_disease_app/features/medical_history/presentation/view_model/medical_history_cubit.dart';
+import 'package:chest_disease_app/features/location/presentation/view/screens/location_picker_screen.dart';
 import 'package:chest_disease_app/features/register/presentation/view/screens/rigester_screen.dart';
 import 'package:chest_disease_app/features/register/presentation/view_model/rigester_screen_cubit.dart';
 import 'package:chest_disease_app/features/reports/data/model/doctor_reports_model.dart';
 import 'package:chest_disease_app/features/reports/presentation/view/screens/reports_screen.dart';
 import 'package:chest_disease_app/features/reports/presentation/view/screens/view_report_screen.dart';
+import 'package:chest_disease_app/features/profle/presentation/view/screens/alert_settings_screen.dart';
 import 'package:chest_disease_app/features/reset_password/presentation/view/screens/reset_password.dart';
 import 'package:chest_disease_app/features/verification_code/presentation/view_model/cubit/verification_code_cubit.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +61,7 @@ class AppRoutes {
   static const String medicalHistoryScreen = '/medicalHistory';
   static const String detailedScanResultScreen = '/detailedScanResultScreen';
   static const String reportsScreen = '/reportsScreen';
+  static const String alertSettingsScreen = '/alertSettingsScreen';
 }
 
 class AppRouter {
@@ -73,13 +76,15 @@ class AppRouter {
     switch (routeSettings.name) {
       case AppRoutes.verificationCodeScreen:
         final args = routeSettings.arguments as Map<String, dynamic>;
-        return animateRouteBuilder(BlocProvider(
-          create: (context) => getIt<VerificationCodeCubit>(),
-          child: VerificationCodeScreen(
-            email: args['email'] as String,
-            isResetPass: args['isResetPass'] as bool,
+        return animateRouteBuilder(
+          BlocProvider(
+            create: (context) => getIt<VerificationCodeCubit>(),
+            child: VerificationCodeScreen(
+              email: args['email'] as String,
+              isResetPass: args['isResetPass'] as bool,
+            ),
           ),
-        ));
+        );
       case AppRoutes.notificationScreen:
         return animateRouteBuilder(
           BlocProvider(
@@ -128,15 +133,21 @@ class AppRouter {
           duration: 300.ms,
         );
       case AppRoutes.resetPasswordScreen:
-        return animateRouteBuilder(BlocProvider(
-          create: (context) => getIt<ResetPasswordCubit>(),
-          child: const ResetPassword(),
-        ));
-      case AppRoutes.splashScreen:
+        final args = routeSettings.arguments is Map<String, dynamic>
+            ? routeSettings.arguments as Map<String, dynamic>
+            : <String, dynamic>{};
         return animateRouteBuilder(
-          const SplashScreen(),
-          duration: 300.ms,
+          BlocProvider(
+            create: (context) => getIt<ResetPasswordCubit>()
+              ..prefill(
+                email: args['email'] as String?,
+                token: args['token'] as String?,
+              ),
+            child: const ResetPassword(),
+          ),
         );
+      case AppRoutes.splashScreen:
+        return animateRouteBuilder(const SplashScreen(), duration: 300.ms);
       case AppRoutes.contactUsScreen:
         return animateRouteBuilder(
           BlocProvider(
@@ -146,15 +157,10 @@ class AppRouter {
           duration: 300.ms,
         );
       case AppRoutes.addPostScreen:
-        return animateRouteBuilder(
-          const AddPost(),
-          duration: 300.ms,
-        );
+        return animateRouteBuilder(const AddPost(), duration: 300.ms);
       case AppRoutes.viewReportScreen:
         return animateRouteBuilder(
-          ViewReportScreen(
-            report: routeSettings.arguments as Report,
-          ),
+          ViewReportScreen(report: routeSettings.arguments as Report),
           duration: 300.ms,
         );
       case AppRoutes.chatsScreen:
@@ -165,43 +171,52 @@ class AppRouter {
         return animateRouteBuilder(const MedicalChatbotScreen());
       case AppRoutes.onBoardingScreen:
         return animateRouteBuilder(
-            BlocProvider(
-              create: (context) => getIt<OnboardingCubit>(),
-              child: const OnBoardingScreen(),
-            ),
-            duration: 300.ms);
+          BlocProvider(
+            create: (context) => getIt<OnboardingCubit>(),
+            child: const OnBoardingScreen(),
+          ),
+          duration: 300.ms,
+        );
       case AppRoutes.loginScreen:
         return animateRouteBuilder(
-            BlocProvider(
-              create: (context) => getIt<LoginCubit>(),
-              child: const LoginScreen(),
-            ),
-            duration: 300.ms);
+          BlocProvider(
+            create: (context) => getIt<LoginCubit>(),
+            child: const LoginScreen(),
+          ),
+          duration: 300.ms,
+        );
       case AppRoutes.doctorProfileScreen:
         return animateRouteBuilder(
-            BlocProvider(
-              create: (context) => getIt<DoctorsCubit>(),
-              child: DoctorsProfile(
-                doctorClinicModel: routeSettings.arguments as DoctorClinicModel,
-              ),
+          BlocProvider(
+            create: (context) => getIt<DoctorsCubit>(),
+            child: DoctorsProfile(
+              doctorClinicModel: routeSettings.arguments as DoctorClinicModel,
             ),
-            duration: 300.ms);
+          ),
+          duration: 300.ms,
+        );
       case AppRoutes.registerScreen:
         return animateRouteBuilder(
-            BlocProvider(
-              create: (context) => getIt<RigesterScreenCubit>(),
-              child: const RigesterScreen(),
-            ),
-            duration: 300.ms);
+          BlocProvider(
+            create: (context) => getIt<RigesterScreenCubit>(),
+            child: const RigesterScreen(),
+          ),
+          duration: 300.ms,
+        );
       case AppRoutes.homeScreen:
         return animateRouteBuilder(
-            BlocProvider(
-              create: (context) => getIt<NavigationCubit>(),
-              child: const HomeScreen(),
-            ),
-            duration: 300.ms);
+          BlocProvider(
+            create: (context) => getIt<NavigationCubit>(),
+            child: const HomeScreen(),
+          ),
+          duration: 300.ms,
+        );
       case AppRoutes.reportsScreen:
         return animateRouteBuilder(const ReportsScreen());
+      case AppRoutes.locationScreen:
+        return animateRouteBuilder(const LocationPickerScreen());
+      case AppRoutes.alertSettingsScreen:
+        return animateRouteBuilder(const AlertSettingsScreen());
       default:
         return null;
     }
@@ -224,4 +239,3 @@ Route buildPageRoute(Widget page, Duration duration) {
     },
   );
 }
-

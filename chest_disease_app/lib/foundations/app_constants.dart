@@ -59,12 +59,10 @@ class AppConstants {
     String? cachedLang = await AppCacheHelper.getSecuredString(
       key: AppCacheHelper.language,
     );
-    print("Get Language From Cache: $cachedLang");
     if (cachedLang == null || cachedLang.isEmpty) {
       // If not found, get system language
       final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
       final isEnglish = systemLocale.languageCode == 'en';
-      print("System Language Detected: ${systemLocale.languageCode}");
       await setLanguage(isEnglish);
       langCode = isEnglish;
     } else {
@@ -74,7 +72,6 @@ class AppConstants {
   }
 
   static setOnBoardingBoolean(bool value) async {
-    print("setting boolean value ${value.toString()}");
     await AppCacheHelper.setSecuredString(
       key: AppCacheHelper.onBoardingKey,
       value: value.toString(),
@@ -89,7 +86,6 @@ class AppConstants {
     if (onBoardingValue != null && onBoardingValue.isNotEmpty) {
       onBoarding = onBoardingValue == 'true';
     }
-    print("getting boolean value ${onBoarding.toString()}");
 
     return onBoarding;
   }
@@ -106,19 +102,14 @@ class AppConstants {
     String? cacheUser = await AppCacheHelper.getSecuredString(
       key: AppCacheHelper.user,
     );
-    print('cacheUser: ${cacheUser?.isEmpty}ffffffffffff');
     if (cacheUser != null && cacheUser.isNotEmpty) {
-      print('ddddddddddddddddddd');
       try {
         AppConstants.user = User.fromJson(jsonDecode(cacheUser));
-      } catch (e) {
-        print('error: $e');
-      }
+      } catch (_) {}
     }
   }
 
   static setBiometricUser(User user) async {
-    print("set use biometric data");
     await AppCacheHelper.setSecuredString(
       key: AppCacheHelper.biometricUser,
       value: jsonEncode(user.toJson()), // Serialize to JSON
@@ -130,7 +121,6 @@ class AppConstants {
     String? cacheUser = await AppCacheHelper.getSecuredString(
       key: AppCacheHelper.biometricUser,
     );
-    print('cacheUser: ${cacheUser?.isEmpty}ffffffffffff');
     if (cacheUser != null && cacheUser.isNotEmpty) {
       return User.fromJson(jsonDecode(cacheUser));
     }
@@ -162,6 +152,7 @@ class AppConstants {
     accessToken = '';
     user = null;
     location = null;
+    await AppCacheHelper.clearSecuredData(AppCacheHelper.tokenKey);
     await AppCacheHelper.clearSecuredData(AppCacheHelper.user);
   }
 

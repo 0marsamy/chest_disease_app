@@ -17,25 +17,25 @@ class RegisterRemoteDataSource {
   }
 
   Future<RegisterResponseModel> patientRegister(
-      PatientRegisterRequestModel parameters) async {
+    PatientRegisterRequestModel parameters,
+  ) async {
     final formData = await parameters.toFormData();
     final response = await _getDio().post(
-      "${AppUrls.baseUrl}/api/Auth/register/patient",
+      '/${AppUrls.registerPatient}',
       data: formData,
     );
     return RegisterResponseModel.fromJson(response.data);
   }
 
   Future<RegisterResponseModel> doctorRegister(
-      DoctorRegisterRequestModel parameters) async {
+    DoctorRegisterRequestModel parameters,
+  ) async {
     final dio = _getDio();
     final formData = await parameters.toFormData();
-    print("Sending registration request to backend...");
     final response = await dio.post(
-      "${AppUrls.baseUrl}/api/Auth/register/doctor",
+      '/${AppUrls.registerDoctor}',
       data: formData,
     );
-    print("Registration response received: ${response.statusCode}");
     return RegisterResponseModel.fromJson(response.data);
   }
 }

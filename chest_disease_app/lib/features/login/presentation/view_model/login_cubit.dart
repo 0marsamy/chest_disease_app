@@ -1,13 +1,12 @@
-import 'package:chest_disease_app/core/components/cubits/app_cubit/app_cubit.dart';
+import 'package:bloc/bloc.dart';
 import 'package:chest_disease_app/core/config/app_routing.dart';
 import 'package:chest_disease_app/core/utils/extenstions/toast_string_extenstion.dart';
 import 'package:chest_disease_app/foundations/app_constants.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:local_auth/local_auth.dart';
-  
+
 import '../../../../../../core/utils/extenstions/navigation_extenstions.dart';
 import '../../../../core/data/local_services/app_caching_helper.dart';
 import '../../data/models/login_model.dart';
@@ -36,20 +35,25 @@ class LoginCubit extends Cubit<LoginState> {
   Future<void> forgetPassword() async {
     if (forgetPasswordFormKey.currentState!.validate()) {
       emit(ForgetPasswordLoadingState());
-      final response =
-          await repository.forgetPassword(forgetPasswordController.text);
-      response.fold((l) {
-        l.message!.showToast();
+      final email = forgetPasswordController.text.trim();
+      if (email.isEmpty || !email.contains('@')) {
+        "Please enter a valid email".showToast();
         emit(LoginErrorState());
-      }, (r) {
-        context.navigateTo(
-          AppRoutes.verificationCodeScreen,
-          arguments: {
-            'email': r,
-            'isResetPass': true,
-          },
-        );
-      });
+        return;
+      }
+      final response = await repository.forgetPassword(email);
+      response.fold(
+        (l) {
+          l.message!.showToast();
+          emit(LoginErrorState());
+        },
+        (r) {
+          context.navigateTo(
+            AppRoutes.verificationCodeScreen,
+            arguments: {'email': r, 'isResetPass': true},
+          );
+        },
+      );
     }
   }
 
@@ -58,28 +62,38 @@ class LoginCubit extends Cubit<LoginState> {
       emit(LoginLoadingState());
       final result = await repository.login(
         LoginRequestModel(
-            email: emailController.text, password: passwordController.text),
+          email: emailController.text,
+          password: passwordController.text,
+        ),
       );
-      result.fold((l) {
-        l.message!.showToast();
-        emit(LoginErrorState());
-      }, (r) async {
-        if (rememberMe) {
-          AppConstants.setBiometricToken(r.token!);
-          AppConstants.setBiometricUser(r.user!);
-        }
-        AppConstants.cacheString(
-            key: AppCacheHelper.rememberMe, value: rememberMe.toString());
-        AppConstants.setToken(r.token!);
-        AppConstants.setUser(r.user!);
-        AppConstants.user = r.user;
-        setLocation();
-        // Get FCM token and send it to the server
-        String? fcmToken = "";
-        context.read<AppCubit>().repository.sendDeviceToken(fcmToken);
-              context.navigateToAndRemoveUntil(AppRoutes.homeScreen);
-        emit(LoginSuccessState());
-      });
+      result.fold(
+        (l) {
+          l.message!.showToast();
+          emit(LoginErrorState());
+        },
+        (r) async {
+          if (r.token == null || r.user == null) {
+            "Invalid login response from server".showToast();
+            emit(LoginErrorState());
+            return;
+          }
+          if (rememberMe) {
+            await AppConstants.setBiometricToken(r.token!);
+            await AppConstants.setBiometricUser(r.user!);
+          }
+          await AppConstants.cacheString(
+            key: AppCacheHelper.rememberMe,
+            value: rememberMe.toString(),
+          );
+          await AppConstants.setToken(r.token!);
+          await AppConstants.setUser(r.user!);
+          AppConstants.user = r.user;
+          await setLocation();
+          NavigationExtensions.navigatorKey.currentState
+              ?.pushNamedAndRemoveUntil(AppRoutes.homeScreen, (_) => false);
+          emit(LoginSuccessState());
+        },
+      );
     }
   }
 
@@ -91,8 +105,9 @@ class LoginCubit extends Cubit<LoginState> {
   Future<void> checkBiometricAvailability() async {
     try {
       isBiometricAvailable = await auth.canCheckBiometrics;
-      emit(BiometricAvailabilityState(
-          isBiometricAvailable: isBiometricAvailable));
+      emit(
+        BiometricAvailabilityState(isBiometricAvailable: isBiometricAvailable),
+      );
     } catch (e) {
       isBiometricAvailable = false;
     }
@@ -122,13 +137,14 @@ class LoginCubit extends Cubit<LoginState> {
       if (authenticated) {
         await AppConstants.setToken(userToken);
         await AppConstants.setUser(userDataJson);
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.homeScreen, (_) => false);
+        NavigationExtensions.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.homeScreen,
+          (_) => false,
+        );
         emit(LoginSuccessState());
       }
     } catch (e) {
       emit(LoginErrorState());
-      print("Biometric authentication failed: $e");
     }
   }
 
@@ -141,4 +157,3 @@ class LoginCubit extends Cubit<LoginState> {
     emit(ChangePasswordState(isObscure));
   }
 }
-
