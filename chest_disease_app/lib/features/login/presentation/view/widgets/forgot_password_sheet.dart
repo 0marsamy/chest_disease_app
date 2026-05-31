@@ -8,6 +8,8 @@ import '../../../../../../../core/components/widgets/custom_button.dart';
 import '../../../../../../../core/components/widgets/custom_text_field.dart';
 import '../../../../../../../core/utils/theme/text_styles/app_text_styles.dart';
 import '../../../../../generated/l10n.dart';
+import '../../../../../../../core/utils/extenstions/navigation_extenstions.dart';
+import 'package:chest_disease_app/core/config/app_routing.dart';
 
 class ForgotPasswordSheet extends StatelessWidget {
   const ForgotPasswordSheet({super.key});
@@ -15,68 +17,114 @@ class ForgotPasswordSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<LoginCubit>();
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40.w,
-              height: 5.h,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          5.toHeight,
-          Center(
-              child: Text(S.of(context).forgetYourPassword,
-                  style: AppTextStyles.font20GreenW500)),
-          10.toHeight,
-          Center(
-            child: Text(
-              S.of(context).dontWorryPassword,
-              style: AppTextStyles.font15LightGreenW500,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          20.toHeight,
-          Form(
-            key: cubit.forgetPasswordFormKey,
-            child: CustomTextField(
-                controller: cubit.forgetPasswordController,
-                validator: (value) => checkFieldValidation(
-                    val: value,
-                    fieldName: S.of(context).email,
-                    fieldType: ValidationType.email),
-                label: S.of(context).email,
-                hintText: S.of(context).enterYourEmail),
-          ),
-          20.toHeight,
-          BlocBuilder<LoginCubit, LoginState>(
-            builder: (BuildContext context, LoginState state) {
-              return Center(
-                child: CustomButton(
-                  isLoading: state is ForgetPasswordLoadingState,
-                  text: S.of(context).next,
-                  onTap: () {
-                    cubit.forgetPassword();
+
+    return BlocListener<LoginCubit, LoginState>(
+      listener: (context, state) {
+        if (state is ForgetPasswordSuccessState) {
+          // 1. اقفل الـ Bottom Sheet أولاً عشان متفضلش عايمة تحت الشاشة الجديدة
+          Navigator.pop(context);
+
+          // 2. اتنقل لشاشة كود التفعيل بأمان
+          context.navigateTo(
+            AppRoutes.verificationCodeScreen,
+            arguments: {'email': state.email, 'isResetPass': true},
+          );
+        }
+      },
+      child: SingleChildScrollView(
+        child:
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40.w,
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                5.toHeight,
+                Center(
+                  child: Text(
+                    S.of(context).forgetYourPassword,
+                    style: AppTextStyles.font20GreenW500,
+                  ),
+                ),
+                10.toHeight,
+                Center(
+                  child: Text(
+                    S.of(context).dontWorryPassword,
+                    style: AppTextStyles.font15LightGreenW500,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                20.toHeight,
+                BlocBuilder<LoginCubit, LoginState>(
+                  builder: (context, state) {
+                    final errorMessage = state is ForgetPasswordErrorState
+                        ? state.message
+                        : null;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (errorMessage != null) ...[
+                          Text(
+                            errorMessage,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                          8.toHeight,
+                        ],
+                        Form(
+                          key: cubit.forgetPasswordFormKey,
+                          child: CustomTextField(
+                            controller: cubit.forgetPasswordController,
+                            validator: (value) => checkFieldValidation(
+                              val: value,
+                              fieldName: S.of(context).email,
+                              fieldType: ValidationType.email,
+                            ),
+                            label: S.of(context).email,
+                            hintText: S.of(context).enterYourEmail,
+                          ),
+                        ),
+                      ],
+                    );
                   },
                 ),
-              );
-            },
-          ),
-          20.toHeight,
-        ],
-      ).paddingOnly(
-        right: 20.w,
-        left: 20.w,
-        top: 5.h,
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+                20.toHeight,
+                BlocBuilder<LoginCubit, LoginState>(
+                  builder: (BuildContext context, LoginState state) {
+                    return Center(
+                      child: CustomButton(
+                        isLoading: state is ForgetPasswordLoadingState,
+                        text: S.of(context).next,
+                        onTap: () {
+                          if (cubit.forgetPasswordFormKey.currentState!
+                              .validate()) {
+                            cubit.forgetPassword();
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ),
+                20.toHeight,
+              ],
+            ).paddingOnly(
+              right: 20.w,
+              left: 20.w,
+              top: 5.h,
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
       ),
     );
   }
 }
-

@@ -1,9 +1,11 @@
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
 import 'package:chest_disease_app/core/services/service_locator/service_locator.dart';
 import 'package:chest_disease_app/features/medical_history/data/model/detection_response.dart';
 import 'package:chest_disease_app/features/medical_history/data/repository/medical_history_repository.dart';
 import 'package:chest_disease_app/features/scan/domain/entities/chest_prediction_entity.dart';
 import 'package:chest_disease_app/features/scan/presentation/view/widgets/scan_result_view.dart';
 import 'package:chest_disease_app/foundations/app_urls.dart';
+import 'package:chest_disease_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -70,7 +72,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ? d.imagePath
               : '${AppUrls.baseUrl}${d.imagePath}';
           return _HistoryItem(
-            displayName: 'Scan - $dateStr - ${d.detectionClass}',
+            displayName:
+                '${S.of(context).scan} - $dateStr - ${formatDiagnosisLabel(d.detectionClass, context: context)}',
             diagnosis: d.detectionClass,
             date: dateStr,
             confidence: d.confidence ?? 0,
@@ -108,7 +111,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('History 📜'),
+        title: Text(S.of(context).historyTitle),
         centerTitle: true,
         actions: [
           IconButton(
@@ -125,7 +128,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
-                hintText: 'Search by diagnosis or date...',
+                hintText: S.of(context).searchByDiagnosisOrDate,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -147,17 +150,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         const SizedBox(height: 16),
                         TextButton(
                           onPressed: _loadHistory,
-                          child: const Text('Retry'),
+                          child: Text(S.of(context).retry),
                         ),
                       ],
                     ),
                   )
                 : _filteredHistoryItems.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No scan history yet.\nRun a scan to see results here.',
-                    ),
-                  )
+                ? Center(child: Text(S.of(context).noScanHistory))
                 : ListView.builder(
                     itemCount: _filteredHistoryItems.length,
                     itemBuilder: (context, index) {
@@ -193,7 +192,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                item.diagnosis,
+                                formatDiagnosisLabel(
+                                  item.diagnosis,
+                                  context: context,
+                                ),
                                 style: TextStyle(
                                   color: diagnosisColor,
                                   fontWeight: FontWeight.w500,
@@ -210,7 +212,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                               confidence: item.confidence,
                               description:
                                   item.description ??
-                                  'Result from X-ray AI: ${item.diagnosis} (${item.confidence.toStringAsFixed(1)}%)',
+                                  '${S.of(context).resultFromXrayAI} ${formatDiagnosisLabel(item.diagnosis, context: context)} (${item.confidence.toStringAsFixed(1)}%)',
                             );
                             Navigator.push(
                               context,

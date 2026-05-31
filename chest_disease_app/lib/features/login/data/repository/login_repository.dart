@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/data/network_services/api_error_handler.dart';
@@ -18,7 +19,7 @@ class LoginRepository {
       final response = await dataSource.login(parameters);
       return Right(response);
     } catch (e) {
-      return Left(ErrorHandler.handle(e));
+      return Left(_handleCustomError(e));
     }
   }
 
@@ -26,8 +27,35 @@ class LoginRepository {
     try {
       final response = await dataSource.forgetPassword(email);
       return Right(response);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.handle(e));
+    } catch (e) {
+      return Left(_handleCustomError(e));
     }
+  }
+
+  // الدالة المعدلة بذكاء لالتقاط أي رسالة خطأ
+  ApiErrorModel _handleCustomError(dynamic e) {
+    if (e is DioException) {
+      final data = e.response?.data;
+
+      if (data != null) {
+        // 1. لو الخطأ راجع كـ Map (وهو الشائع في الـ APIs)
+        if (data is Map) {
+          // نحاول نجيب الرسالة من أي Key محتمل
+          final String errorMessage =
+              data['detail']?.toString() ??
+              data['message']?.toString() ??
+              data['error']?.toString() ??
+              data.values.firstOrNull?.toString() ??
+              'Unknown error occurred';
+          return ApiErrorModel(message: errorMessage);
+        }
+
+        // 2. لو السيرفر باعت الخطأ كنص مباشر (String)
+        return ApiErrorModel(message: data.toString());
+      }
+    }
+
+    // الملاذ الأخير: إذا لم تكن DioException أو لا توجد داتا، نستخدم الـ ErrorHandler الأصلي
+    return ErrorHandler.handle(e);
   }
 }

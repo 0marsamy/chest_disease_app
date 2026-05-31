@@ -34,6 +34,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "age": MessageLookupByLibrary.simpleMessage("العمر: "),
         "aiModelConfedence": MessageLookupByLibrary.simpleMessage(
             "دقة تحديد نموذج الذكاء الاصطناعي"),
+        "aiOverlayNotAvailable": MessageLookupByLibrary.simpleMessage(
+            "صور التراكب الذكاء الاصطناعي غير متوفرة لهذا المسح."),
+        "analyze": MessageLookupByLibrary.simpleMessage("تحليل"),
         "appName":
             MessageLookupByLibrary.simpleMessage("نيوروتوم الذكاء الاصطناعي"),
         "appointmentCancelled":
@@ -52,6 +55,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "هل أنت متأكد أنك تريد تسجيل الخروج؟"),
         "asADoctor": MessageLookupByLibrary.simpleMessage("كطبيب"),
         "asAPatient": MessageLookupByLibrary.simpleMessage("كمريض"),
+        "assistantBusy": MessageLookupByLibrary.simpleMessage(
+            "المساعد الطبي مشغول مؤقتًا. يرجى المحاولة مرة أخرى خلال دقيقة."),
+        "assistantUnavailable": MessageLookupByLibrary.simpleMessage(
+            "عذراً، لم أتمكن من الوصول إلى المساعد الطبي الآن. يرجى المحاولة مرة أخرى قريبًا."),
         "availability": MessageLookupByLibrary.simpleMessage("التوفر"),
         "biometricAuthenticationEnabled": MessageLookupByLibrary.simpleMessage(
             "تم تفعيل المصادقة البيومترية"),
@@ -61,8 +68,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "cancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
         "changeLocation": MessageLookupByLibrary.simpleMessage("تغيير الموقع"),
         "chat": MessageLookupByLibrary.simpleMessage("الدردشة"),
+        "chatWithMedical":
+            MessageLookupByLibrary.simpleMessage("محادثة مع المساعد الطبي"),
+        "chatbot": MessageLookupByLibrary.simpleMessage("المساعد الطبي"),
+        "chatbotWelcome": MessageLookupByLibrary.simpleMessage(
+            "مرحبًا، أنا مساعدك الطبي. يمكنني مساعدتك في فهم نتائج الأشعة السينية بلغة بسيطة. يمكنك أيضًا رفع صورة أو تقرير باستخدام زر الرفع."),
+        "chatsTab": MessageLookupByLibrary.simpleMessage("المحادثات"),
         "chooseDay": MessageLookupByLibrary.simpleMessage("اختر اليوم"),
         "chooseLanguage": MessageLookupByLibrary.simpleMessage("اختر اللغة"),
+        "chooseTheme": MessageLookupByLibrary.simpleMessage("اختر السمة"),
+        "clear": MessageLookupByLibrary.simpleMessage("مسح"),
         "clickOnTheDayToShow": MessageLookupByLibrary.simpleMessage(
             "انقر على اليوم لإظهار المواعيد المتاحة"),
         "clinic": MessageLookupByLibrary.simpleMessage("العيادة"),
@@ -75,29 +90,33 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("إدارة العيادات"),
         "comment": MessageLookupByLibrary.simpleMessage("تعليق"),
         "comments": MessageLookupByLibrary.simpleMessage("تعليقات"),
+        "confidence": MessageLookupByLibrary.simpleMessage("الثقة:"),
         "confirm": MessageLookupByLibrary.simpleMessage("تأكيد"),
         "confirmBooking": MessageLookupByLibrary.simpleMessage("تأكيد الحجز"),
         "confirmPassword":
             MessageLookupByLibrary.simpleMessage("تأكيد كلمة السر"),
+        "confirmPasswordMismatch": MessageLookupByLibrary.simpleMessage(
+            "كلمة مرور التأكيد غير متطابقة"),
         "confirmPasswordNotMatch": MessageLookupByLibrary.simpleMessage(
             "تأكيد كلمة المرور غير متطابق"),
         "contactPatient":
             MessageLookupByLibrary.simpleMessage("الاتصال بالمريض"),
-        "contactUsMessage": MessageLookupByLibrary.simpleMessage(
-            "إذا كان لديك أي استفسارات أو تحتاج إلى مساعدة، لا تتردد في ارسال رسالة لنا."),
         "country": MessageLookupByLibrary.simpleMessage("البلد: "),
+        "covid19": MessageLookupByLibrary.simpleMessage("كوفيد-19"),
         "createYourAcc": MessageLookupByLibrary.simpleMessage("إنشاء حسابك"),
         "credentials": MessageLookupByLibrary.simpleMessage("الشهادات"),
+        "darkMode": MessageLookupByLibrary.simpleMessage("الوضع الداكن"),
         "date": MessageLookupByLibrary.simpleMessage("التاريخ"),
         "dateError": MessageLookupByLibrary.simpleMessage("تاريخ غير صالح"),
         "dateOfBirth": MessageLookupByLibrary.simpleMessage("تاريخ الميلاد:"),
+        "daysAgo": MessageLookupByLibrary.simpleMessage("أيام مضت"),
         "delete": MessageLookupByLibrary.simpleMessage("حذف"),
         "detectedAs":
             MessageLookupByLibrary.simpleMessage("تم تشخيصه علي انه:"),
         "diagnosis": MessageLookupByLibrary.simpleMessage("التشخيص"),
         "didnotGetCode":
             MessageLookupByLibrary.simpleMessage("لم تستلم الكود؟ "),
-        "doctor": MessageLookupByLibrary.simpleMessage("طبيب"),
+        "doctor": MessageLookupByLibrary.simpleMessage("دكتور"),
         "documentError":
             MessageLookupByLibrary.simpleMessage("الرجاء إدخال شهادتك الطبية"),
         "done": MessageLookupByLibrary.simpleMessage("تم"),
@@ -105,6 +124,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("ليس لديك حساب؟ "),
         "dontWorryPassword": MessageLookupByLibrary.simpleMessage(
             "لا تقلق! سوف نساعدك في استعادة حسابك في أسرع وقت"),
+        "dr": MessageLookupByLibrary.simpleMessage("د."),
         "edit": MessageLookupByLibrary.simpleMessage("تعديل"),
         "editProfile":
             MessageLookupByLibrary.simpleMessage("تعديل الملف الشخصي"),
@@ -127,6 +147,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "experience": MessageLookupByLibrary.simpleMessage("الخبرة: "),
         "failedToPickImage":
             MessageLookupByLibrary.simpleMessage("تعذر اختيار ملف"),
+        "failedToSaveReport":
+            MessageLookupByLibrary.simpleMessage("فشل في حفظ التقرير:"),
+        "failedToUpdateProfile":
+            MessageLookupByLibrary.simpleMessage("فشل في تحديث الملف الشخصي"),
         "female": MessageLookupByLibrary.simpleMessage("أنثى"),
         "fifthOnBoardingMessage":
             MessageLookupByLibrary.simpleMessage("الخصوصية أولاً"),
@@ -154,13 +178,32 @@ class MessageLookup extends MessageLookupByLibrary {
         "gallery": MessageLookupByLibrary.simpleMessage("المعرض"),
         "gender": MessageLookupByLibrary.simpleMessage("الجنس: "),
         "gotIt": MessageLookupByLibrary.simpleMessage("تم"),
+        "heatmapBlue": MessageLookupByLibrary.simpleMessage(
+            "الأزرق -> مناطق صحية أو ذات أهمية منخفضة"),
+        "heatmapColorLegend":
+            MessageLookupByLibrary.simpleMessage("مفتاح ألوان خريطة الحرارة"),
+        "heatmapRed": MessageLookupByLibrary.simpleMessage(
+            "الأحمر / الأحمر الداكن -> مناطق مصابة أو نشطة للغاية"),
+        "heatmapYellow": MessageLookupByLibrary.simpleMessage(
+            "الأصفر / الأخضر -> مناطق مشبوهة محيطة"),
+        "helloDr": MessageLookupByLibrary.simpleMessage("مرحبًا د."),
         "heyThereLogin": MessageLookupByLibrary.simpleMessage(
             "مرحبًا! هل أنت مستعد لمواصلة من حيث توقفت؟ سجل الدخول لمواصلة رحلتك الصحية"),
+        "historyTitle": MessageLookupByLibrary.simpleMessage("السجل"),
+        "homeTab": MessageLookupByLibrary.simpleMessage("الرئيسية"),
+        "hoursAgo": MessageLookupByLibrary.simpleMessage("ساعات مضت"),
+        "image": MessageLookupByLibrary.simpleMessage("صورة"),
+        "imageUnclear": MessageLookupByLibrary.simpleMessage(
+            "الصورة غير واضحة أو خارج التوزيع (OOD)."),
         "inCaseOfRejectingTheResulOrAcceptItPleaseProvideYourReasoning":
             MessageLookupByLibrary.simpleMessage(
                 "في حالة رفض النتيجة أو قبولها، يرجى تقديم تفسيرك."),
+        "invalidDate": MessageLookupByLibrary.simpleMessage("تاريخ غير صالح"),
         "invalidEmail":
-            MessageLookupByLibrary.simpleMessage("بريد إلكتروني غير صالح"),
+            MessageLookupByLibrary.simpleMessage("البريد الإلكتروني غير صالح"),
+        "invalidImage": MessageLookupByLibrary.simpleMessage("صورة غير صالحة"),
+        "invalidPhone":
+            MessageLookupByLibrary.simpleMessage("رقم الهاتف غير صالح"),
         "invalidPhoneNumber":
             MessageLookupByLibrary.simpleMessage("رقم هاتف غير صالح"),
         "kindlyCompleteTheForm": MessageLookupByLibrary.simpleMessage(
@@ -169,6 +212,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "letsResetIt": MessageLookupByLibrary.simpleMessage(
             "دعنا نُعيد تعيينها لتتمكن من العودة والتركيز على ما يهم حقًا: صحتك وسلامتك."),
         "letsStart": MessageLookupByLibrary.simpleMessage("لنبدأ!"),
+        "lightMode": MessageLookupByLibrary.simpleMessage("الوضع الفاتح"),
         "like": MessageLookupByLibrary.simpleMessage("إعجاب"),
         "likes": MessageLookupByLibrary.simpleMessage("إعجابات"),
         "location": MessageLookupByLibrary.simpleMessage("الموقع: "),
@@ -176,7 +220,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("الرجاء إدخال موقعك"),
         "logOut": MessageLookupByLibrary.simpleMessage("تسجيل الخروج"),
         "login": MessageLookupByLibrary.simpleMessage("تسجيل الدخول"),
+        "lowConfidenceWarning": MessageLookupByLibrary.simpleMessage(
+            "تحذير: تنبؤ بثقة منخفضة. يرجى التحقق."),
+        "lungCancer": MessageLookupByLibrary.simpleMessage("سرطان الرئة"),
         "male": MessageLookupByLibrary.simpleMessage("ذكر"),
+        "medicalAssistant":
+            MessageLookupByLibrary.simpleMessage("المساعد الطبي"),
         "medicalCertificateBackImage": MessageLookupByLibrary.simpleMessage(
             "صورة الشهادة الطبية (الوجه الخلفي)"),
         "medicalCertificateFrontImage": MessageLookupByLibrary.simpleMessage(
@@ -185,6 +234,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("إدارة البيانات الطبية"),
         "medicalHistory": MessageLookupByLibrary.simpleMessage("السجل الطبي "),
         "messages": MessageLookupByLibrary.simpleMessage("الرسائل"),
+        "minAgo": MessageLookupByLibrary.simpleMessage("دقيقة مضت"),
         "monday": MessageLookupByLibrary.simpleMessage("الإثنين"),
         "mriFileUploaded": MessageLookupByLibrary.simpleMessage(
             "تم رفع ملف الرنين المغناطيسي بنجاح!"),
@@ -194,6 +244,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "nameMustNotContainSpecialCharacters":
             MessageLookupByLibrary.simpleMessage(
                 "يجب ألا يحتوي الاسم على أحرف خاصة"),
+        "nameNumbersError": MessageLookupByLibrary.simpleMessage(
+            "الاسم لا يجب أن يحتوي على أرقام"),
+        "nameSpecialError": MessageLookupByLibrary.simpleMessage(
+            "الاسم لا يجب أن يحتوي على أحرف خاصة"),
+        "newPassword":
+            MessageLookupByLibrary.simpleMessage("كلمة المرور الجديدة"),
         "newSlot": MessageLookupByLibrary.simpleMessage("موعد جديد"),
         "next": MessageLookupByLibrary.simpleMessage("التالي"),
         "nextTimeYouLogin": MessageLookupByLibrary.simpleMessage(
@@ -213,26 +269,37 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("لا توجد إشعارات"),
         "noPostsYet": MessageLookupByLibrary.simpleMessage(
             "لا توجد منشورات حتى الآن. كن أول من ينشر!"),
+        "noRecentScans": MessageLookupByLibrary.simpleMessage(
+            "لا توجد عمليات مسح حديثة. ابدأ تشخيصًا جديدًا لرؤية النتائج هنا."),
         "noReportsYet":
             MessageLookupByLibrary.simpleMessage("لا توجد تقارير حتى الآن"),
         "noReviews": MessageLookupByLibrary.simpleMessage(
             "لا توجد مراجعات متاحة في الوقت الحالي. يمكنك أن تساعد الآخرين من خلال مشاركة رأيك الصادق."),
         "noSavedPostsYet": MessageLookupByLibrary.simpleMessage(
             "لا توجد منشورات محفوظة حتى الآن. احفظ المنشورات التي تعجبك لتسهيل الوصول إليها لاحقًا."),
+        "noScanHistory": MessageLookupByLibrary.simpleMessage(
+            "لا يوجد سجل للمسح بعد.\nقم بإجراء مسح لرؤية النتائج هنا."),
         "noScans": MessageLookupByLibrary.simpleMessage("لا يوجد تحاليل متاحة"),
         "noSearchResultsFor":
             MessageLookupByLibrary.simpleMessage("لا توجد نتائج بحث لـ"),
         "noSlotsAvailable":
             MessageLookupByLibrary.simpleMessage("لا توجد مواعيد متاحة"),
+        "normal": MessageLookupByLibrary.simpleMessage("طبيعي"),
         "notifications": MessageLookupByLibrary.simpleMessage("الاشعارات"),
         "notificationsSettings":
             MessageLookupByLibrary.simpleMessage("إعدادات الإشعارات"),
         "openLocationPermission": MessageLookupByLibrary.simpleMessage(
             "مرحبًا! لمساعدتك في العثور على أفضل الأطباء بالقرب منك، نحتاج إلى إذن الموقع. يرجى تمكينه في الإعدادات!"),
         "openPdf": MessageLookupByLibrary.simpleMessage("فتح PDF"),
+        "originalXray":
+            MessageLookupByLibrary.simpleMessage("الأشعة السينية الأصلية"),
         "password": MessageLookupByLibrary.simpleMessage("كلمة المرور"),
+        "passwordDigitError": MessageLookupByLibrary.simpleMessage(
+            "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل"),
         "passwordLenghtError": MessageLookupByLibrary.simpleMessage(
             "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل"),
+        "passwordLengthError": MessageLookupByLibrary.simpleMessage(
+            "يجب أن تكون كلمة المرور 8 أحرف على الأقل"),
         "passwordMustContainAtLeastOneDigit":
             MessageLookupByLibrary.simpleMessage(
                 "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل"),
@@ -242,6 +309,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "passwordMustContainAtLeastOneUpperCaseLetter":
             MessageLookupByLibrary.simpleMessage(
                 "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل"),
+        "passwordSpecialError": MessageLookupByLibrary.simpleMessage(
+            "يجب أن تحتوي كلمة المرور على حرف خاص واحد على الأقل"),
+        "passwordUppercaseError": MessageLookupByLibrary.simpleMessage(
+            "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل"),
+        "phoneDigitsError": MessageLookupByLibrary.simpleMessage(
+            "يجب أن يكون رقم الهاتف 11 رقم"),
         "phoneNumberMustBe11Digits": MessageLookupByLibrary.simpleMessage(
             "يجب أن يتكون رقم الهاتف من 11 رقمًا"),
         "pinFieldError":
@@ -260,6 +333,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "pleaseWriteYourFindingsAboutThisResultKeepInMindThisWillBeShownToThePatient":
             MessageLookupByLibrary.simpleMessage(
                 "يرجى كتابة ملاحظاتك حول هذه النتيجة. تذكر أن هذا سيظهر للمريض."),
+        "pneumonia": MessageLookupByLibrary.simpleMessage("الالتهاب الرئوي"),
         "posst": MessageLookupByLibrary.simpleMessage("منشور"),
         "post": MessageLookupByLibrary.simpleMessage("نشر"),
         "postContent": MessageLookupByLibrary.simpleMessage("محتوى المنشور"),
@@ -269,30 +343,46 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(" جارٍ إعداد الدردشة مع "),
         "profileImage":
             MessageLookupByLibrary.simpleMessage("صورة الملف الشخصي"),
+        "profileTab": MessageLookupByLibrary.simpleMessage("الملف الشخصي"),
+        "profileUpdatedSuccessfully":
+            MessageLookupByLibrary.simpleMessage("تم تحديث الملف الشخصي بنجاح"),
         "reScheduled": MessageLookupByLibrary.simpleMessage("تم إعادة الجدولة"),
         "readLess": MessageLookupByLibrary.simpleMessage("اقرأ أقل"),
         "readMore": MessageLookupByLibrary.simpleMessage("اقرأ المزيد"),
         "reasoning": MessageLookupByLibrary.simpleMessage("المنطق"),
+        "recentHistory": MessageLookupByLibrary.simpleMessage("السجل الحديث"),
         "reject": MessageLookupByLibrary.simpleMessage("رفض"),
         "remmberMe": MessageLookupByLibrary.simpleMessage("تذكرني"),
         "remove": MessageLookupByLibrary.simpleMessage("إزالة"),
         "reportIsReady": MessageLookupByLibrary.simpleMessage("التقرير جاهز!"),
+        "reportSavedToDevice":
+            MessageLookupByLibrary.simpleMessage("تم حفظ التقرير على جهازك."),
         "resendCodeAgain":
             MessageLookupByLibrary.simpleMessage("إعادة إرسال الكود"),
         "resetPassword":
             MessageLookupByLibrary.simpleMessage("تغيير كلمة السر"),
         "result": MessageLookupByLibrary.simpleMessage("النتيجة"),
+        "resultFromXrayAI": MessageLookupByLibrary.simpleMessage(
+            "نتيجة من ذكاء الأشعة السينية:"),
         "resultIsReviewed":
             MessageLookupByLibrary.simpleMessage("النتيجة جاهزة"),
+        "retry": MessageLookupByLibrary.simpleMessage("إعادة المحاولة"),
         "returnPage": MessageLookupByLibrary.simpleMessage("عودة"),
         "reviewedBy":
             MessageLookupByLibrary.simpleMessage("تمت المراجعة بواسطة"),
         "reviews": MessageLookupByLibrary.simpleMessage("التقييمات"),
         "saturday": MessageLookupByLibrary.simpleMessage("السبت"),
         "save": MessageLookupByLibrary.simpleMessage("حفظ"),
+        "saveReport": MessageLookupByLibrary.simpleMessage("حفظ التقرير"),
         "savedPosts":
             MessageLookupByLibrary.simpleMessage("المنشورات المحفوظة"),
+        "scan": MessageLookupByLibrary.simpleMessage("مسح"),
+        "scanResult": MessageLookupByLibrary.simpleMessage("نتيجة المسح"),
+        "scanTab": MessageLookupByLibrary.simpleMessage("مسح"),
         "search": MessageLookupByLibrary.simpleMessage("بحث"),
+        "searchByDiagnosisOrDate": MessageLookupByLibrary.simpleMessage(
+            "البحث حسب التشخيص أو التاريخ..."),
+        "searchForDoctor": MessageLookupByLibrary.simpleMessage("ابحث عن طبيب"),
         "searchForPosts":
             MessageLookupByLibrary.simpleMessage("بحث عن المنشورات"),
         "secondDiagnosisContainer": MessageLookupByLibrary.simpleMessage(
@@ -315,25 +405,31 @@ class MessageLookup extends MessageLookupByLibrary {
         "setYourDate": MessageLookupByLibrary.simpleMessage("حدد وقتك"),
         "setYourLocation": MessageLookupByLibrary.simpleMessage("حدد موقعك"),
         "settings": MessageLookupByLibrary.simpleMessage("الإعدادات"),
+        "showAiHeatmap": MessageLookupByLibrary.simpleMessage(
+            "إظهار خريطة الحرارة الذكاء الاصطناعي"),
+        "showSegmentedLungs":
+            MessageLookupByLibrary.simpleMessage("إظهار الرئتين المجزأة"),
         "signUp": MessageLookupByLibrary.simpleMessage("تسجيل"),
         "sixthOnBoardingMessage": MessageLookupByLibrary.simpleMessage("لنبدأ"),
         "sixthOnBoardingSentence": MessageLookupByLibrary.simpleMessage(
             "هل أنت جاهز للبدء؟ سنحتاج فقط إلى بعض التفاصيل لتخصيص تجربتك. إنها سريعة وسهلة - لننطلق!"),
         "slotEdited": MessageLookupByLibrary.simpleMessage("تم تعديل الموعد"),
         "slotRemoved": MessageLookupByLibrary.simpleMessage("تم إزالة الموعد"),
+        "startNewDiagnosis":
+            MessageLookupByLibrary.simpleMessage("بدء تشخيص جديد"),
         "submit": MessageLookupByLibrary.simpleMessage("إرسال"),
         "submitted": MessageLookupByLibrary.simpleMessage("تم الإرسال: "),
         "sucessOpertation": MessageLookupByLibrary.simpleMessage("عملية ناجحة"),
         "sunday": MessageLookupByLibrary.simpleMessage("الأحد"),
-        "supportFeedback":
-            MessageLookupByLibrary.simpleMessage("الدعم والملاحظات"),
         "supportedFiles": MessageLookupByLibrary.simpleMessage(
             "الملفات المدعومة: , jpg , pdf, png"),
         "sure": MessageLookupByLibrary.simpleMessage("متأكد"),
+        "systemMode": MessageLookupByLibrary.simpleMessage("وضع النظام"),
         "tapToAttachFile":
             MessageLookupByLibrary.simpleMessage("اضغط لاضافة الملف"),
         "tapToSelectYourGender":
             MessageLookupByLibrary.simpleMessage("اضغط لتحديد جنسك"),
+        "themeMode": MessageLookupByLibrary.simpleMessage("وضع السمة"),
         "thirdDiagnosisContainer": MessageLookupByLibrary.simpleMessage(
             "المنطق: الشكل غير المنتظم والكثافة غير المتجانسة → تشير إلى وجود ورم خبيث بدلاً من ورم حميد. فرط الكثافة في التصوير الموزون T2 → يشير إلى وجود سائل، وهو شائع في الأورام العدوانية. وجود وذمة حول الورم → غالبًا ما ترتبط بالأورام الدبقية عالية الدرجة. انحراف الخط الناصف → يشير إلى تأثير كتلة كبير، مما يستدعي تدخلًا طبيًا عاجلاً."),
         "thirdOnBoardingMessage":
@@ -353,15 +449,20 @@ class MessageLookup extends MessageLookupByLibrary {
         "tryAgain": MessageLookupByLibrary.simpleMessage("حاول مرة أخرى"),
         "tuesday": MessageLookupByLibrary.simpleMessage("الثلاثاء"),
         "tumorType": MessageLookupByLibrary.simpleMessage("نوع الورم"),
+        "typeMessage": MessageLookupByLibrary.simpleMessage("اكتب رسالة..."),
         "underReview": MessageLookupByLibrary.simpleMessage("تحت المراجعة"),
+        "unreliablePrediction":
+            MessageLookupByLibrary.simpleMessage("تنبؤ غير موثوق:"),
         "upComing": MessageLookupByLibrary.simpleMessage("قادمة"),
+        "uploadValidXray": MessageLookupByLibrary.simpleMessage(
+            "يرجى رفع صورة أشعة سينية صدر صالحة"),
         "uploadYourFileHere":
             MessageLookupByLibrary.simpleMessage("قم برفع ملفك هنا"),
         "uploadYourNationalMedical": MessageLookupByLibrary.simpleMessage(
             "قم بتحميل رخصتك الطبية (مثل MOH, DHA, HAAD, SCFHS، أو ما يعادلها)"),
         "userName": MessageLookupByLibrary.simpleMessage("اسم المستخدم"),
         "verificationCodeError": MessageLookupByLibrary.simpleMessage(
-            "يجب أن يتكون رمز التحقق من 4 أرقام"),
+            "يجب أن يكون رمز التحقق 6 أرقام"),
         "verificationCodeSenatce": MessageLookupByLibrary.simpleMessage(
             "كدنا ننتهي! لقد أرسلنا رمزًا إلى بريدك الإلكتروني للتحقق من هويتك. فقط أدخله أدناه لإعادة تعيين كلمة المرور الخاصة بك.."),
         "viewProf": MessageLookupByLibrary.simpleMessage("عرض الملف الشخصي"),

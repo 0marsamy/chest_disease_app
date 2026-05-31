@@ -1,28 +1,24 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
-
 class EditProfileRequestModel {
   final String? fullName;
   final String? email;
   final String? userName;
-  final File? image;
 
-  EditProfileRequestModel({this.fullName, this.email, this.userName, this.image});
+  EditProfileRequestModel({this.fullName, this.email, this.userName});
 
   Future<Map<String, dynamic>> toMap() async {
     final map = <String, dynamic>{};
-    if (fullName != null) {
-      map['fullName'] = fullName;
+    final trimmedFullName = fullName?.trim();
+    final trimmedEmail = email?.trim();
+    final trimmedUserName = userName?.trim();
+
+    if (trimmedFullName != null && trimmedFullName.isNotEmpty) {
+      map['fullName'] = trimmedFullName;
     }
-    if (email != null) {
-      map['email'] = email;
+    if (trimmedEmail != null && trimmedEmail.isNotEmpty) {
+      map['email'] = trimmedEmail;
     }
-    if (userName != null) {
-      map['userName'] = userName;
-    }
-    if (image != null) {
-      map['image'] = await MultipartFile.fromFile(image!.path);
+    if (trimmedUserName != null && trimmedUserName.isNotEmpty) {
+      map['userName'] = trimmedUserName;
     }
     return map;
   }

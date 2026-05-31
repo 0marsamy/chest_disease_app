@@ -105,7 +105,7 @@ async def register_doctor(
     password: str = Form(...),
     phone: Optional[str] = Form(None),
     gender: str = Form(...),
-    profileProfile: UploadFile = File(...),
+    profileProfile: Optional[UploadFile] = File(None),
     licenseFront: Optional[UploadFile] = File(None),
     licenseBack: Optional[UploadFile] = File(None),
     clinicAddress: Optional[str] = Form(None),
@@ -114,9 +114,11 @@ async def register_doctor(
     dateOfBirth: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
-    file_path = f"{UPLOAD_DIR}/{profileProfile.filename}"
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(profileProfile.file, buffer)
+    file_path = None
+    if profileProfile and profileProfile.filename:
+        file_path = f"{UPLOAD_DIR}/{profileProfile.filename}"
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(profileProfile.file, buffer)
 
     otp = _generate_otp()
     new_doctor = Doctor(

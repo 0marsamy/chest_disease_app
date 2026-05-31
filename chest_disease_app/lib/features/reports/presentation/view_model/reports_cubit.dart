@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
 import 'package:chest_disease_app/core/utils/extenstions/toast_string_extenstion.dart';
 import 'package:chest_disease_app/features/reports/data/model/doctor_reports_model.dart';
 import 'package:chest_disease_app/features/reports/data/repo/doctor_reports_repository.dart';
@@ -21,17 +22,13 @@ class ReportsCubit extends Cubit<ReportsState> {
   Future<void> getAssignedScans() async {
     emit(GetAssignedScansLoading());
     final result = await repository.getDoctorReports(
-      DoctorReportsRequestModel(
-        pageIndex: pageIndex,
-        pageSize: 10,
-      ),
+      DoctorReportsRequestModel(pageIndex: pageIndex, pageSize: 10),
     );
     result.fold(
       (error) {
         emit(GetAssignedScansFailure());
       },
       (response) {
-        print("Reports: ${response.reports!.length}");
         reports = response;
         emit(GetAssignedScansSuccess());
       },
@@ -43,10 +40,7 @@ class ReportsCubit extends Cubit<ReportsState> {
     pageIndex++;
     isLoadingMore = true;
     final result = await repository.getDoctorReports(
-      DoctorReportsRequestModel(
-        pageIndex: pageIndex,
-        pageSize: 10,
-      ),
+      DoctorReportsRequestModel(pageIndex: pageIndex, pageSize: 10),
     );
     result.fold(
       (error) {
@@ -84,9 +78,11 @@ class ReportsCubit extends Cubit<ReportsState> {
     final result = await repository.viewReport(
       ViewReportRequestModel(
         reportId: reportId.id!,
-        detectionClass: tumortypeController.text.isNotEmpty
-            ? tumortypeController.text
-            : reportId.detectionClass!,
+        detectionClass: formatDiagnosisLabel(
+          tumortypeController.text.isNotEmpty
+              ? tumortypeController.text
+              : reportId.detectionClass,
+        ),
         findings: findingsController.text,
         reasonings: reasoningController.text,
       ),
@@ -112,4 +108,3 @@ class ReportsCubit extends Cubit<ReportsState> {
     tumortypeController.clear();
   }
 }
-

@@ -12,7 +12,8 @@ class VerifyCodeRepository {
   VerifyCodeRepository({required this.dataSource});
 
   Future<Either<ApiErrorModel, String>> verifyCode(
-      VerificationCodeRequestModel body) async {
+    VerificationCodeRequestModel body,
+  ) async {
     try {
       final String response = await dataSource.verifyCode(body);
       return Right(response);
@@ -22,7 +23,8 @@ class VerifyCodeRepository {
   }
 
   Future<Either<ApiErrorModel, String>> verifyForgetCode(
-      VerificationCodeRequestModel body) async {
+    VerificationCodeRequestModel body,
+  ) async {
     try {
       final String response = await dataSource.verifyForgetCode(body);
       return Right(response);
@@ -30,5 +32,15 @@ class VerifyCodeRepository {
       return Left(ErrorHandler.handle(e));
     }
   }
-}
 
+  Future<Either<ApiErrorModel, String>> verifyResetCode(
+    VerificationCodeRequestModel body,
+  ) async {
+    try {
+      final String response = await dataSource.verifyResetCode(body);
+      return Right(response);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.handle(e));
+    }
+  }
+}

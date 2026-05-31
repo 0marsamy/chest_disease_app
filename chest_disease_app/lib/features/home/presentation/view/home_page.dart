@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chest_disease_app/core/components/cubits/navigation_cubit/navigation_cubit.dart';
 import 'package:chest_disease_app/core/config/app_routing.dart';
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
 import 'package:chest_disease_app/core/services/service_locator/service_locator.dart';
 import 'package:chest_disease_app/core/utils/theme/colors/app_colors.dart';
 import 'package:chest_disease_app/features/chats/presentation/view/screen/chat_list_screen.dart';
@@ -15,6 +16,7 @@ import 'package:chest_disease_app/features/scan/presentation/view/widgets/scan_r
 import 'package:chest_disease_app/features/scan/presentation/view_model/scan_cubit.dart';
 import 'package:chest_disease_app/foundations/app_constants.dart';
 import 'package:chest_disease_app/foundations/app_urls.dart';
+import 'package:chest_disease_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,16 +34,16 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Index 0: Home
               const _DashboardView(),
-              
+
               // Index 1: Chat (بدون const لتجنب الخطأ)
-              const MedicalChatbotScreen(), 
-              
+              const MedicalChatbotScreen(),
+
               // Index 2: Scan
               BlocProvider(
                 create: (context) => getIt<ScanCubit>(),
                 child: const ScanPage(),
               ),
-              
+
               // Index 3: Profile
               BlocProvider(
                 create: (context) => getIt<SettingsCubit>(),
@@ -55,22 +57,22 @@ class HomeScreen extends StatelessWidget {
             type: BottomNavigationBarType.fixed,
             selectedItemColor: AppColors.buttonsAndNav,
             unselectedItemColor: Colors.grey,
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
+                icon: const Icon(Icons.home),
+                label: S.of(context).homeTab,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.chat_bubble_outline),
-                label: 'Chats',
+                icon: const Icon(Icons.chat_bubble_outline),
+                label: S.of(context).chatsTab,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.camera_alt_outlined),
-                label: 'Scan',
+                icon: const Icon(Icons.camera_alt_outlined),
+                label: S.of(context).scanTab,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                label: 'Profile',
+                icon: const Icon(Icons.person_outline),
+                label: S.of(context).profileTab,
               ),
             ],
           ),
@@ -115,16 +117,14 @@ class _Header extends StatelessWidget {
     // 2. الحصول على الاسم، وإذا كان فارغاً نضع قيمة افتراضية
     // هنا نستخدم "userName" أو "fullName" حسب المتوفر في الموديل
     final String name = AppConstants.user?.userName ?? "Doctor";
+    final String drPrefix = S.of(context).dr;
 
     return Row(
       children: [
-        Text( 
+        Text(
           // 3. لاحظ أننا أزلنا const من هنا لأن النص أصبح متغيراً
-          'Hello, Dr. $name',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          '$drPrefix $name',
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -145,18 +145,18 @@ class _StartDiagnosisCard extends StatelessWidget {
         },
         child: Container(
           padding: const EdgeInsets.all(24),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Start New Diagnosis',
-                style: TextStyle(
+                S.of(context).startNewDiagnosis,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: Colors.white),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white),
             ],
           ),
         ),
@@ -175,7 +175,7 @@ class _QuickActions extends StatelessWidget {
       children: [
         _QuickActionButton(
           icon: Icons.chat_bubble_outline,
-          label: 'Chatbot',
+          label: S.of(context).chatbot,
           onTap: () {
             // يذهب لصفحة الشات (التاب رقم 1)
             context.read<NavigationCubit>().changePage(1);
@@ -183,17 +183,17 @@ class _QuickActions extends StatelessWidget {
         ),
         _QuickActionButton(
           icon: Icons.history,
-          label: 'History',
+          label: S.of(context).medicalHistory,
           onTap: () {
             Navigator.pushNamed(context, AppRoutes.reportsScreen);
           },
         ),
         _QuickActionButton(
           icon: Icons.person_outline,
-          label: 'Profile',
+          label: S.of(context).profileTab,
           onTap: () {
-             // يذهب لصفحة البروفايل (التاب رقم 3)
-             context.read<NavigationCubit>().changePage(3);
+            // يذهب لصفحة البروفايل (التاب رقم 3)
+            context.read<NavigationCubit>().changePage(3);
           },
         ),
       ],
@@ -202,7 +202,11 @@ class _QuickActions extends StatelessWidget {
 }
 
 class _QuickActionButton extends StatelessWidget {
-  const _QuickActionButton({required this.icon, required this.label, this.onTap});
+  const _QuickActionButton({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
@@ -262,7 +266,9 @@ class _RecentHistoryState extends State<_RecentHistory> {
       });
     }
     final repo = getIt<MedicalHistoryRepository>();
-    final result = await repo.getPatientScans(DetectionRequest(pageIndex: 0, pageSize: 3));
+    final result = await repo.getPatientScans(
+      DetectionRequest(pageIndex: 0, pageSize: 3),
+    );
     result.fold(
       (_) {
         if (!mounted) return;
@@ -284,9 +290,9 @@ class _RecentHistoryState extends State<_RecentHistory> {
   String _timeAgo(DateTime d) {
     final now = DateTime.now();
     final diff = now.difference(d);
-    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-    if (diff.inHours < 24) return '${diff.inHours} hours ago';
-    if (diff.inDays < 7) return '${diff.inDays} days ago';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} ${S.of(context).minAgo}';
+    if (diff.inHours < 24) return '${diff.inHours} ${S.of(context).hoursAgo}';
+    if (diff.inDays < 7) return '${diff.inDays} ${S.of(context).daysAgo}';
     return '${d.day}/${d.month}/${d.year}';
   }
 
@@ -295,17 +301,22 @@ class _RecentHistoryState extends State<_RecentHistory> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Recent History',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        Text(
+          S.of(context).recentHistory,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         if (_loading)
-          const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: CircularProgressIndicator(),
+            ),
+          )
         else if (_items.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('No recent scans. Start a new diagnosis to see results here.'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(S.of(context).noRecentScans),
           )
         else
           ListView.builder(
@@ -314,28 +325,35 @@ class _RecentHistoryState extends State<_RecentHistory> {
             itemCount: _items.length,
             itemBuilder: (context, index) {
               final d = _items[index];
-              final imageUrl = d.imagePath.startsWith('http') ? d.imagePath : '${AppUrls.baseUrl}${d.imagePath}';
+              final imageUrl = d.imagePath.startsWith('http')
+                  ? d.imagePath
+                  : '${AppUrls.baseUrl}${d.imagePath}';
               final entity = ChestPredictionEntity(
                 prediction: d.detectionClass,
                 confidence: d.confidence ?? 0,
-                description: d.description ?? 'Result from X-ray AI: ${d.detectionClass}',
+                description:
+                    d.description ??
+                    '${S.of(context).resultFromXrayAI} ${formatDiagnosisLabel(d.detectionClass, context: context)}',
               );
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  leading: const Icon(Icons.medical_services, color: AppColors.buttonsAndNav),
-                  title: Text('${d.detectionClass}'),
+                  leading: const Icon(
+                    Icons.medical_services,
+                    color: AppColors.buttonsAndNav,
+                  ),
+                  title: Text(
+                    formatDiagnosisLabel(d.detectionClass, context: context),
+                  ),
                   subtitle: Text(_timeAgo(d.uploadDate)),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ScanResultView(
-                          entity: entity,
-                          imageUrl: imageUrl,
-                        ),
+                        builder: (context) =>
+                            ScanResultView(entity: entity, imageUrl: imageUrl),
                       ),
                     );
                   },

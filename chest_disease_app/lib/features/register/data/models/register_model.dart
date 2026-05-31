@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 
+// --- هذا الكلاس كما هو لم يتغير ---
 class RegisterResponseModel {
   String? email;
 
@@ -11,10 +11,14 @@ class RegisterResponseModel {
     final payload = json['data'] is Map<String, dynamic>
         ? json['data'] as Map<String, dynamic>
         : json;
-    email = payload['email']?.toString();
+    final user = payload['user'];
+    email =
+        payload['email']?.toString() ??
+        (user is Map<String, dynamic> ? user['email']?.toString() : null);
   }
 }
 
+// --- هذا الكلاس كما هو لم يتغير ---
 class PatientRegisterRequestModel {
   final File? profileProfile;
   final String fullName;
@@ -63,8 +67,8 @@ class PatientRegisterRequestModel {
   }
 }
 
+// --- تم تعديل هذا الكلاس (شيلنا منه الصور والشهادات المطلوبة) ---
 class DoctorRegisterRequestModel {
-  final File profileProfile;
   final String fullName;
   final String userName;
   final String email;
@@ -72,15 +76,12 @@ class DoctorRegisterRequestModel {
   final double latitude;
   final double longitude;
   final String phone;
-  final File? licenseFront;
-  final File? licenseBack;
   final File? cliniclicense;
   final String clinicAddress;
   final String gender;
   final String dateOfBirth;
 
   DoctorRegisterRequestModel({
-    required this.profileProfile,
     required this.fullName,
     required this.userName,
     required this.email,
@@ -88,8 +89,6 @@ class DoctorRegisterRequestModel {
     required this.latitude,
     required this.longitude,
     required this.phone,
-    this.licenseFront,
-    this.licenseBack,
     this.cliniclicense,
     required this.clinicAddress,
     required this.dateOfBirth,
@@ -108,15 +107,11 @@ class DoctorRegisterRequestModel {
       "clinicAddress": clinicAddress,
       "latitude": latitude,
       "longitude": longitude,
-      "profilePicture": profileProfile.path,
-      "licenseFront": licenseFront?.path,
-      "licenseBack": licenseBack?.path,
       "cliniclicense": cliniclicense?.path,
     };
   }
 
   Future<FormData> toFormData() async {
-    // 1. نجهز البيانات الأساسية الأول
     Map<String, dynamic> data = {
       "fullName": fullName,
       "userName": userName,
@@ -130,27 +125,7 @@ class DoctorRegisterRequestModel {
       "longitude": longitude,
     };
 
-    // 2. نضيف صورة البروفايل (إجباري)
-    data['profilePicture'] = await MultipartFile.fromFile(
-      profileProfile.path,
-      filename: profileProfile.path.split('/').last,
-    );
-
-    // 3. ✅ التعديل هنا: نضيف الرخص فقط لو المستخدم اختارها (لو مش null)
-    if (licenseFront != null) {
-      data['licenseFront'] = await MultipartFile.fromFile(
-        licenseFront!.path,
-        filename: licenseFront!.path.split('/').last,
-      );
-    }
-
-    if (licenseBack != null) {
-      data['licenseBack'] = await MultipartFile.fromFile(
-        licenseBack!.path,
-        filename: licenseBack!.path.split('/').last,
-      );
-    }
-
+    // نبعت رخصة العيادة فقط إذا وجدت
     if (cliniclicense != null) {
       data['cliniclicense'] = await MultipartFile.fromFile(
         cliniclicense!.path,

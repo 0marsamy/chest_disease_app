@@ -17,8 +17,11 @@ class VerificationCodeScreen extends StatelessWidget {
   final String email;
   final bool isResetPass;
 
-  const VerificationCodeScreen(
-      {super.key, required this.email, required this.isResetPass});
+  const VerificationCodeScreen({
+    super.key,
+    required this.email,
+    required this.isResetPass,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +44,9 @@ class VerificationCodeScreen extends StatelessWidget {
                     16.toHeight,
                     const HeaderTextWidget().paddingSymmetric(horizontal: 24.w),
                     8.toHeight,
-                    const SubHeaderTextWidget()
-                        .paddingSymmetric(horizontal: 24.w),
+                    const SubHeaderTextWidget().paddingSymmetric(
+                      horizontal: 24.w,
+                    ),
                     16.toHeight,
                     CustomPinSubmissionWidget(
                       onChanged: (p0, p1) {},
@@ -52,14 +56,14 @@ class VerificationCodeScreen extends StatelessWidget {
                     const ResendCodeWidget().paddingSymmetric(horizontal: 24.w),
                     50.toHeight,
                     CustomButton(
-                        isLoading: state is SubmitVerificationCodeLoadingState,
-                        text: S.of(context).submit,
-                        onTap: () {
-                          print(isResetPass);
-                          isResetPass
-                              ? cubit.verifyForgetCode(email)
-                              : cubit.verifyCode(email);
-                        }).paddingSymmetric(horizontal: 24.w),
+                      text: S.of(context).submit,
+                      onTap: () {
+                        print(isResetPass);
+                        isResetPass
+                            ? cubit.verifyForgetCode(email)
+                            : cubit.verifyCode(email);
+                      },
+                    ).paddingSymmetric(horizontal: 24.w),
                   ],
                 ),
               );
@@ -70,4 +74,3 @@ class VerificationCodeScreen extends StatelessWidget {
     );
   }
 }
-

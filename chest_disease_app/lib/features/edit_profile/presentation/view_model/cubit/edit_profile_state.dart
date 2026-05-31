@@ -2,17 +2,13 @@ part of 'edit_profile_cubit.dart';
 
 sealed class EditProfileState extends Equatable {
   final bool isEditing;
-  final File? profileImage;
 
-  const EditProfileState({this.isEditing = false, this.profileImage});
+  const EditProfileState({this.isEditing = false});
 
   @override
-  List<Object> get props => [isEditing, profileImage ?? ''];
+  List<Object?> get props => [isEditing];
 
-  EditProfileState copyWith({
-    bool? isEditing,
-    File? profileImage,
-  }) {
+  EditProfileState copyWith({bool? isEditing}) {
     if (this is EditProfileInitial) {
       return EditProfileInitial(isEditing: isEditing ?? this.isEditing);
     }
@@ -24,11 +20,6 @@ sealed class EditProfileState extends Equatable {
     }
     if (this is EditProfileError) {
       return EditProfileError(isEditing: isEditing ?? this.isEditing);
-    }
-    if (this is EditProfileImagePicked) {
-      return EditProfileImagePicked(
-          isEditing: isEditing ?? this.isEditing,
-          profileImage: profileImage ?? this.profileImage);
     }
     if (this is EditProfileToggled) {
       return EditProfileToggled(isEditing: isEditing ?? this.isEditing);
@@ -51,10 +42,6 @@ final class EditProfileSuccess extends EditProfileState {
 
 final class EditProfileError extends EditProfileState {
   const EditProfileError({super.isEditing});
-}
-
-final class EditProfileImagePicked extends EditProfileState {
-  const EditProfileImagePicked({super.isEditing, super.profileImage});
 }
 
 final class EditProfileToggled extends EditProfileState {

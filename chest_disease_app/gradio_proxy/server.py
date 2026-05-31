@@ -20,6 +20,17 @@ API_NAME = "/predict"
 REQUEST_TIMEOUT = 120
 
 
+def _format_prediction_label(value: str | None) -> str:
+    if not value:
+        return "Unknown"
+
+    text = value.strip()
+    compact = text.lower().replace(" ", "").replace("_", "").replace("-", "")
+    if compact in {"covid", "covid19", "coronavirus"}:
+        return "COVID-19"
+    return text
+
+
 def _encode_file_to_base64(path: str) -> str | None:
     """Read image file and return base64 string."""
     if not path or not os.path.exists(path):
@@ -55,7 +66,7 @@ def predict():
 
         # Expected shape from this Space is tuple:
         # (
-        #   {'label': 'Covid', 'confidences': [{'label': 'Covid', 'confidence': 0.47}, ...]},
+        #   {'label': 'COVID-19', 'confidences': [{'label': 'COVID-19', 'confidence': 0.47}, ...]},
         #   '/tmp/gradio/.../image.webp'
         # )
         label_output = None
@@ -114,12 +125,16 @@ def predict():
         if prediction_str == "Unknown" and label_output is not None:
             prediction_str = str(label_output)
 
+        prediction_str = _format_prediction_label(prediction_str)
         heatmap_base64 = _encode_file_to_base64(heatmap_path) if heatmap_path else None
 
         return jsonify({
             "prediction": prediction_str,
             "confidence": confidence,
-            "description": f"Result from X-ray AI: {prediction_str} ({confidence}%)",
+            "description": (
+                f"The model detected findings consistent with {prediction_str} "
+                f"with {confidence}% confidence."
+            ),
             "heatmap_base64": heatmap_base64,
         })
     except Exception as e:

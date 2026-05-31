@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
 import 'package:chest_disease_app/features/scan/domain/entities/chest_prediction_entity.dart';
 
 /// The request model used to upload the scan data.
@@ -58,10 +59,11 @@ class ChestPredictionModel {
   });
 
   factory ChestPredictionModel.fromJson(Map<String, dynamic> json) {
+    final prediction = formatDiagnosisLabel(json['prediction'] as String?);
     return ChestPredictionModel(
-      prediction: json['prediction'] as String,
+      prediction: prediction,
       confidence: (json['confidence'] as num).toDouble(),
-      description: json['description'] as String,
+      description: normalizeDiagnosisTerms(json['description'] as String? ?? ''),
       segmentedBase64: json['segmented_base64'] as String?,
       heatmapBase64: json['heatmap_base64'] as String?,
       imagePath: json['imagePath'] as String?,

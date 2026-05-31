@@ -11,8 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class MessageBubble extends StatelessWidget {
-  const MessageBubble(
-      {super.key, required this.message, required this.profileUrl});
+  const MessageBubble({
+    super.key,
+    required this.message,
+    required this.profileUrl,
+  });
   final Message message;
   final String? profileUrl;
   @override
@@ -27,15 +30,12 @@ class MessageBubble extends StatelessWidget {
               CustomProfileImage(
                 size: 15.h,
                 imageUrl: AppConstants.user?.profilePicture,
-              )
+              ),
             ]
           : [
-              CustomProfileImage(
-                size: 15.h,
-                imageUrl: profileUrl,
-              ),
+              CustomProfileImage(size: 15.h, imageUrl: profileUrl),
               10.toWidth,
-              _buildMessageBubble(context, message, isMe)
+              _buildMessageBubble(context, message, isMe),
             ],
     );
   }
@@ -43,12 +43,14 @@ class MessageBubble extends StatelessWidget {
 
 Widget _buildMessageBubble(BuildContext context, Message message, bool isMe) {
   return Column(
-    crossAxisAlignment:
-        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+    crossAxisAlignment: isMe
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.start,
     children: [
       Container(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width -
+          maxWidth:
+              MediaQuery.of(context).size.width -
               MediaQuery.of(context).size.width * .3,
         ),
         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
@@ -56,23 +58,23 @@ Widget _buildMessageBubble(BuildContext context, Message message, bool isMe) {
           borderRadius: BorderRadius.circular(20.r),
           color: isMe ? AppColors.typography : AppColors.buttonsAndNav,
         ),
-        child: Text(
-          message.content,
-          style: AppTextStyles.font12WhiteW500,
-        ),
+        child: Text(message.content, style: AppTextStyles.font12WhiteW500),
       ),
       3.toHeight,
       Row(
         children: [
           Text(
-            DateFormat('hh:mm a').format(message.sentAt),
+            DateFormat(
+              'hh:mm a',
+              Localizations.localeOf(context).languageCode,
+            ).format(message.sentAt),
           ),
           5.toWidth,
           if (isMe && message.status != null) ...[
-            _buildStatusMessage(message.status!)
-          ]
+            _buildStatusMessage(message.status!),
+          ],
         ],
-      )
+      ),
     ],
   );
 }
@@ -81,15 +83,23 @@ Widget _buildStatusMessage(MessageStatus status) {
   switch (status) {
     case MessageStatus.SENT:
       return CustomImageView(
-          width: 15.w, height: 15.w, svgPath: AssetsSvg.checkMark.toSVG());
+        width: 15.w,
+        height: 15.w,
+        svgPath: AssetsSvg.checkMark.toSVG(),
+      );
     case MessageStatus.PENDING:
       return CustomImageView(
-          width: 15.w, height: 15.w, svgPath: AssetsSvg.pending.toSVG());
+        width: 15.w,
+        height: 15.w,
+        svgPath: AssetsSvg.pending.toSVG(),
+      );
     case MessageStatus.FAILED:
       return CustomImageView(
-          width: 15.w, height: 15.w, svgPath: AssetsSvg.failed.toSVG());
+        width: 15.w,
+        height: 15.w,
+        svgPath: AssetsSvg.failed.toSVG(),
+      );
     default:
       return Container();
   }
 }
-

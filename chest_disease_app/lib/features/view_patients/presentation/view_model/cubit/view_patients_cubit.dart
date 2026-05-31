@@ -24,43 +24,35 @@ class ViewPatientsCubit extends Cubit<ViewPatientsState> {
     patients.clear();
     emit(ViewPatientsLoading());
     final result = await viewPatientsRepo.getPatients(clinicId, date);
-    result.fold(
-      (error) => emit(ViewPatientsError(error.message ?? '')),
-      (patients) {
-        this.patients = patients;
-        emit(ViewPatientsLoaded(patients));
-      },
-    );
+    result.fold((error) => emit(ViewPatientsError(error.message ?? '')), (
+      patients,
+    ) {
+      this.patients = patients;
+      emit(ViewPatientsLoaded(patients));
+    });
   }
 
   String formatDate() {
-    return "${DateFormat('dd MMM yyyy').format(startDate)} -"
-        " ${DateFormat('dd MMM yyyy').format(endDate)}";
+    final locale = Intl.defaultLocale ?? 'en';
+    return "${DateFormat('dd MMM yyyy', locale).format(startDate)} -"
+        " ${DateFormat('dd MMM yyyy', locale).format(endDate)}";
   }
 
   void goToNext() {
     startDate = startDate.add(const Duration(days: 5));
     endDate = endDate.add(const Duration(days: 5));
     selectedDay = startDate;
-    emit(ChangeDays(
-      startDate,
-      endDate,
-      selectedDay,
-    ));
+    emit(ChangeDays(startDate, endDate, selectedDay));
   }
 
   void goToPrevious() {
     startDate = startDate.subtract(const Duration(days: 5));
     endDate = endDate.subtract(const Duration(days: 5));
     selectedDay = startDate;
-    emit(ChangeDays(
-      startDate,
-      endDate,
-      selectedDay,
-    ));
+    emit(ChangeDays(startDate, endDate, selectedDay));
   }
 
-    void setSelectedClinic(Clinic? clinic) {
+  void setSelectedClinic(Clinic? clinic) {
     selectedClinic = clinic;
     emit(SelectedClinicChanged());
   }
@@ -68,12 +60,9 @@ class ViewPatientsCubit extends Cubit<ViewPatientsState> {
   void selectDay(DateTime day) {
     selectedDay = day;
     getPatients(
-        selectedClinic?.id.toString() ?? '' ,
-        DateTime(
-          selectedDay.year,
-          selectedDay.month,
-          selectedDay.day,
-        ));
+      selectedClinic?.id.toString() ?? '',
+      DateTime(selectedDay.year, selectedDay.month, selectedDay.day),
+    );
     emit(SelectDay(day));
   }
 
@@ -93,22 +82,23 @@ class ViewPatientsCubit extends Cubit<ViewPatientsState> {
     );
   }
 
-   Clinic? selectedClinic;
-     List<Clinic> clinics = [];
+  Clinic? selectedClinic;
+  List<Clinic> clinics = [];
 
-      Future<void> getClinics() async {
+  Future<void> getClinics() async {
     emit(GetClinicsLoading());
     final response = await viewPatientsRepo.getDoctorClinics();
-    response.fold((l) {
-      emit(GetClinicsError());
-      l.message!.showToast();
-    }, (r) {
-      clinics = r;
-      selectedClinic = clinics.isNotEmpty ? clinics[0] : null;
-      HiveCachingHelper.saveClinics(clinics);
-    });
+    response.fold(
+      (l) {
+        emit(GetClinicsError());
+        l.message!.showToast();
+      },
+      (r) {
+        clinics = r;
+        selectedClinic = clinics.isNotEmpty ? clinics[0] : null;
+        HiveCachingHelper.saveClinics(clinics);
+      },
+    );
     emit(GetClinicsSuccess());
   }
-
 }
-

@@ -22,221 +22,280 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "ContactUs": MessageLookupByLibrary.simpleMessage("Technical Support"),
-        "accept": MessageLookupByLibrary.simpleMessage("Approve Result"),
+        "ContactUs": MessageLookupByLibrary.simpleMessage("Contact Us"),
+        "accept": MessageLookupByLibrary.simpleMessage("Accept"),
         "accountSetting":
-            MessageLookupByLibrary.simpleMessage("Profile Settings"),
-        "addANewPost": MessageLookupByLibrary.simpleMessage("Create Case Study"),
-        "addClinic": MessageLookupByLibrary.simpleMessage("Add Facility"),
-        "addReview": MessageLookupByLibrary.simpleMessage("Add Note"),
-        "addSlots": MessageLookupByLibrary.simpleMessage("Add Schedule"),
-        "address": MessageLookupByLibrary.simpleMessage("Address: "),
-        "age": MessageLookupByLibrary.simpleMessage("Patient Age: "),
+            MessageLookupByLibrary.simpleMessage("Account Settings"),
+        "addANewPost": MessageLookupByLibrary.simpleMessage("Add a new post"),
+        "addClinic": MessageLookupByLibrary.simpleMessage("Add Clinic"),
+        "addReview": MessageLookupByLibrary.simpleMessage("Add Review"),
+        "addSlots": MessageLookupByLibrary.simpleMessage("Add Slots"),
+        "address": MessageLookupByLibrary.simpleMessage("address: "),
+        "age": MessageLookupByLibrary.simpleMessage("Age: "),
         "aiModelConfedence":
-            MessageLookupByLibrary.simpleMessage("AI Confidence Score"),
-        "appName": MessageLookupByLibrary.simpleMessage("PlumoScan"),
+            MessageLookupByLibrary.simpleMessage("AI Model Confidence"),
+        "aiOverlayNotAvailable": MessageLookupByLibrary.simpleMessage(
+            "AI overlay images are not available for this scan."),
+        "analyze": MessageLookupByLibrary.simpleMessage("Analyze"),
+        "appName": MessageLookupByLibrary.simpleMessage("NeuroTum AI"),
         "appointmentCancelled":
-            MessageLookupByLibrary.simpleMessage("Case Removed"),
+            MessageLookupByLibrary.simpleMessage("Appointment Cancelled"),
         "appointmentCompleted":
-            MessageLookupByLibrary.simpleMessage("Analysis Completed"),
+            MessageLookupByLibrary.simpleMessage("Appointment completed"),
         "appointmentConfirmed":
-            MessageLookupByLibrary.simpleMessage("Case Scheduled"),
+            MessageLookupByLibrary.simpleMessage("Appointment Confirmed"),
         "arabic": MessageLookupByLibrary.simpleMessage("Arabic"),
         "areYouSureToCancelAppointment": MessageLookupByLibrary.simpleMessage(
-            "Are you sure you want to remove this case from worklist?"),
+            "Are you sure you want to cancel this appointment"),
         "areYouSureYouWantToDeleteYourPost":
             MessageLookupByLibrary.simpleMessage(
-                "Are you sure you want to delete this case study?"),
+                "Are you sure you want to delete your post?"),
         "areYouSureyouWantToLogOut": MessageLookupByLibrary.simpleMessage(
             "Are you sure you want to log out?"),
-        "asADoctor": MessageLookupByLibrary.simpleMessage("Radiologist Login"),
-        // Rephrased to fit context, likely unused now but kept for safety
-        "asAPatient": MessageLookupByLibrary.simpleMessage("Staff Login"),
-        "availability": MessageLookupByLibrary.simpleMessage("Shift Availability"),
+        "asADoctor": MessageLookupByLibrary.simpleMessage("As a Physician"),
+        "asAPatient": MessageLookupByLibrary.simpleMessage("As a Patient"),
+        "assistantBusy": MessageLookupByLibrary.simpleMessage(
+            "The medical assistant is temporarily busy. Please try again in a minute."),
+        "assistantUnavailable": MessageLookupByLibrary.simpleMessage(
+            "Sorry, I couldn\'t reach the medical assistant right now. Please try again shortly."),
+        "availability": MessageLookupByLibrary.simpleMessage("Availability"),
         "biometricAuthenticationEnabled": MessageLookupByLibrary.simpleMessage(
-            "Biometric Security Enabled"),
+            "Biometric Authentication Enabled"),
         "birthDate": MessageLookupByLibrary.simpleMessage("Birth Date"),
-        // Changed from Book Now to Analyze
-        "bookNow": MessageLookupByLibrary.simpleMessage("Start Analysis"),
-        "camera": MessageLookupByLibrary.simpleMessage("Scan via Camera"),
+        "bookNow": MessageLookupByLibrary.simpleMessage("Book Now"),
+        "camera": MessageLookupByLibrary.simpleMessage("Camera"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "changeLocation":
-            MessageLookupByLibrary.simpleMessage("Change Facility"),
-        "chat": MessageLookupByLibrary.simpleMessage("Consultations"),
-        "chooseDay": MessageLookupByLibrary.simpleMessage("Select Date"),
+            MessageLookupByLibrary.simpleMessage("Change Location"),
+        "chat": MessageLookupByLibrary.simpleMessage("Chat"),
+        "chatWithMedical":
+            MessageLookupByLibrary.simpleMessage("Chat with Medical"),
+        "chatbot": MessageLookupByLibrary.simpleMessage("Chatbot"),
+        "chatbotWelcome": MessageLookupByLibrary.simpleMessage(
+            "Hello, I am your medical assistant. I can help you understand X-ray findings in plain language. You can also upload an image or report using the upload button."),
+        "chatsTab": MessageLookupByLibrary.simpleMessage("Chats"),
+        "chooseDay": MessageLookupByLibrary.simpleMessage("Choose day"),
         "chooseLanguage":
-            MessageLookupByLibrary.simpleMessage("Interface Language"),
+            MessageLookupByLibrary.simpleMessage("Choose Language"),
+        "chooseTheme": MessageLookupByLibrary.simpleMessage("Choose Theme"),
+        "clear": MessageLookupByLibrary.simpleMessage("Clear"),
         "clickOnTheDayToShow": MessageLookupByLibrary.simpleMessage(
-            "Click on a day to view scheduled cases"),
-        "clinic": MessageLookupByLibrary.simpleMessage("Hospital/Center"),
+            "Click on a day to show available time slots"),
+        "clinic": MessageLookupByLibrary.simpleMessage("Clinic"),
         "clinicAddedSuccessfully":
-            MessageLookupByLibrary.simpleMessage("Facility added successfully"),
-        "clinicLicense": MessageLookupByLibrary.simpleMessage("Facility License"),
+            MessageLookupByLibrary.simpleMessage("Clinic added successfully"),
+        "clinicLicense": MessageLookupByLibrary.simpleMessage("Clinic License"),
         "clinicPhoneNumber":
-            MessageLookupByLibrary.simpleMessage("Facility Phone Number"),
+            MessageLookupByLibrary.simpleMessage("Clinic Phone Number"),
         "clinicsManagement":
-            MessageLookupByLibrary.simpleMessage("Facility Management"),
+            MessageLookupByLibrary.simpleMessage("Clinics Management"),
         "comment": MessageLookupByLibrary.simpleMessage("Comment"),
         "comments": MessageLookupByLibrary.simpleMessage("Comments"),
+        "confidence": MessageLookupByLibrary.simpleMessage("Confidence:"),
         "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
         "confirmBooking":
-            MessageLookupByLibrary.simpleMessage("Confirm Schedule"),
+            MessageLookupByLibrary.simpleMessage("Confirm Booking"),
         "confirmPassword":
             MessageLookupByLibrary.simpleMessage("Confirm Password"),
+        "confirmPasswordMismatch": MessageLookupByLibrary.simpleMessage(
+            "Confirm password does not match"),
         "confirmPasswordNotMatch": MessageLookupByLibrary.simpleMessage(
             "Confirm password does not match"),
         "contactPatient":
-            MessageLookupByLibrary.simpleMessage("Contact Referrer"),
-        "contactUsMessage": MessageLookupByLibrary.simpleMessage(
-            "Need technical assistance with the system? Contact support."),
+            MessageLookupByLibrary.simpleMessage("Contact Patient"),
         "country": MessageLookupByLibrary.simpleMessage("Country: "),
+        "covid19": MessageLookupByLibrary.simpleMessage("COVID-19"),
         "createYourAcc":
-            MessageLookupByLibrary.simpleMessage("Register Specialist Account"),
-        "credentials": MessageLookupByLibrary.simpleMessage("Medical Credentials"),
+            MessageLookupByLibrary.simpleMessage("Create Your Account"),
+        "credentials": MessageLookupByLibrary.simpleMessage("Credentials"),
+        "darkMode": MessageLookupByLibrary.simpleMessage("Dark Mode"),
         "date": MessageLookupByLibrary.simpleMessage("Date"),
         "dateError": MessageLookupByLibrary.simpleMessage("Invalid date"),
         "dateOfBirth": MessageLookupByLibrary.simpleMessage("Date of birth:"),
+        "daysAgo": MessageLookupByLibrary.simpleMessage("days ago"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
-        "detectedAs": MessageLookupByLibrary.simpleMessage("AI Finding:"),
+        "detectedAs": MessageLookupByLibrary.simpleMessage("Detected as:"),
         "diagnosis": MessageLookupByLibrary.simpleMessage("Diagnosis"),
         "didnotGetCode":
-            MessageLookupByLibrary.simpleMessage("Code not received? "),
-        "doctor": MessageLookupByLibrary.simpleMessage("Radiologist"),
+            MessageLookupByLibrary.simpleMessage("Didn\'t get the code? "),
+        "doctor": MessageLookupByLibrary.simpleMessage("Doctor"),
         "documentError": MessageLookupByLibrary.simpleMessage(
-            "Please upload your medical license"),
-        "done": MessageLookupByLibrary.simpleMessage("Done"),
+            "Please enter your medical certificate"),
+        "done": MessageLookupByLibrary.simpleMessage("done"),
         "dontHaveAnAccount":
-            MessageLookupByLibrary.simpleMessage("No account? "),
+            MessageLookupByLibrary.simpleMessage("Don\'t have an account ? "),
         "dontWorryPassword": MessageLookupByLibrary.simpleMessage(
-            "Securely reset your password to regain access."),
+            "Don’t worry! We’ll help you get back into your account in no time"),
+        "dr": MessageLookupByLibrary.simpleMessage("Dr."),
         "edit": MessageLookupByLibrary.simpleMessage("Edit"),
         "editProfile": MessageLookupByLibrary.simpleMessage("Edit Profile"),
-        "education": MessageLookupByLibrary.simpleMessage("Qualifications"),
-        "email": MessageLookupByLibrary.simpleMessage("Work Email"),
-        "enterOtp": MessageLookupByLibrary.simpleMessage("Enter Security Code"),
+        "education": MessageLookupByLibrary.simpleMessage("Education"),
+        "email": MessageLookupByLibrary.simpleMessage("Email"),
+        "enterOtp": MessageLookupByLibrary.simpleMessage("ReEnter OTP code"),
         "enterVerificationCode":
-            MessageLookupByLibrary.simpleMessage("Enter Verification Code"),
+            MessageLookupByLibrary.simpleMessage("Enter the Verification Code"),
         "enterYourClinicPhoneNumber": MessageLookupByLibrary.simpleMessage(
-            "Enter Facility Phone Number"),
+            "Enter your Clinic Phone Number"),
         "enterYourEmail":
-            MessageLookupByLibrary.simpleMessage("Enter Work Email"),
+            MessageLookupByLibrary.simpleMessage("Enter your Email"),
         "enterYourFullName":
-            MessageLookupByLibrary.simpleMessage("Enter Full Name"),
+            MessageLookupByLibrary.simpleMessage("Enter your Full name"),
         "enterYourPassword":
-            MessageLookupByLibrary.simpleMessage("Enter Password"),
+            MessageLookupByLibrary.simpleMessage("Enter your Password"),
         "enterYourUserName":
-            MessageLookupByLibrary.simpleMessage("Enter Username"),
-        "experience": MessageLookupByLibrary.simpleMessage("Years of Practice: "),
+            MessageLookupByLibrary.simpleMessage("Enter your Username"),
+        "experience": MessageLookupByLibrary.simpleMessage("Experience: "),
         "failedToPickImage":
-            MessageLookupByLibrary.simpleMessage("Failed to load image"),
+            MessageLookupByLibrary.simpleMessage("Failed to pick image"),
+        "failedToSaveReport":
+            MessageLookupByLibrary.simpleMessage("Failed to save report:"),
+        "failedToUpdateProfile":
+            MessageLookupByLibrary.simpleMessage("Failed to update profile"),
         "female": MessageLookupByLibrary.simpleMessage("Female"),
-        // Onboarding 3: Privacy (Professional Context)
         "fifthOnBoardingMessage":
-            MessageLookupByLibrary.simpleMessage("HIPAA/GDPR Compliant"),
+            MessageLookupByLibrary.simpleMessage("Privacy First"),
         "fifthOnBoardingSentence": MessageLookupByLibrary.simpleMessage(
-            "Patient data privacy is paramount. Our system ensures end-to-end encryption and compliance with medical data regulations."),
-        "findings": MessageLookupByLibrary.simpleMessage("Clinical Findings"),
-        // Diagnosis 1
+            "Your privacy matters—always. Your data is safe with us, encrypted, and only shared with your consent. You\'re in control, every step of the way."),
+        "findings": MessageLookupByLibrary.simpleMessage("Findings"),
         "firstDiagnosisContainer":
-            MessageLookupByLibrary.simpleMessage("Positive for Chest Pathology"),
-        // Onboarding 1: Welcome (Professional Context)
+            MessageLookupByLibrary.simpleMessage("Positive for Brain Tumor"),
         "firstOnBoardingMessage":
-            MessageLookupByLibrary.simpleMessage("PlumoScan Assistant"),
+            MessageLookupByLibrary.simpleMessage("Welcome to NeuroTum"),
         "firstOnBoardingSentence": MessageLookupByLibrary.simpleMessage(
-            "Optimize your diagnostic workflow. Use advanced AI to triage and analyze Chest X-Rays efficiently."),
+            "Hello there! 🌟 You\'ve just taken the first step toward understanding your health better. Let\'s uncover what\'s going on in your brain—our smart technology is here to guide you."),
         "forgetYourPassword":
-            MessageLookupByLibrary.simpleMessage("Forgot Password?"),
+            MessageLookupByLibrary.simpleMessage("Forgot Your Password?"),
         "forgotPassword":
             MessageLookupByLibrary.simpleMessage("Forgot Password?"),
-        // Onboarding 2: Results (Professional Context)
         "fourthOnBoardingMessage":
-            MessageLookupByLibrary.simpleMessage("Rapid Diagnostic Triage"),
+            MessageLookupByLibrary.simpleMessage("Instant Diagnosis Results"),
         "fourthOnBoardingSentence": MessageLookupByLibrary.simpleMessage(
-            "Get instant AI probability scores to prioritize urgent cases. Review automated segmentation and generate preliminary reports faster."),
+            "Your results are in! 🚀 Don\'t worry, we\'ll break it down simply for you. While this isn\'t a final diagnosis, it\'s a great way to get insights and understand what\'s happening. Ready to dive in?"),
         "friday": MessageLookupByLibrary.simpleMessage("Friday"),
         "fullName": MessageLookupByLibrary.simpleMessage("Full Name"),
         "fullNameMustContainOneSpace": MessageLookupByLibrary.simpleMessage(
-            " must contain letters and exactly one space"),
-        "gallery": MessageLookupByLibrary.simpleMessage("Local Storage"),
+            " must contain letters and exactly one space between first and last name"),
+        "gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
         "gender": MessageLookupByLibrary.simpleMessage("Gender: "),
-        "gotIt": MessageLookupByLibrary.simpleMessage("Proceed"),
+        "gotIt": MessageLookupByLibrary.simpleMessage("Got it"),
+        "heatmapBlue": MessageLookupByLibrary.simpleMessage(
+            "Blue -> healthy or low-importance regions"),
+        "heatmapColorLegend":
+            MessageLookupByLibrary.simpleMessage("Heatmap Color Legend"),
+        "heatmapRed": MessageLookupByLibrary.simpleMessage(
+            "Red / Dark Red -> infected or highly activated regions"),
+        "heatmapYellow": MessageLookupByLibrary.simpleMessage(
+            "Yellow / Green -> surrounding suspicious regions"),
+        "helloDr": MessageLookupByLibrary.simpleMessage("Hello, Dr."),
         "heyThereLogin": MessageLookupByLibrary.simpleMessage(
-            "Welcome back, Doctor. Log in to access your workstation."),
+            "Hey there! Ready to pick up where you left off ? Log in to continue your health journey"),
+        "historyTitle": MessageLookupByLibrary.simpleMessage("History"),
+        "homeTab": MessageLookupByLibrary.simpleMessage("Home"),
+        "hoursAgo": MessageLookupByLibrary.simpleMessage("hours ago"),
+        "image": MessageLookupByLibrary.simpleMessage("Image"),
+        "imageUnclear": MessageLookupByLibrary.simpleMessage(
+            "The image is either unclear or Out of Distribution (OOD)."),
         "inCaseOfRejectingTheResulOrAcceptItPleaseProvideYourReasoning":
             MessageLookupByLibrary.simpleMessage(
-                "Please document clinical reasoning for accepting or rejecting the AI prediction."),
+                "In case of rejecting the result or accepting it, please provide your reasoning."),
+        "invalidDate": MessageLookupByLibrary.simpleMessage("Invalid date"),
         "invalidEmail": MessageLookupByLibrary.simpleMessage("Invalid Email"),
+        "invalidImage": MessageLookupByLibrary.simpleMessage("Invalid Image"),
+        "invalidPhone":
+            MessageLookupByLibrary.simpleMessage("Invalid Phone Number"),
         "invalidPhoneNumber":
             MessageLookupByLibrary.simpleMessage("Invalid Phone Number"),
         "kindlyCompleteTheForm": MessageLookupByLibrary.simpleMessage(
-            "Please complete your professional profile details."),
+            "Kindly complete the fields below with the relevant details of your clinic."),
         "language": MessageLookupByLibrary.simpleMessage("Language"),
         "letsResetIt": MessageLookupByLibrary.simpleMessage(
-            "Reset your credentials to restore system access."),
-        "letsStart": MessageLookupByLibrary.simpleMessage("Initialize System"),
-        "like": MessageLookupByLibrary.simpleMessage("Endorse"),
-        "likes": MessageLookupByLibrary.simpleMessage("Endorsements"),
-        "location": MessageLookupByLibrary.simpleMessage("Facility Location: "),
+            "Let’s reset it so you can get back to focusing on what really matters: your health and well-being"),
+        "letsStart": MessageLookupByLibrary.simpleMessage("Let’s Start!"),
+        "lightMode": MessageLookupByLibrary.simpleMessage("Light Mode"),
+        "like": MessageLookupByLibrary.simpleMessage("Like"),
+        "likes": MessageLookupByLibrary.simpleMessage("Likes"),
+        "location": MessageLookupByLibrary.simpleMessage("Location: "),
         "locationError":
-            MessageLookupByLibrary.simpleMessage("Enter location"),
+            MessageLookupByLibrary.simpleMessage("Please enter your location"),
         "logOut": MessageLookupByLibrary.simpleMessage("Log out"),
         "login": MessageLookupByLibrary.simpleMessage("Log in"),
+        "lowConfidenceWarning": MessageLookupByLibrary.simpleMessage(
+            "Warning: Low confidence prediction. Please verify."),
+        "lungCancer": MessageLookupByLibrary.simpleMessage("Lung Cancer"),
         "male": MessageLookupByLibrary.simpleMessage("Male"),
+        "medicalAssistant":
+            MessageLookupByLibrary.simpleMessage("Medical Assistant"),
         "medicalCertificateBackImage": MessageLookupByLibrary.simpleMessage(
-            "License Scan (Back)"),
+            "Medical Certificate Back Image"),
         "medicalCertificateFrontImage": MessageLookupByLibrary.simpleMessage(
-            "License Scan (Front)"),
+            "Medical Certificate Front Image"),
         "medicalDataManagement":
-            MessageLookupByLibrary.simpleMessage("Patient Records"),
+            MessageLookupByLibrary.simpleMessage("Medical Data Management"),
         "medicalHistory":
-            MessageLookupByLibrary.simpleMessage("Patient History"),
-        "messages": MessageLookupByLibrary.simpleMessage("Consultations"),
+            MessageLookupByLibrary.simpleMessage("Medical History "),
+        "messages": MessageLookupByLibrary.simpleMessage("Messages"),
+        "minAgo": MessageLookupByLibrary.simpleMessage("min ago"),
         "monday": MessageLookupByLibrary.simpleMessage("Monday"),
         "mriFileUploaded":
-            MessageLookupByLibrary.simpleMessage("Scan Uploaded for Analysis"),
+            MessageLookupByLibrary.simpleMessage("MRI Uploaded Successfully!"),
         "name": MessageLookupByLibrary.simpleMessage("Name: "),
         "nameMustNotContainNumbers": MessageLookupByLibrary.simpleMessage(
             "Name must not contain numbers"),
         "nameMustNotContainSpecialCharacters":
             MessageLookupByLibrary.simpleMessage(
                 "Name must not contain special characters"),
-        "newSlot": MessageLookupByLibrary.simpleMessage("New Shift"),
+        "nameNumbersError": MessageLookupByLibrary.simpleMessage(
+            "Name must not contain numbers"),
+        "nameSpecialError": MessageLookupByLibrary.simpleMessage(
+            "Name must not contain special characters"),
+        "newPassword": MessageLookupByLibrary.simpleMessage("New Password"),
+        "newSlot": MessageLookupByLibrary.simpleMessage("New Slot"),
         "next": MessageLookupByLibrary.simpleMessage("Next"),
         "nextTimeYouLogin": MessageLookupByLibrary.simpleMessage(
-            "Enable biometric login for faster workstation access."),
+            "Next time you login, you can use your fingerprint or face ID to access your account."),
         "noAppointments":
-            MessageLookupByLibrary.simpleMessage("No active cases"),
+            MessageLookupByLibrary.simpleMessage("No appointments"),
         "noAvailableSlotsAtThisDay": MessageLookupByLibrary.simpleMessage(
-            "No shifts scheduled for this date"),
-        "noChats": MessageLookupByLibrary.simpleMessage("No active consultations"),
+            "No available slots at this day"),
+        "noChats": MessageLookupByLibrary.simpleMessage("No chats"),
         "noCommentsOnThisPostYet": MessageLookupByLibrary.simpleMessage(
-            "No comments yet."),
+            "No comments on this post yet be the first to comment"),
         "noDataAvailable":
-            MessageLookupByLibrary.simpleMessage("No records found"),
+            MessageLookupByLibrary.simpleMessage("No data available"),
         "noDoctorsFound":
-            MessageLookupByLibrary.simpleMessage("No specialists found"),
+            MessageLookupByLibrary.simpleMessage("No doctors found"),
         "noNotifications":
-            MessageLookupByLibrary.simpleMessage("System is up to date"),
+            MessageLookupByLibrary.simpleMessage("No notifications yet"),
         "noPostsYet": MessageLookupByLibrary.simpleMessage(
-            "No case studies shared yet"),
-        "noReportsYet": MessageLookupByLibrary.simpleMessage("No reports generated"),
+            "No posts yet, be the first to post"),
+        "noRecentScans": MessageLookupByLibrary.simpleMessage(
+            "No recent scans. Start a new diagnosis to see results here."),
+        "noReportsYet": MessageLookupByLibrary.simpleMessage("No reports yet"),
         "noReviews": MessageLookupByLibrary.simpleMessage(
-            "No peer reviews available."),
+            "There are no reviews available at the moment. Patients like you can help by leaving honest feedback"),
         "noSavedPostsYet": MessageLookupByLibrary.simpleMessage(
-            "No bookmarked cases"),
-        "noScans": MessageLookupByLibrary.simpleMessage("No scans in queue"),
+            "You don\'t have any saved posts yet"),
+        "noScanHistory": MessageLookupByLibrary.simpleMessage(
+            "No scan history yet.\nRun a scan to see results here."),
+        "noScans": MessageLookupByLibrary.simpleMessage("No scans available"),
         "noSearchResultsFor":
-            MessageLookupByLibrary.simpleMessage("No results for"),
+            MessageLookupByLibrary.simpleMessage("No search results for"),
         "noSlotsAvailable":
             MessageLookupByLibrary.simpleMessage("No slots available"),
-        "notifications": MessageLookupByLibrary.simpleMessage("System Alerts"),
+        "normal": MessageLookupByLibrary.simpleMessage("Normal"),
+        "notifications": MessageLookupByLibrary.simpleMessage("Notifications"),
         "notificationsSettings":
-            MessageLookupByLibrary.simpleMessage("Alert Settings"),
+            MessageLookupByLibrary.simpleMessage("Notifications Settings"),
         "openLocationPermission": MessageLookupByLibrary.simpleMessage(
-            "Location access is required for facility verification."),
-        "openPdf": MessageLookupByLibrary.simpleMessage("View Report PDF"),
+            "Hey there! To help you find the best doctors near you, we need location access. Please enable it in settings!"),
+        "openPdf": MessageLookupByLibrary.simpleMessage("Open PDF"),
+        "originalXray": MessageLookupByLibrary.simpleMessage("Original X-ray"),
         "password": MessageLookupByLibrary.simpleMessage("Password"),
+        "passwordDigitError": MessageLookupByLibrary.simpleMessage(
+            "Password must contain at least one number"),
         "passwordLenghtError": MessageLookupByLibrary.simpleMessage(
+            "Password must be at least 8 characters"),
+        "passwordLengthError": MessageLookupByLibrary.simpleMessage(
             "Password must be at least 8 characters"),
         "passwordMustContainAtLeastOneDigit":
             MessageLookupByLibrary.simpleMessage(
@@ -247,163 +306,192 @@ class MessageLookup extends MessageLookupByLibrary {
         "passwordMustContainAtLeastOneUpperCaseLetter":
             MessageLookupByLibrary.simpleMessage(
                 "Password must contain at least one uppercase letter"),
+        "passwordSpecialError": MessageLookupByLibrary.simpleMessage(
+            "Password must contain at least one special character"),
+        "passwordUppercaseError": MessageLookupByLibrary.simpleMessage(
+            "Password must contain at least one uppercase letter"),
+        "phoneDigitsError": MessageLookupByLibrary.simpleMessage(
+            "Phone number must be 11 digits"),
         "phoneNumberMustBe11Digits": MessageLookupByLibrary.simpleMessage(
             "Phone number must be 11 digits"),
         "pinFieldError": MessageLookupByLibrary.simpleMessage(
-            "Enter code"),
-        "pleaseEnter": MessageLookupByLibrary.simpleMessage("Enter "),
+            "Please enter verification code"),
+        "pleaseEnter": MessageLookupByLibrary.simpleMessage("Please enter "),
         "pleasePickAFileToUpload": MessageLookupByLibrary.simpleMessage(
-            "Select DICOM/Image file"),
+            "Please pick a file to upload"),
         "pleaseSelectImage":
-            MessageLookupByLibrary.simpleMessage("Select image"),
+            MessageLookupByLibrary.simpleMessage("Please select an image"),
         "pleaseSelectTimeSlot":
-            MessageLookupByLibrary.simpleMessage("Select Shift Time"),
+            MessageLookupByLibrary.simpleMessage("Please select time slot"),
         "pleaseUplaodClearImage": MessageLookupByLibrary.simpleMessage(
-            "Upload high-resolution CXR (PA view) or CT slices for optimal AI sensitivity."),
+            "Please upload a clear and high-quality MRI scan image so we can provide a more accurate analysis"),
         "pleaseUploadYourCredentials": MessageLookupByLibrary.simpleMessage(
-            "Upload valid medical license for verification."),
+            "Please upload your credentials (medical license, certification, or hospital ID) to verify your physician status."),
         "pleaseWriteYourFindingsAboutThisResultKeepInMindThisWillBeShownToThePatient":
             MessageLookupByLibrary.simpleMessage(
-                "Document your clinical findings to be included in the final report."),
-        "posst": MessageLookupByLibrary.simpleMessage("Share Case"),
-        "post": MessageLookupByLibrary.simpleMessage("Share"),
-        "postContent": MessageLookupByLibrary.simpleMessage("Case Details"),
-        "posts": MessageLookupByLibrary.simpleMessage("Community Cases"),
-        "posttitle": MessageLookupByLibrary.simpleMessage("Case Title"),
+                "Please write your findings about this result. Keep in mind this will be shown to the patient."),
+        "pneumonia": MessageLookupByLibrary.simpleMessage("Pneumonia"),
+        "posst": MessageLookupByLibrary.simpleMessage("Post"),
+        "post": MessageLookupByLibrary.simpleMessage("Post"),
+        "postContent": MessageLookupByLibrary.simpleMessage("Post Content"),
+        "posts": MessageLookupByLibrary.simpleMessage("Posts"),
+        "posttitle": MessageLookupByLibrary.simpleMessage("Post Title"),
         "preparingChatWith":
-            MessageLookupByLibrary.simpleMessage("Connecting with "),
-        "profileImage": MessageLookupByLibrary.simpleMessage("Profile Photo"),
+            MessageLookupByLibrary.simpleMessage("Preparing chat with "),
+        "profileImage": MessageLookupByLibrary.simpleMessage("Profile Image"),
+        "profileTab": MessageLookupByLibrary.simpleMessage("Profile"),
+        "profileUpdatedSuccessfully": MessageLookupByLibrary.simpleMessage(
+            "Profile updated successfully"),
         "reScheduled": MessageLookupByLibrary.simpleMessage("Rescheduled"),
-        "readLess": MessageLookupByLibrary.simpleMessage("Collapse"),
-        "readMore": MessageLookupByLibrary.simpleMessage("Expand"),
-        "reasoning": MessageLookupByLibrary.simpleMessage("Clinical Reasoning"),
-        "reject": MessageLookupByLibrary.simpleMessage("Reject Result"),
-        "remmberMe": MessageLookupByLibrary.simpleMessage("Keep me logged in"),
+        "readLess": MessageLookupByLibrary.simpleMessage("Read Less"),
+        "readMore": MessageLookupByLibrary.simpleMessage("Read More"),
+        "reasoning": MessageLookupByLibrary.simpleMessage("Reasoning"),
+        "recentHistory": MessageLookupByLibrary.simpleMessage("Recent History"),
+        "reject": MessageLookupByLibrary.simpleMessage("Reject"),
+        "remmberMe": MessageLookupByLibrary.simpleMessage("Remmber Me"),
         "remove": MessageLookupByLibrary.simpleMessage("Remove"),
         "reportIsReady":
-            MessageLookupByLibrary.simpleMessage("Report Generated"),
-        "resendCodeAgain": MessageLookupByLibrary.simpleMessage("Resend Code"),
+            MessageLookupByLibrary.simpleMessage("Report Is Ready!"),
+        "reportSavedToDevice": MessageLookupByLibrary.simpleMessage(
+            "Report saved to your device."),
+        "resendCodeAgain": MessageLookupByLibrary.simpleMessage("Resend code"),
         "resetPassword": MessageLookupByLibrary.simpleMessage("Reset Password"),
-        "result": MessageLookupByLibrary.simpleMessage("AI Analysis"),
+        "result": MessageLookupByLibrary.simpleMessage("Result"),
+        "resultFromXrayAI":
+            MessageLookupByLibrary.simpleMessage("Result from X-ray AI:"),
         "resultIsReviewed":
-            MessageLookupByLibrary.simpleMessage("Result Verified"),
-        "returnPage": MessageLookupByLibrary.simpleMessage("Back"),
-        "reviewedBy": MessageLookupByLibrary.simpleMessage("Verified by"),
-        "reviews": MessageLookupByLibrary.simpleMessage("Peer Reviews"),
+            MessageLookupByLibrary.simpleMessage("Result is reviewed"),
+        "retry": MessageLookupByLibrary.simpleMessage("Retry"),
+        "returnPage": MessageLookupByLibrary.simpleMessage("Return"),
+        "reviewedBy": MessageLookupByLibrary.simpleMessage("Reviewed by"),
+        "reviews": MessageLookupByLibrary.simpleMessage("Reviews"),
         "saturday": MessageLookupByLibrary.simpleMessage("Saturday"),
-        "save": MessageLookupByLibrary.simpleMessage("Save Record"),
-        "savedPosts": MessageLookupByLibrary.simpleMessage("Bookmarked Cases"),
-        "search": MessageLookupByLibrary.simpleMessage("Search Database"),
+        "save": MessageLookupByLibrary.simpleMessage("Save"),
+        "saveReport": MessageLookupByLibrary.simpleMessage("Save Report"),
+        "savedPosts": MessageLookupByLibrary.simpleMessage("Saved Posts"),
+        "scan": MessageLookupByLibrary.simpleMessage("Scan"),
+        "scanResult": MessageLookupByLibrary.simpleMessage("Scan Result"),
+        "scanTab": MessageLookupByLibrary.simpleMessage("Scan"),
+        "search": MessageLookupByLibrary.simpleMessage("Search"),
+        "searchByDiagnosisOrDate": MessageLookupByLibrary.simpleMessage(
+            "Search by diagnosis or date..."),
         "searchForDoctor":
-            MessageLookupByLibrary.simpleMessage("Search Specialists"),
+            MessageLookupByLibrary.simpleMessage("Search for doctor"),
         "searchForPosts":
-            MessageLookupByLibrary.simpleMessage("Search Cases"),
-        // Diagnosis 2
+            MessageLookupByLibrary.simpleMessage("Search for posts"),
         "secondDiagnosisContainer": MessageLookupByLibrary.simpleMessage(
-            "CT analysis indicates a solitary pulmonary nodule (3.2x2.8cm) in the right upper lobe. Spiculated margins and heterogeneous density suggest high probability of malignancy (Bronchogenic Carcinoma). Mediastinal lymphadenopathy observed."),
-        // Onboarding 2: Detection (Professional Context)
+            "The MRI scan analysis reveals an abnormal mass in the left frontal lobe, measuring approximately 3.2 cm x 2.8 cm. The segmented region exhibits irregular borders and heterogeneous intensity, indicating possible malignancy. The tumor appears hyperintense on T2-weighted imaging and hypointense on T1-weighted imaging, which is characteristic of glioblastoma multiforme (GBM). Additionally, peritumoral edema and midline shift (3mm) suggest increased intracranial pressure."),
         "secondOnBoardingMessage":
-            MessageLookupByLibrary.simpleMessage("AI-Powered Detection"),
+            MessageLookupByLibrary.simpleMessage("Detecting Brain Tumors"),
         "secondOnBoardingSentence": MessageLookupByLibrary.simpleMessage(
-            "Leverage deep learning algorithms to detect pulmonary opacities, nodules, consolidations, and pleural effusions with clinical-grade accuracy."),
+            "Your brain is unique, and so is our detection system. Using cutting-edge tech, we\'ll analyze your symptoms and help spot potential issues early. Think of it as a virtual check-up—fast, simple, and secure."),
         "seeMedicalHistory":
-            MessageLookupByLibrary.simpleMessage("View Patient History"),
+            MessageLookupByLibrary.simpleMessage("See your medical history"),
         "select": MessageLookupByLibrary.simpleMessage("Select"),
-        "selectClinic": MessageLookupByLibrary.simpleMessage("Select Facility"),
+        "selectClinic": MessageLookupByLibrary.simpleMessage("Select Clinic"),
         "selectDateOfBirth":
-            MessageLookupByLibrary.simpleMessage("Date of Birth"),
-        "selectGender": MessageLookupByLibrary.simpleMessage("Select Gender"),
+            MessageLookupByLibrary.simpleMessage("Select Date of Birth"),
+        "selectGender": MessageLookupByLibrary.simpleMessage("select Gender"),
         "selectTimeSlot":
-            MessageLookupByLibrary.simpleMessage("Select Time"),
-        "session": MessageLookupByLibrary.simpleMessage("Scans"),
-        "sessions": MessageLookupByLibrary.simpleMessage("Total Scans: "),
-        "setLocation": MessageLookupByLibrary.simpleMessage("Set Location"),
-        "setYourDate": MessageLookupByLibrary.simpleMessage("Set Date"),
+            MessageLookupByLibrary.simpleMessage("Select Time Slot"),
+        "session": MessageLookupByLibrary.simpleMessage("Sessions(s)"),
+        "sessions": MessageLookupByLibrary.simpleMessage("Sessions: "),
+        "setLocation": MessageLookupByLibrary.simpleMessage("set Location"),
+        "setYourDate": MessageLookupByLibrary.simpleMessage("Set Your Time"),
         "setYourLocation":
-            MessageLookupByLibrary.simpleMessage("Set Facility Location"),
+            MessageLookupByLibrary.simpleMessage("Set Your Location"),
         "settings": MessageLookupByLibrary.simpleMessage("Settings"),
-        "signUp": MessageLookupByLibrary.simpleMessage("Register"),
-        // Onboarding 3: Setup (Professional Context)
+        "showAiHeatmap":
+            MessageLookupByLibrary.simpleMessage("Show AI Heatmap"),
+        "showSegmentedLungs":
+            MessageLookupByLibrary.simpleMessage("Show Segmented Lungs"),
+        "signUp": MessageLookupByLibrary.simpleMessage("Sign Up"),
         "sixthOnBoardingMessage":
-            MessageLookupByLibrary.simpleMessage("Setup Workstation"),
+            MessageLookupByLibrary.simpleMessage("Let\'s Get Started"),
         "sixthOnBoardingSentence": MessageLookupByLibrary.simpleMessage(
-            "Configure your professional profile and facility details to begin analyzing cases immediately."),
-        "slotEdited": MessageLookupByLibrary.simpleMessage("Schedule updated"),
-        "slotRemoved": MessageLookupByLibrary.simpleMessage("Schedule removed"),
-        "submit": MessageLookupByLibrary.simpleMessage("Submit Report"),
-        "submitted": MessageLookupByLibrary.simpleMessage("Reported: "),
+            "All set to begin? We\'ll need just a few details to personalize your experience. It\'s quick and easy—let\'s go!"),
+        "slotEdited": MessageLookupByLibrary.simpleMessage("Slot edited"),
+        "slotRemoved": MessageLookupByLibrary.simpleMessage("Slot removed"),
+        "startNewDiagnosis":
+            MessageLookupByLibrary.simpleMessage("Start New Diagnosis"),
+        "submit": MessageLookupByLibrary.simpleMessage("Submit"),
+        "submitted": MessageLookupByLibrary.simpleMessage("Submitted: "),
         "sucessOpertation":
-            MessageLookupByLibrary.simpleMessage("Operation Successful"),
+            MessageLookupByLibrary.simpleMessage("Success Operation"),
         "sunday": MessageLookupByLibrary.simpleMessage("Sunday"),
-        "supportFeedback":
-            MessageLookupByLibrary.simpleMessage("Support & Feedback"),
         "supportedFiles": MessageLookupByLibrary.simpleMessage(
-            "Supported Formats: DICOM, PNG, JPG (High Res)"),
-        "sure": MessageLookupByLibrary.simpleMessage("Confirm"),
+            "Supported Files: pdf, png, jpg"),
+        "sure": MessageLookupByLibrary.simpleMessage("Sure"),
+        "systemMode": MessageLookupByLibrary.simpleMessage("System Mode"),
         "tapToAttachFile":
-            MessageLookupByLibrary.simpleMessage("Tap to import scan"),
+            MessageLookupByLibrary.simpleMessage("Tap to attach file"),
         "tapToSelectYourGender":
-            MessageLookupByLibrary.simpleMessage("Select gender"),
-        // Diagnosis 3
+            MessageLookupByLibrary.simpleMessage("tap to select your gender"),
+        "themeMode": MessageLookupByLibrary.simpleMessage("Theme Mode"),
         "thirdDiagnosisContainer": MessageLookupByLibrary.simpleMessage(
-            "Radiological signs: Spiculated margins (Malignancy likelihood high). Ground-glass opacity (Suggestive of adenocarcinoma or active inflammation). Pleural thickening observed."),
-        // Onboarding 3: Network (Professional Context)
+            "Reasoning Irregular shape and non-uniform intensity → Suggests malignancy rather than a benign tumor.Hyperintensity on T2-weighted images → Indicates fluid content, common in aggressive tumors.Presence of peritumoral edema → Often associated with high-grade gliomas.Midline shift → Suggests significant mass effect, warranting urgent medical intervention."),
         "thirdOnBoardingMessage":
-            MessageLookupByLibrary.simpleMessage("Specialist Network"),
+            MessageLookupByLibrary.simpleMessage("Find the Right Doctor"),
         "thirdOnBoardingSentence": MessageLookupByLibrary.simpleMessage(
-            "Collaborate with other pulmonologists and radiologists. Share anonymized cases for second opinions and peer review."),
+            "Need expert care? We\'ll connect you with the best doctors near you based on your location. No endless searching or stress—just trusted professionals who can help you take the next step."),
         "thisAppointmentCancelledSuccessfully":
             MessageLookupByLibrary.simpleMessage(
-                "Case removed from queue successfully"),
+                "This appointment cancelled successfully"),
         "thursday": MessageLookupByLibrary.simpleMessage("Thursday"),
         "time": MessageLookupByLibrary.simpleMessage("Time"),
         "title": MessageLookupByLibrary.simpleMessage("Title"),
         "toGetFasterResultsPleaseSetYourCurrentLocation":
             MessageLookupByLibrary.simpleMessage(
-                "Set facility location for localized data."),
+                "To get faster results, please set your current location."),
         "toHelpYouFindDoctors": MessageLookupByLibrary.simpleMessage(
-            "Location access is needed to connect with nearby medical facilities."),
-        "tryAgain": MessageLookupByLibrary.simpleMessage("Retry Analysis"),
+            "To help you find doctors near you and provide recommendations, we need to know your location."),
+        "tryAgain": MessageLookupByLibrary.simpleMessage("Try again"),
         "tuesday": MessageLookupByLibrary.simpleMessage("Tuesday"),
-        "tumorType": MessageLookupByLibrary.simpleMessage("Pathology Type"),
-        "underReview": MessageLookupByLibrary.simpleMessage("Pending Review"),
-        "upComing": MessageLookupByLibrary.simpleMessage("Scheduled"),
+        "tumorType": MessageLookupByLibrary.simpleMessage("Tumor Type"),
+        "typeMessage":
+            MessageLookupByLibrary.simpleMessage("Type a message..."),
+        "underReview": MessageLookupByLibrary.simpleMessage("Under review"),
+        "unreliablePrediction":
+            MessageLookupByLibrary.simpleMessage("Unreliable Prediction:"),
+        "upComing": MessageLookupByLibrary.simpleMessage("Upcoming"),
+        "uploadValidXray": MessageLookupByLibrary.simpleMessage(
+            "Please upload a valid chest X-ray image"),
         "uploadYourFileHere":
-            MessageLookupByLibrary.simpleMessage("Drop Scan File Here"),
+            MessageLookupByLibrary.simpleMessage("Upload your File here"),
         "uploadYourNationalMedical": MessageLookupByLibrary.simpleMessage(
-            "Upload Professional License (MOH/DHA/SCFHS)"),
+            "Upload your medical license (e.g. MOH, DHA, HAAD, SCFHS, or equivalent)"),
         "userName": MessageLookupByLibrary.simpleMessage("Username"),
         "verificationCodeError": MessageLookupByLibrary.simpleMessage(
-            "Invalid Code"),
+            "Verification code must be 6 digits"),
         "verificationCodeSenatce": MessageLookupByLibrary.simpleMessage(
-            "Identity verification: Enter the code sent to your professional email."),
+            "Almost there! We’ve sent a code to your email to verify your identity. Just enter it below to reset your password.."),
         "viewProf": MessageLookupByLibrary.simpleMessage("View Profile"),
-        "viewProfile": MessageLookupByLibrary.simpleMessage("My Profile"),
-        "viewReport": MessageLookupByLibrary.simpleMessage("View Full Report"),
+        "viewProfile": MessageLookupByLibrary.simpleMessage("View Profile"),
+        "viewReport": MessageLookupByLibrary.simpleMessage("View Report"),
         "viewResultImage":
-            MessageLookupByLibrary.simpleMessage("View Analyzed Image"),
+            MessageLookupByLibrary.simpleMessage("View Result Image"),
         "viewed": MessageLookupByLibrary.simpleMessage("Viewed"),
         "wednesday": MessageLookupByLibrary.simpleMessage("Wednesday"),
         "welcomeAbroadSentence": MessageLookupByLibrary.simpleMessage(
-            "System initialized. Ready to assist in chest disease diagnosis."),
-        "welcomeBack": MessageLookupByLibrary.simpleMessage("Welcome,"),
+            "Welcome aboard! Let’s get you set up so we can start helping you with your brain health journey."),
+        "welcomeBack": MessageLookupByLibrary.simpleMessage("welcome back,"),
         "whatIsHappening":
-            MessageLookupByLibrary.simpleMessage("Clinical Notes?"),
+            MessageLookupByLibrary.simpleMessage("What is happening?"),
         "writeAMessage":
-            MessageLookupByLibrary.simpleMessage("Enter consultation note..."),
+            MessageLookupByLibrary.simpleMessage("Write a message..."),
         "writeYourComment":
-            MessageLookupByLibrary.simpleMessage("Add clinical comment"),
-        "yesBookNow": MessageLookupByLibrary.simpleMessage("Confirm Analysis"),
+            MessageLookupByLibrary.simpleMessage("Write your comment"),
+        "yesBookNow": MessageLookupByLibrary.simpleMessage("Yes, Book Now"),
         "youDontHaveChatsYet":
-            MessageLookupByLibrary.simpleMessage("No active consultations"),
+            MessageLookupByLibrary.simpleMessage("You dont have chats yet"),
         "youWillRecieveNotificationSoon": MessageLookupByLibrary.simpleMessage(
-            "Report generation in progress. You will be notified shortly."),
+            "You will receive a notification once your report is ready.\nThank you for your patience."),
         "yourBookingWasSuccessfulSeeYouSoon":
             MessageLookupByLibrary.simpleMessage(
-                "Case added to worklist successfully."),
+                "Your booking was successful. See you soon!"),
         "yourFileIsBeingUploaded":
-            MessageLookupByLibrary.simpleMessage("Uploading scan data..."),
-        "yourFileName": MessageLookupByLibrary.simpleMessage("File Name"),
-        "yourReview": MessageLookupByLibrary.simpleMessage("Your Assessment")
+            MessageLookupByLibrary.simpleMessage("Your file is being uploaded"),
+        "yourFileName": MessageLookupByLibrary.simpleMessage("Your File Name"),
+        "yourReview": MessageLookupByLibrary.simpleMessage("Your Review")
       };
 }

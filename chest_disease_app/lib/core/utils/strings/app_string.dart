@@ -86,7 +86,7 @@ class AppStrings {
   static const String accountSetting = "Account Settings";
   static const String notificationsSettings = "Notifications Settings";
   static const String medicalDataManagement = "Medical Data Management";
-  static const String supportFeedback = "Support & Feedback";
+
   static const String logOut = "Log out";
   static const String reasoning = "Reasoning";
   static const String documentError = "Please enter your medical certificate";
@@ -118,7 +118,8 @@ class AppStrings {
 Almost there! We’ve sent a code to your email to verify your identity. Just enter it below to reset your password..
 """;
   static const String createYourAcc = "Create Your Account";
-  static const String welcomeAbroadSentence = "Welcome aboard! Let’s get you "
+  static const String welcomeAbroadSentence =
+      "Welcome aboard! Let’s get you "
       "set up so we can start helping you with your brain health journey.";
   static const String forgotPassword = "Forgot Password?";
   static const String signUp = 'Sign Up';
@@ -140,7 +141,8 @@ Almost there! We’ve sent a code to your email to verify your identity. Just en
   static const String enterYourPassword = 'Enter your Password';
   static const String firstOnBoardingMessage = "Welcome to PlumoScan";
   static const String setYourLocation = 'Set Your Location';
-  static const String toHelpYouFindDoctors = 'To help you find doctors'
+  static const String toHelpYouFindDoctors =
+      'To help you find doctors'
       ' near you and provide recommendations, we need to know your location. ';
   static const String firstOnBoardingSentence =
       "Welcome, Doctor! 🌟 You’ve just taken the first step toward advanced diagnosis."
@@ -156,12 +158,13 @@ Almost there! We’ve sent a code to your email to verify your identity. Just en
       "Collaborate with peers. We facilitate connections with "
       "other specialists for second opinions and referrals."
       " Build your professional network effortlessly.";
- static const String fourthOnBoardingSentence =
+  static const String fourthOnBoardingSentence =
       "Analysis complete! 🚀 We generate detailed reports breaking down"
       " the findings for you. While this supports your diagnosis,"
       " you remain in full control of the final medical decision.";
   static const String fifthOnBoardingMessage = " Privacy First";
-  static const String fifthOnBoardingSentence = "Your privacy matters—always. "
+  static const String fifthOnBoardingSentence =
+      "Your privacy matters—always. "
       "Your data is safe with us, encrypted,"
       " and only shared with your consent."
       " You’re in control, every step of the way.";
@@ -193,7 +196,7 @@ Almost there! We’ve sent a code to your email to verify your identity. Just en
   static const String dateError = 'Invalid date';
   static const String phoneNumberMustBe11Digits =
       'Phone number must be 11 digits';
-  static const String noNotifications ="noNotifications";
+  static const String noNotifications = "noNotifications";
 
   //test
 

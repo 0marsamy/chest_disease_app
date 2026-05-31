@@ -312,16 +312,6 @@ class S {
     );
   }
 
-  /// `If you have any questions or need assistance, feel free to reach out to us. We're here to help!`
-  String get contactUsMessage {
-    return Intl.message(
-      'If you have any questions or need assistance, feel free to reach out to us. We\'re here to help!',
-      name: 'contactUsMessage',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Add Slots`
   String get addSlots {
     return Intl.message(
@@ -992,16 +982,6 @@ class S {
     );
   }
 
-  /// `Support & Feedback`
-  String get supportFeedback {
-    return Intl.message(
-      'Support & Feedback',
-      name: 'supportFeedback',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Select`
   String get select {
     return Intl.message(
@@ -1592,10 +1572,10 @@ class S {
     );
   }
 
-  /// `Welcome to PlumoScan`
+  /// `Welcome to NeuroTum`
   String get firstOnBoardingMessage {
     return Intl.message(
-      'Welcome to PlumoScan',
+      'Welcome to NeuroTum',
       name: 'firstOnBoardingMessage',
       desc: '',
       args: [],
@@ -1882,10 +1862,10 @@ class S {
     );
   }
 
-  /// `Verification code must be 4 digits`
+  /// `Verification code must be 6 digits`
   String get verificationCodeError {
     return Intl.message(
-      'Verification code must be 4 digits',
+      'Verification code must be 6 digits',
       name: 'verificationCodeError',
       desc: '',
       args: [],
@@ -2477,6 +2457,686 @@ class S {
     return Intl.message(
       'See your medical history',
       name: 'seeMedicalHistory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Home`
+  String get homeTab {
+    return Intl.message(
+      'Home',
+      name: 'homeTab',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chats`
+  String get chatsTab {
+    return Intl.message(
+      'Chats',
+      name: 'chatsTab',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan`
+  String get scanTab {
+    return Intl.message(
+      'Scan',
+      name: 'scanTab',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profile`
+  String get profileTab {
+    return Intl.message(
+      'Profile',
+      name: 'profileTab',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hello, Dr.`
+  String get helloDr {
+    return Intl.message(
+      'Hello, Dr.',
+      name: 'helloDr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start New Diagnosis`
+  String get startNewDiagnosis {
+    return Intl.message(
+      'Start New Diagnosis',
+      name: 'startNewDiagnosis',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chatbot`
+  String get chatbot {
+    return Intl.message(
+      'Chatbot',
+      name: 'chatbot',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recent History`
+  String get recentHistory {
+    return Intl.message(
+      'Recent History',
+      name: 'recentHistory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No recent scans. Start a new diagnosis to see results here.`
+  String get noRecentScans {
+    return Intl.message(
+      'No recent scans. Start a new diagnosis to see results here.',
+      name: 'noRecentScans',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `min ago`
+  String get minAgo {
+    return Intl.message(
+      'min ago',
+      name: 'minAgo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `hours ago`
+  String get hoursAgo {
+    return Intl.message(
+      'hours ago',
+      name: 'hoursAgo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `days ago`
+  String get daysAgo {
+    return Intl.message(
+      'days ago',
+      name: 'daysAgo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Medical Assistant`
+  String get medicalAssistant {
+    return Intl.message(
+      'Medical Assistant',
+      name: 'medicalAssistant',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hello, I am your medical assistant. I can help you understand X-ray findings in plain language. You can also upload an image or report using the upload button.`
+  String get chatbotWelcome {
+    return Intl.message(
+      'Hello, I am your medical assistant. I can help you understand X-ray findings in plain language. You can also upload an image or report using the upload button.',
+      name: 'chatbotWelcome',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type a message...`
+  String get typeMessage {
+    return Intl.message(
+      'Type a message...',
+      name: 'typeMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Image`
+  String get image {
+    return Intl.message(
+      'Image',
+      name: 'image',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Analyze`
+  String get analyze {
+    return Intl.message(
+      'Analyze',
+      name: 'analyze',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear`
+  String get clear {
+    return Intl.message(
+      'Clear',
+      name: 'clear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The medical assistant is temporarily busy. Please try again in a minute.`
+  String get assistantBusy {
+    return Intl.message(
+      'The medical assistant is temporarily busy. Please try again in a minute.',
+      name: 'assistantBusy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sorry, I couldn't reach the medical assistant right now. Please try again shortly.`
+  String get assistantUnavailable {
+    return Intl.message(
+      'Sorry, I couldn\'t reach the medical assistant right now. Please try again shortly.',
+      name: 'assistantUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get historyTitle {
+    return Intl.message(
+      'History',
+      name: 'historyTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search by diagnosis or date...`
+  String get searchByDiagnosisOrDate {
+    return Intl.message(
+      'Search by diagnosis or date...',
+      name: 'searchByDiagnosisOrDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan`
+  String get scan {
+    return Intl.message(
+      'Scan',
+      name: 'scan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get retry {
+    return Intl.message(
+      'Retry',
+      name: 'retry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No scan history yet.\nRun a scan to see results here.`
+  String get noScanHistory {
+    return Intl.message(
+      'No scan history yet.\nRun a scan to see results here.',
+      name: 'noScanHistory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Result from X-ray AI:`
+  String get resultFromXrayAI {
+    return Intl.message(
+      'Result from X-ray AI:',
+      name: 'resultFromXrayAI',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New Password`
+  String get newPassword {
+    return Intl.message(
+      'New Password',
+      name: 'newPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Theme Mode`
+  String get themeMode {
+    return Intl.message(
+      'Theme Mode',
+      name: 'themeMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light Mode`
+  String get lightMode {
+    return Intl.message(
+      'Light Mode',
+      name: 'lightMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dark Mode`
+  String get darkMode {
+    return Intl.message(
+      'Dark Mode',
+      name: 'darkMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System Mode`
+  String get systemMode {
+    return Intl.message(
+      'System Mode',
+      name: 'systemMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose Theme`
+  String get chooseTheme {
+    return Intl.message(
+      'Choose Theme',
+      name: 'chooseTheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Original X-ray`
+  String get originalXray {
+    return Intl.message(
+      'Original X-ray',
+      name: 'originalXray',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show Segmented Lungs`
+  String get showSegmentedLungs {
+    return Intl.message(
+      'Show Segmented Lungs',
+      name: 'showSegmentedLungs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show AI Heatmap`
+  String get showAiHeatmap {
+    return Intl.message(
+      'Show AI Heatmap',
+      name: 'showAiHeatmap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AI overlay images are not available for this scan.`
+  String get aiOverlayNotAvailable {
+    return Intl.message(
+      'AI overlay images are not available for this scan.',
+      name: 'aiOverlayNotAvailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Heatmap Color Legend`
+  String get heatmapColorLegend {
+    return Intl.message(
+      'Heatmap Color Legend',
+      name: 'heatmapColorLegend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Red / Dark Red -> infected or highly activated regions`
+  String get heatmapRed {
+    return Intl.message(
+      'Red / Dark Red -> infected or highly activated regions',
+      name: 'heatmapRed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yellow / Green -> surrounding suspicious regions`
+  String get heatmapYellow {
+    return Intl.message(
+      'Yellow / Green -> surrounding suspicious regions',
+      name: 'heatmapYellow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blue -> healthy or low-importance regions`
+  String get heatmapBlue {
+    return Intl.message(
+      'Blue -> healthy or low-importance regions',
+      name: 'heatmapBlue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan Result`
+  String get scanResult {
+    return Intl.message(
+      'Scan Result',
+      name: 'scanResult',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid Image`
+  String get invalidImage {
+    return Intl.message(
+      'Invalid Image',
+      name: 'invalidImage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please upload a valid chest X-ray image`
+  String get uploadValidXray {
+    return Intl.message(
+      'Please upload a valid chest X-ray image',
+      name: 'uploadValidXray',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unreliable Prediction:`
+  String get unreliablePrediction {
+    return Intl.message(
+      'Unreliable Prediction:',
+      name: 'unreliablePrediction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The image is either unclear or Out of Distribution (OOD).`
+  String get imageUnclear {
+    return Intl.message(
+      'The image is either unclear or Out of Distribution (OOD).',
+      name: 'imageUnclear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confidence:`
+  String get confidence {
+    return Intl.message(
+      'Confidence:',
+      name: 'confidence',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Warning: Low confidence prediction. Please verify.`
+  String get lowConfidenceWarning {
+    return Intl.message(
+      'Warning: Low confidence prediction. Please verify.',
+      name: 'lowConfidenceWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save Report`
+  String get saveReport {
+    return Intl.message(
+      'Save Report',
+      name: 'saveReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chat with Medical`
+  String get chatWithMedical {
+    return Intl.message(
+      'Chat with Medical',
+      name: 'chatWithMedical',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profile updated successfully`
+  String get profileUpdatedSuccessfully {
+    return Intl.message(
+      'Profile updated successfully',
+      name: 'profileUpdatedSuccessfully',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to update profile`
+  String get failedToUpdateProfile {
+    return Intl.message(
+      'Failed to update profile',
+      name: 'failedToUpdateProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Report saved to your device.`
+  String get reportSavedToDevice {
+    return Intl.message(
+      'Report saved to your device.',
+      name: 'reportSavedToDevice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to save report:`
+  String get failedToSaveReport {
+    return Intl.message(
+      'Failed to save report:',
+      name: 'failedToSaveReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dr.`
+  String get dr {
+    return Intl.message(
+      'Dr.',
+      name: 'dr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password must be at least 8 characters`
+  String get passwordLengthError {
+    return Intl.message(
+      'Password must be at least 8 characters',
+      name: 'passwordLengthError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password must contain at least one uppercase letter`
+  String get passwordUppercaseError {
+    return Intl.message(
+      'Password must contain at least one uppercase letter',
+      name: 'passwordUppercaseError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password must contain at least one number`
+  String get passwordDigitError {
+    return Intl.message(
+      'Password must contain at least one number',
+      name: 'passwordDigitError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password must contain at least one special character`
+  String get passwordSpecialError {
+    return Intl.message(
+      'Password must contain at least one special character',
+      name: 'passwordSpecialError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm password does not match`
+  String get confirmPasswordMismatch {
+    return Intl.message(
+      'Confirm password does not match',
+      name: 'confirmPasswordMismatch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid Phone Number`
+  String get invalidPhone {
+    return Intl.message(
+      'Invalid Phone Number',
+      name: 'invalidPhone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name must not contain numbers`
+  String get nameNumbersError {
+    return Intl.message(
+      'Name must not contain numbers',
+      name: 'nameNumbersError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name must not contain special characters`
+  String get nameSpecialError {
+    return Intl.message(
+      'Name must not contain special characters',
+      name: 'nameSpecialError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid date`
+  String get invalidDate {
+    return Intl.message(
+      'Invalid date',
+      name: 'invalidDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone number must be 11 digits`
+  String get phoneDigitsError {
+    return Intl.message(
+      'Phone number must be 11 digits',
+      name: 'phoneDigitsError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Normal`
+  String get normal {
+    return Intl.message(
+      'Normal',
+      name: 'normal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `COVID-19`
+  String get covid19 {
+    return Intl.message(
+      'COVID-19',
+      name: 'covid19',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pneumonia`
+  String get pneumonia {
+    return Intl.message(
+      'Pneumonia',
+      name: 'pneumonia',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lung Cancer`
+  String get lungCancer {
+    return Intl.message(
+      'Lung Cancer',
+      name: 'lungCancer',
       desc: '',
       args: [],
     );

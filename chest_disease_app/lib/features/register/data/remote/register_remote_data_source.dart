@@ -19,23 +19,49 @@ class RegisterRemoteDataSource {
   Future<RegisterResponseModel> patientRegister(
     PatientRegisterRequestModel parameters,
   ) async {
-    final formData = await parameters.toFormData();
-    final response = await _getDio().post(
-      '/${AppUrls.registerPatient}',
-      data: formData,
-    );
-    return RegisterResponseModel.fromJson(response.data);
+    try {
+      final formData = await parameters.toFormData();
+      final response = await _getDio().post(
+        '/${AppUrls.registerPatient}',
+        data: formData,
+      );
+      return RegisterResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      // Extract error message from FastAPI HTTPException
+      if (e.response?.data is Map<String, dynamic>) {
+        final errorData = e.response!.data as Map<String, dynamic>;
+        final detail =
+            errorData['detail'] as String? ?? errorData['message'] as String?;
+        if (detail != null) {
+          throw detail;
+        }
+      }
+      throw e.message ?? 'Unknown error occurred';
+    }
   }
 
   Future<RegisterResponseModel> doctorRegister(
     DoctorRegisterRequestModel parameters,
   ) async {
-    final dio = _getDio();
-    final formData = await parameters.toFormData();
-    final response = await dio.post(
-      '/${AppUrls.registerDoctor}',
-      data: formData,
-    );
-    return RegisterResponseModel.fromJson(response.data);
+    try {
+      final dio = _getDio();
+      final formData = await parameters.toFormData();
+      final response = await dio.post(
+        '/${AppUrls.registerDoctor}',
+        data: formData,
+      );
+      return RegisterResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      // Extract error message from FastAPI HTTPException
+      if (e.response?.data is Map<String, dynamic>) {
+        final errorData = e.response!.data as Map<String, dynamic>;
+        final detail =
+            errorData['detail'] as String? ?? errorData['message'] as String?;
+        if (detail != null) {
+          throw detail;
+        }
+      }
+      throw e.message ?? 'Unknown error occurred';
+    }
   }
 }

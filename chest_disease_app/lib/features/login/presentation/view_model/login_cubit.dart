@@ -19,6 +19,7 @@ class LoginCubit extends Cubit<LoginState> {
   final LoginRepository repository;
 
   LoginCubit({required this.repository}) : super(LoginInitial());
+
   bool isObscure = true;
   final formKey = GlobalKey<FormState>();
   final forgetPasswordFormKey = GlobalKey<FormState>();
@@ -28,30 +29,29 @@ class LoginCubit extends Cubit<LoginState> {
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final LocalAuthentication auth = LocalAuthentication();
+
   bool rememberMe = false;
   bool isBiometricAvailable = false;
-  BuildContext context = NavigationExtensions.navigatorKey.currentContext!;
 
   Future<void> forgetPassword() async {
     if (forgetPasswordFormKey.currentState!.validate()) {
       emit(ForgetPasswordLoadingState());
       final email = forgetPasswordController.text.trim();
+
       if (email.isEmpty || !email.contains('@')) {
-        "Please enter a valid email".showToast();
-        emit(LoginErrorState());
+        emit(ForgetPasswordErrorState(message: 'Please enter a valid email'));
         return;
       }
+
       final response = await repository.forgetPassword(email);
+
       response.fold(
         (l) {
-          l.message!.showToast();
-          emit(LoginErrorState());
+          final errorMessage = l.message ?? 'Unknown error';
+          emit(ForgetPasswordErrorState(message: errorMessage));
         },
         (r) {
-          context.navigateTo(
-            AppRoutes.verificationCodeScreen,
-            arguments: {'email': r, 'isResetPass': true},
-          );
+          emit(ForgetPasswordSuccessState(email: email));
         },
       );
     }
@@ -60,35 +60,44 @@ class LoginCubit extends Cubit<LoginState> {
   Future<void> login() async {
     if (formKey.currentState!.validate()) {
       emit(LoginLoadingState());
+
       final result = await repository.login(
         LoginRequestModel(
           email: emailController.text,
           password: passwordController.text,
         ),
       );
+
       result.fold(
         (l) {
-          l.message!.showToast();
-          emit(LoginErrorState());
+          final errorMessage = l.message ?? 'Unknown error';
+          errorMessage.showToast();
+          emit(LoginErrorState(message: errorMessage));
         },
         (r) async {
           if (r.token == null || r.user == null) {
             "Invalid login response from server".showToast();
-            emit(LoginErrorState());
+            emit(
+              LoginErrorState(message: 'Invalid login response from server'),
+            );
             return;
           }
+
           if (rememberMe) {
             await AppConstants.setBiometricToken(r.token!);
             await AppConstants.setBiometricUser(r.user!);
           }
+
           await AppConstants.cacheString(
             key: AppCacheHelper.rememberMe,
             value: rememberMe.toString(),
           );
+
           await AppConstants.setToken(r.token!);
           await AppConstants.setUser(r.user!);
           AppConstants.user = r.user;
           await setLocation();
+
           NavigationExtensions.navigatorKey.currentState
               ?.pushNamedAndRemoveUntil(AppRoutes.homeScreen, (_) => false);
           emit(LoginSuccessState());
@@ -115,12 +124,11 @@ class LoginCubit extends Cubit<LoginState> {
 
   Future<void> authenticateWithBiometrics() async {
     try {
-      // Retrieve user token and data from secure storage
       String? userToken = await AppConstants.getBiometricToken();
       User? userDataJson = await AppConstants.getBiometricUser();
 
       if (userToken == null || userDataJson == null) {
-        emit(LoginErrorState());
+        emit(LoginErrorState(message: 'Biometric authentication failed'));
         return;
       }
 
@@ -144,7 +152,7 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginSuccessState());
       }
     } catch (e) {
-      emit(LoginErrorState());
+      emit(LoginErrorState(message: 'Authentication failed'));
     }
   }
 

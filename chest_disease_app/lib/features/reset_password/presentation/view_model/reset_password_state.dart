@@ -8,7 +8,10 @@ final class ResetPasswordLoadingState extends ResetPasswordState {}
 
 final class ResetPasswordSuccess extends ResetPasswordState {}
 
-final class ResetPasswordError extends ResetPasswordState {}
+class ResetPasswordError extends ResetPasswordState {
+  final String message;
+  ResetPasswordError({required this.message});
+}
 
 final class ResetPasswordChangeVisibilty extends ResetPasswordState {
   bool isObscure;

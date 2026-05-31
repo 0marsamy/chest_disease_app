@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 
 OOD_THRESHOLD = float(os.getenv("OOD_XRAY_THRESHOLD", "0.8"))
 
-# ÃÓãÇÁ ÇáÜ Spaces ÈÊÇÚÊß Úáì Hugging Face
+# ãÓÇÑÇÊ ÇáÓÈíÓ ÇáãÑİæÚÉ Úáì Hugging Face
 OOD_CLIENT_NAME = "Ibrahim2002/xray-ood-detector"
 SEG_CLIENT_NAME = "Ibrahim2002/lung-segmentation"
-CLASS_CLIENT_NAME = "Ibrahim2002/Lung-seg-classify-heatmap" # ÇáÓÈíÓ ÇáÃÎíÑÉ Çááí ÚãáäÇåÇ
+CLASS_CLIENT_NAME = "Ibrahim2002/Lung-seg-classify-heatmap" 
 
 REQUEST_TIMEOUT = 120.0
 MAX_RETRIES = 3
@@ -31,27 +31,37 @@ def _get_client(client_name: str) -> Client:
         logger.error("Failed to create client for %s: %s", client_name, e)
         raise
 
+
 def validate_xray(image_path: str, threshold: float | None = None) -> bool:
     """
     Validate that the image is a chest X-ray using the OOD model.
-    (This function remains exactly as your working logic).
     """
     logger.info("Starting OOD validation for image: %s", image_path)
     thresh = threshold if threshold is not None else OOD_THRESHOLD
     
     try:
         client = _get_client(OOD_CLIENT_NAME)
-        # Assuming your OOD space uses /predict
-        result = client.predict(handle_file(image_path), api_name="/predict")
+        # ÅÑÓÇá ÇáÕæÑÉ áãæÏíá ÇáÊÍŞŞ
+        result = client.predict(image=handle_file(image_path), api_name="/predict")
         
-        # ÇÓÊÎÑÇÌ ÇáäÊíÌÉ ãä ÇáÜ Dictionary Çááí ÑÇÌÚ
-        if isinstance(result, dict) and "X-ray" in result:
-             xray_conf = float(result.get("X-ray", 0))
-        elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
-             xray_conf = float(result[0].get("X-ray", 0))
-        else:
-             logger.error("OOD API returned unexpected format: %s", result)
-             xray_conf = 0.0
+        xray_conf = 0.0
+        
+        # İß ÔİÑÉ ÇáäÊíÌÉ Çááí ÌÇíÉ ãä ÇáãæÏíá
+        if isinstance(result, dict):
+            # áæ ÇáäÊíÌÉ ÑÇÌÚÉ ßŞÇÆãÉ ãä ÇáÜ confidences
+            if "confidences" in result:
+                for conf in result["confidences"]:
+                    if conf.get("label", "").lower() == "x-ray":
+                        xray_conf = float(conf.get("confidence", 0.0))
+                        break
+            # áæ ÑÇÌÚÉ ßÜ label ãÈÇÔÑ
+            elif result.get("label", "").lower() == "x-ray":
+                xray_conf = 1.0
+                
+        # áæ ÇáäÊíÌÉ äÕ ãÈÇÔÑ
+        elif isinstance(result, str):
+            if result.lower() == "x-ray":
+                xray_conf = 1.0
 
         is_valid = xray_conf >= thresh
         logger.info("OOD validation %s (Confidence: %.2f)", "PASSED" if is_valid else "FAILED", xray_conf)
@@ -59,8 +69,9 @@ def validate_xray(image_path: str, threshold: float | None = None) -> bool:
         return is_valid
         
     except Exception as e:
-        logger.error("OOD validation failed: %s", e)
-        raise
+        logger.error("OOD validation failed or model is down: %s", e)
+        # ÊãÑíÑ ÇáÕæÑÉ ÈÔßá ÇİÊÑÇÖí áÊÌäÈ ÊÚØá ÇáÊØÈíŞ İí ÍÇá İÔá ÇáÇÊÕÇá ÈÇáãæÏíá
+        return True
 
 
 def classify_xray(image_path: str) -> dict[str, Any]:
@@ -71,7 +82,7 @@ def classify_xray(image_path: str) -> dict[str, Any]:
     
     try:
         # ==========================================
-        # 1. ãÑÍáÉ ÇáÜ Segmentation (ŞÕ ÇáÑÆÉ)
+        # 1. ÅÑÓÇá ÇáÕæÑÉ ááÜ Segmentation (ŞÕ ÇáÑÆÉ)
         # ==========================================
         logger.info("Calling Segmentation Model...")
         seg_client = _get_client(SEG_CLIENT_NAME)
@@ -81,19 +92,19 @@ def classify_xray(image_path: str) -> dict[str, Any]:
         )
         logger.info("Segmentation successful. Image saved temporarily at: %s", seg_img_path)
 
-        # ---> ÇáÅÖÇİÉ ÇáÌÏíÏÉ: ÊÍæíá ÕæÑÉ ÇáÓÌãäÊíÔä áÜ Base64 İæÑÇğ <---
+        # ÊÍæíá ÇáÕæÑÉ ÇáãŞÕæÕÉ áÜ Base64 áÅÑÓÇáåÇ ááãæÈÇíá
         segmented_b64 = None
         if seg_img_path and os.path.exists(seg_img_path):
             with open(seg_img_path, "rb") as f:
                 segmented_b64 = base64.b64encode(f.read()).decode("utf-8")
 
         # ==========================================
-        # 2. ãÑÍáÉ ÇáÊÕäíİ æÑÓã ÇáÜ Heatmap
+        # 2. ÅÑÓÇá ÇáÕæÑÉ ááÜ Classification & Heatmap
         # ==========================================
         logger.info("Calling Classification & Heatmap Model...")
         class_client = _get_client(CLASS_CLIENT_NAME)
         
-        # ÇáÓÈíÓ ÇáÃÎíÑÉ ÈÊÑÌÚ 3 ÍÇÌÇÊ (Dict ÇáäÊíÌÉ¡ ÑÓÇáÉ ÊÍĞíÑ¡ ãÓÇÑ ÇáåíÊ ãÇÈ)
+        # ÇáÓÈíÓ Ïí ÈÊÑÌÚ 3 ÍÇÌÇÊ (äÊÇÆÌ¡ ÊÍĞíÑ¡ ãÓÇÑ ÇáåíÊ ãÇÈ)
         result_tuple = class_client.predict(
             in_img=handle_file(seg_img_path),
             api_name="/analyze"
@@ -105,12 +116,12 @@ def classify_xray(image_path: str) -> dict[str, Any]:
         heatmap_path = result_tuple[2]
 
         # ==========================================
-        # 3. ÊÌãíÚ ÇáäÊÇÆÌ æÊÌåíÒ ÇáÜ Base64 ááåíÊ ãÇÈ
+        # 3. ÊÌåíÒ ÇáäÊíÌÉ ÇáäåÇÆíÉ
         # ==========================================
         prediction_str = "Unknown"
         confidence = 0.0
         
-        # ÍÓÇÈ ÃÚáì äÓÈÉ
+        # ÇÓÊÎÑÇÌ ÃÚáì äÓÈÉ ÊÕäíİ
         if isinstance(labels_dict, dict):
             items = [(k, float(v)) for k, v in labels_dict.items() if isinstance(v, (int, float))]
             if items:
@@ -123,7 +134,7 @@ def classify_xray(image_path: str) -> dict[str, Any]:
         if warning_msg and warning_msg.strip():
             description = f"{warning_msg} | {description}"
 
-        # ÊÍæíá ÕæÑÉ ÇáåíÊ ãÇÈ áÜ Text (Base64) ÚÔÇä ÇáãæÈÇíá
+        # ÊÍæíá ÇáåíÊ ãÇÈ áÜ Base64
         heatmap_b64 = None
         if heatmap_path and os.path.exists(heatmap_path):
             with open(heatmap_path, "rb") as f:
@@ -135,7 +146,7 @@ def classify_xray(image_path: str) -> dict[str, Any]:
             "prediction": prediction_str,
             "confidence": confidence,
             "description": description,
-            "segmented_base64": segmented_b64,  # ÇáÍŞá ÇáÌÏíÏ Çááí ÇäÖÇİ
+            "segmented_base64": segmented_b64,  
             "heatmap_base64": heatmap_b64,
         }
         

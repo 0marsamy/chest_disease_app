@@ -6,14 +6,11 @@ import 'package:chest_disease_app/core/utils/extenstions/nb_extenstions.dart';
 import 'package:chest_disease_app/core/utils/extenstions/responsive_design_extenstions.dart';
 import 'package:chest_disease_app/core/utils/theme/colors/app_colors.dart';
 import 'package:chest_disease_app/core/utils/theme/text_styles/app_text_styles.dart';
-import 'package:chest_disease_app/features/profle/presentation/view_model/settings_cubit.dart';
 import 'package:chest_disease_app/foundations/app_constants.dart';
 import 'package:chest_disease_app/foundations/app_urls.dart';
 import 'package:chest_disease_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../widgets/reset_password_bottom_sheet.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -25,8 +22,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    var settingsCubit = context.read<SettingsCubit>();
-
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -35,8 +30,9 @@ class _ProfilePageState extends State<ProfilePage> {
           slivers: [
             SliverPadding(padding: EdgeInsets.symmetric(vertical: 10.h)),
             SliverToBoxAdapter(
-              child: _buildProfessionalHeader(context)
-                  .paddingSymmetric(horizontal: 19.w),
+              child: _buildProfessionalHeader(
+                context,
+              ).paddingSymmetric(horizontal: 19.w),
             ),
             SliverPadding(padding: EdgeInsets.symmetric(vertical: 10.h)),
             SliverPadding(
@@ -49,56 +45,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       context
                           .navigateTo(AppRoutes.editProfileScreen)
                           .then((value) => setState(() {}));
-                    },
-                  ),
-                  if (AppConstants.user?.role == "Patient")
-                    _buildSettingsRow(
-                      title: S.of(context).changeLocation,
-                      onTap: () {
-                        context.navigateTo(AppRoutes.locationScreen);
-                      },
-                    ),
-                  if (AppConstants.user?.role == "Doctor")
-                    _buildSettingsRow(
-                      title: S.of(context).clinicsManagement,
-                      onTap: () {
-                        context.navigateTo(AppRoutes.clinicManagement);
-                      },
-                    ),
-                  _buildSettingsRow(
-                    title: S.of(context).resetPassword,
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(30.r)),
-                        ),
-                        builder: (context) => BlocProvider.value(
-                          value: settingsCubit,
-                          child: const ChangePasswordBottomSheet(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildSettingsRow(
-                    title: S.of(context).notificationsSettings,
-                    onTap: () {
-                      context.navigateTo(AppRoutes.alertSettingsScreen);
-                    },
-                  ),
-                  if (AppConstants.user?.role == "Patient")
-                    _buildSettingsRow(
-                      title: S.of(context).medicalDataManagement,
-                      onTap: () {
-                        context.navigateTo(AppRoutes.medicalHistoryScreen);
-                      },
-                    ),
-                  _buildSettingsRow(
-                    title: S.of(context).supportFeedback,
-                    onTap: () {
-                      context.navigateTo(AppRoutes.contactUsScreen);
                     },
                   ),
                   _buildSettingsRow(
@@ -127,7 +73,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     backgroundColor: Colors.white,
                     width: 130.w,
                     raduis: 10.r,
-                    borderSide: BorderSide(color: Colors.red.withOpacity(0.5)),
+                    borderSide: BorderSide(
+                      color: Colors.red.withValues(alpha: 0.5),
+                    ),
                   ),
                   SizedBox(height: 30.h),
                 ],
@@ -143,8 +91,13 @@ class _ProfilePageState extends State<ProfilePage> {
     // ✅ تجهيز رابط الصورة الصحيح
     String? imageUrl;
     if (AppConstants.user?.profilePicture != null) {
-      final normalized = AppConstants.user!.profilePicture!.replaceAll(r'\', '/');
-      final base = AppUrls.baseUrl.endsWith('/') ? AppUrls.baseUrl.substring(0, AppUrls.baseUrl.length - 1) : AppUrls.baseUrl;
+      final normalized = AppConstants.user!.profilePicture!.replaceAll(
+        r'\',
+        '/',
+      );
+      final base = AppUrls.baseUrl.endsWith('/')
+          ? AppUrls.baseUrl.substring(0, AppUrls.baseUrl.length - 1)
+          : AppUrls.baseUrl;
       final path = normalized.startsWith('/') ? normalized : '/$normalized';
       imageUrl = '$base$path';
     }
@@ -152,15 +105,16 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 10.w),
       decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(15.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            )
-          ]),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(15.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           CircleAvatar(
@@ -168,7 +122,9 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundColor: AppColors.buttonsAndNav,
             // ✅ استخدام الرابط المعدل
             backgroundImage: imageUrl != null
-                ? NetworkImage("$imageUrl?t=${DateTime.now().millisecondsSinceEpoch}")
+                ? NetworkImage(
+                    "$imageUrl?t=${DateTime.now().millisecondsSinceEpoch}",
+                  )
                 : const AssetImage('assets/image/doctor.png') as ImageProvider,
           ),
           20.toWidth,
@@ -183,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 5.toHeight,
                 Text(
-                  AppConstants.user?.role ?? "Doctor",
+                  AppConstants.user?.role ?? S.of(context).doctor,
                   style: AppTextStyles.font16BlueW700,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -206,20 +162,17 @@ class _ProfilePageState extends State<ProfilePage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               offset: const Offset(0, 2),
               blurRadius: 8,
-            )
+            ),
           ],
-          border: Border.all(color: Colors.grey.withOpacity(0.1)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: AppTextStyles.font16BlueW700,
-            ),
+            Text(title, style: AppTextStyles.font16BlueW700),
             Icon(
               Icons.chevron_right,
               color: AppColors.buttonsAndNav,

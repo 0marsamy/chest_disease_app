@@ -54,7 +54,7 @@ class VerificationCodeCubit extends Cubit<VerificationCodeState> {
   Future<void> verifyForgetCode(String email) async {
     if (!_isCodeValid()) return;
     emit(SubmitVerificationCodeLoadingState());
-    final response = await repository.verifyForgetCode(
+    final response = await repository.verifyResetCode(
       VerificationCodeRequestModel(email: email, code: _enteredCode),
     );
     response.fold(
@@ -66,7 +66,7 @@ class VerificationCodeCubit extends Cubit<VerificationCodeState> {
         S.of(context).sucessOpertation.showToast();
         context.navigateTo(
           AppRoutes.resetPasswordScreen,
-          arguments: {'email': email, 'token': _enteredCode},
+          arguments: {'email': email, 'code': _enteredCode},
         );
         emit(SubmitVerificationCodeSuccessState());
       },

@@ -6,11 +6,7 @@ class ApiErrorModel {
 
   final dynamic errors;
 
-  ApiErrorModel({
-    this.message,
-    this.code,
-    this.errors,
-  });
+  ApiErrorModel({this.message, this.code, this.errors});
 
   factory ApiErrorModel.fromJson(Map<String, dynamic> json) {
     return ApiErrorModel(
@@ -43,25 +39,26 @@ class ErrorHandler implements Exception {
       // dio error so its an error from response of the API or from dio itself
       switch (error.type) {
         case DioExceptionType.connectionError:
-          return ApiErrorModel(
-            message: "Connection to server failed",
-          );
+          return ApiErrorModel(message: "Connection to server failed");
         case DioExceptionType.cancel:
           return ApiErrorModel(message: "Request to the server was cancelled");
         case DioExceptionType.connectionTimeout:
           return ApiErrorModel(message: "Connection timeout with the server");
         case DioExceptionType.unknown:
           return ApiErrorModel(
-              message:
-                  "Connection to the server failed due to internet connection");
+            message:
+                "Connection to the server failed due to internet connection",
+          );
         case DioExceptionType.receiveTimeout:
           return ApiErrorModel(
-              message: "Receive timeout in connection with the server");
+            message: "Receive timeout in connection with the server",
+          );
         case DioExceptionType.badResponse:
           return _handleError(error.response?.data);
         case DioExceptionType.sendTimeout:
           return ApiErrorModel(
-              message: "Send timeout in connection with the server");
+            message: "Send timeout in connection with the server",
+          );
         default:
           return ApiErrorModel(message: "Something went wrong");
       }
@@ -73,14 +70,15 @@ class ErrorHandler implements Exception {
 
 ApiErrorModel _handleError(dynamic data) {
   if (data is Map<String, dynamic>) {
+    // FastAPI uses 'detail' for HTTPException, fallback to 'message'
+    String? errorMessage =
+        data['detail'] as String? ?? data['message'] as String?;
     return ApiErrorModel(
-      message: data['message'] ?? "Unknown error occurred",
+      message: errorMessage ?? "Unknown error occurred",
       code: data['statusCode'],
       errors: data['error'],
     );
   } else {
-    return ApiErrorModel(
-      message: data.toString(),
-    );
+    return ApiErrorModel(message: data.toString());
   }
 }

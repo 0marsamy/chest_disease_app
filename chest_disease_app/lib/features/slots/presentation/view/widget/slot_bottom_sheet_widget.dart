@@ -43,26 +43,27 @@ class _SlotBottomSheetWidgetState extends State<SlotBottomSheetWidget> {
           ),
           Expanded(
             child: Localizations(
-              locale: const Locale('en'),
+              locale: Localizations.localeOf(context),
               delegates: const [
                 DefaultWidgetsLocalizations.delegate,
                 DefaultMaterialLocalizations.delegate,
                 EnglishCupertinoLocalizationsDelegate(), // Force English numerals only for Cupertino
               ],
               child: CupertinoTimerPicker(
-                  mode: CupertinoTimerPickerMode.hm,
-                  initialTimerDuration: Duration(
-                    hours: selectedTime.hour,
-                    minutes: selectedTime.minute,
-                  ),
-                  onTimerDurationChanged: (Duration duration) {
-                    final hours = duration.inMinutes ~/ 60;
-                    final minutes = duration.inMinutes % 60;
+                mode: CupertinoTimerPickerMode.hm,
+                initialTimerDuration: Duration(
+                  hours: selectedTime.hour,
+                  minutes: selectedTime.minute,
+                ),
+                onTimerDurationChanged: (Duration duration) {
+                  final hours = duration.inMinutes ~/ 60;
+                  final minutes = duration.inMinutes % 60;
 
-                    setState(() {
-                      selectedTime = TimeOfDay(hour: hours, minute: minutes);
-                    });
-                  }),
+                  setState(() {
+                    selectedTime = TimeOfDay(hour: hours, minute: minutes);
+                  });
+                },
+              ),
             ),
           ),
           Padding(
@@ -73,7 +74,8 @@ class _SlotBottomSheetWidgetState extends State<SlotBottomSheetWidget> {
               raduis: 8.r,
               onTap: () {
                 print(
-                    "Selected time: ${selectedTime.hour}:${selectedTime.minute}");
+                  "Selected time: ${selectedTime.hour}:${selectedTime.minute}",
+                );
                 Navigator.of(context).pop(selectedTime);
               },
               text: S.of(context).select,
@@ -84,4 +86,3 @@ class _SlotBottomSheetWidgetState extends State<SlotBottomSheetWidget> {
     );
   }
 }
-

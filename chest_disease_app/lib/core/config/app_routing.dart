@@ -3,7 +3,7 @@ import 'package:chest_disease_app/core/data/models/doctor_clinic_model.dart';
 import 'package:chest_disease_app/features/chats/presentation/view/screen/chat_list_screen.dart';
 import 'package:chest_disease_app/features/chats/presentation/view/screen/chats_screen.dart';
 import 'package:chest_disease_app/features/clincs_management/presentation/view/screen/add_clinic_screen.dart';
-import 'package:chest_disease_app/features/contact_us/presentation/view_model/cubit/contact_us_cubit.dart';
+
 import 'package:chest_disease_app/features/doctors/presentation/view/screens/doctors_profile.dart';
 import 'package:chest_disease_app/features/doctors/presentation/view_model/doctors_cubit.dart';
 import 'package:chest_disease_app/features/edit_profile/presentation/view/screens/edit_profile_screen.dart';
@@ -27,7 +27,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/chats/data/models/chat_preview.dart';
 import '../../features/clincs_management/presentation/view_model/cubit/clinics_management_cubit.dart';
-import '../../features/contact_us/presentation/view/screens/contact_us_screen.dart';
+
 import '../../features/edit_profile/presentation/view_model/cubit/edit_profile_cubit.dart';
 import '../../features/login/presentation/view/screens/login_screen.dart';
 import '../../features/login/presentation/view_model/login_cubit.dart';
@@ -57,7 +57,7 @@ class AppRoutes {
   static const String chatsListScreen = '/chatsListScreen';
   static const String notificationScreen = '/notification';
   static const String resetPasswordScreen = '/resetPasswordScreen';
-  static const String contactUsScreen = '/contactUs';
+
   static const String medicalHistoryScreen = '/medicalHistory';
   static const String detailedScanResultScreen = '/detailedScanResultScreen';
   static const String reportsScreen = '/reportsScreen';
@@ -141,21 +141,14 @@ class AppRouter {
             create: (context) => getIt<ResetPasswordCubit>()
               ..prefill(
                 email: args['email'] as String?,
-                token: args['token'] as String?,
+                code: args['code'] as String?,
               ),
             child: const ResetPassword(),
           ),
         );
       case AppRoutes.splashScreen:
         return animateRouteBuilder(const SplashScreen(), duration: 300.ms);
-      case AppRoutes.contactUsScreen:
-        return animateRouteBuilder(
-          BlocProvider(
-            create: (context) => getIt<ContactUsCubit>(),
-            child: const ContactUsScreen(),
-          ),
-          duration: 300.ms,
-        );
+
       case AppRoutes.addPostScreen:
         return animateRouteBuilder(const AddPost(), duration: 300.ms);
       case AppRoutes.viewReportScreen:

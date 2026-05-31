@@ -1,3 +1,5 @@
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
+
 class DoctorReportsResponseModel {
   int? pageIndex;
   int? pageSize;
@@ -5,12 +7,13 @@ class DoctorReportsResponseModel {
   int? totalPages;
   List<Report>? reports;
 
-  DoctorReportsResponseModel(
-      {this.pageIndex,
-      this.pageSize,
-      this.count,
-      this.totalPages,
-      this.reports});
+  DoctorReportsResponseModel({
+    this.pageIndex,
+    this.pageSize,
+    this.count,
+    this.totalPages,
+    this.reports,
+  });
 
   DoctorReportsResponseModel.fromJson(Map<String, dynamic> json) {
     pageIndex = json['pageIndex'];
@@ -53,25 +56,26 @@ class Report {
   int? age;
   bool? isViewed;
 
-  Report(
-      {this.id,
-      this.imagePath,
-      this.detectionClass,
-      this.confidence,
-      this.aiGeneratedImagePath,
-      this.uploadDate,
-      this.patientId,
-      this.patientName,
-      this.patientProfilePicture,
-      this.patientDateOfBirth,
-      this.patientGender,
-      this.isViewed,
-      this.age});
+  Report({
+    this.id,
+    this.imagePath,
+    this.detectionClass,
+    this.confidence,
+    this.aiGeneratedImagePath,
+    this.uploadDate,
+    this.patientId,
+    this.patientName,
+    this.patientProfilePicture,
+    this.patientDateOfBirth,
+    this.patientGender,
+    this.isViewed,
+    this.age,
+  });
 
   Report.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     imagePath = json['imagePath'];
-    detectionClass = json['detectionClass'];
+    detectionClass = formatDiagnosisLabel(json['detectionClass']?.toString());
     confidence = json['confidence'];
     aiGeneratedImagePath = json['aiGeneratedImagePath'];
     uploadDate = json['uploadDate'];
@@ -88,7 +92,7 @@ class Report {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['imagePath'] = imagePath;
-    data['detectionClass'] = detectionClass;
+    data['detectionClass'] = formatDiagnosisLabel(detectionClass);
     data['confidence'] = confidence;
     data['aiGeneratedImagePath'] = aiGeneratedImagePath;
     data['uploadDate'] = uploadDate;
@@ -102,23 +106,13 @@ class Report {
   }
 }
 
-
 class DoctorReportsRequestModel {
   final int pageIndex;
   final int pageSize;
 
-
-  DoctorReportsRequestModel({
-    required this.pageIndex,
-    required this.pageSize,
-
-  });
+  DoctorReportsRequestModel({required this.pageIndex, required this.pageSize});
 
   Map<String, dynamic> toJson() {
-    return {
-      'pageIndex': pageIndex,
-      'pageSize': pageSize,
-
-    };
+    return {'pageIndex': pageIndex, 'pageSize': pageSize};
   }
 }

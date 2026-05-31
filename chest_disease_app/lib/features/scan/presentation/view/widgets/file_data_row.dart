@@ -15,7 +15,7 @@ class FileDataRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<ScanCubit>();
-    
+
     return BlocBuilder<ScanCubit, ScanState>(
       builder: (context, state) {
         return Container(
@@ -88,24 +88,6 @@ class FileDataRow extends StatelessWidget {
               ),
 
               10.toWidth,
-
-              // 3. Cancel Button
-              InkWell(
-                onTap: () => cubit.cancelUpload(),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: CustomImageView(
-                    svgPath: AssetsSvg.cancel.toSVG(),
-                    width: 20.w,
-                    height: 20.w,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
             ],
           ),
         );

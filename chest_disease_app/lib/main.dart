@@ -11,7 +11,7 @@ import 'observers/bloc_oserver.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-// OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   // Initialize with your OneSignal App ID
   // OneSignal.initialize("7befc836-c514-4a94-8039-12b89facdfec");
   // Use this method to prompt for push notifications.
@@ -27,4 +27,3 @@ void main() async {
   Bloc.observer = BlocObservers();
   runApp(const NeroTumApp());
 }
-

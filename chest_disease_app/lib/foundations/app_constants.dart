@@ -33,6 +33,7 @@ class AppConstants {
 
   static bool langCode = true;
   static LatLng? currentLocation;
+  static ThemeMode themeMode = ThemeMode.system;
 
   static cacheString({required String key, required dynamic value}) async {
     await AppCacheHelper.setSecuredString(key: key, value: value);
@@ -52,6 +53,35 @@ class AppConstants {
       value: language.toString(),
     );
     langCode = language;
+  }
+
+  static setThemeMode(ThemeMode mode) async {
+    await AppCacheHelper.setSecuredString(
+      key: AppCacheHelper.themeMode,
+      value: mode.toString(),
+    );
+    themeMode = mode;
+  }
+
+  static Future<ThemeMode> getThemeMode() async {
+    String? cachedTheme = await AppCacheHelper.getSecuredString(
+      key: AppCacheHelper.themeMode,
+    );
+    if (cachedTheme == null || cachedTheme.isEmpty) {
+      // Default to system theme if not found
+      themeMode = ThemeMode.system;
+      await setThemeMode(ThemeMode.system);
+    } else {
+      // Parse the string back to ThemeMode enum
+      if (cachedTheme == 'ThemeMode.light') {
+        themeMode = ThemeMode.light;
+      } else if (cachedTheme == 'ThemeMode.dark') {
+        themeMode = ThemeMode.dark;
+      } else {
+        themeMode = ThemeMode.system;
+      }
+    }
+    return themeMode;
   }
 
   static Future<bool> getLanguage() async {

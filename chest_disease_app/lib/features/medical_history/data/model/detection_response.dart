@@ -1,3 +1,5 @@
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
+
 class DetectionResponse {
   final int pageIndex;
   final int pageSize;
@@ -48,7 +50,7 @@ class DetectionItem {
   factory DetectionItem.fromJson(Map<String, dynamic> json) {
     return DetectionItem(
       imagePath: json['imagePath'] as String? ?? '',
-      detectionClass: json['detectionClass'] as String? ?? '',
+      detectionClass: formatDiagnosisLabel(json['detectionClass'] as String?),
       isReviewed: json['isReviewed'] == true,
       uploadDate:
           DateTime.tryParse(json['uploadDate']?.toString() ?? '')?.toLocal() ??

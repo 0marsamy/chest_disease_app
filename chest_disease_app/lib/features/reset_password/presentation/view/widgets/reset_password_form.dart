@@ -18,43 +18,62 @@ class ResetPasswordForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<ResetPasswordCubit>();
     return Form(
-        key: cubit.formKey,
+      key: cubit.formKey,
+      child: BlocListener<ResetPasswordCubit, ResetPasswordState>(
+        listener: (context, state) {
+          if (state is ResetPasswordError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(state.message),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        },
         child: BlocBuilder<ResetPasswordCubit, ResetPasswordState>(
           builder: (context, state) {
             return Column(
               children: [
                 CustomTextField(
-                    label: S.of(context).email,
-                    hintText: S.of(context).enterYourEmail,
-                    controller: cubit.emailController,
-                    focusNode: cubit.emailFocusNode,
-                    onSubmit: (value) {
-                      FocusScope.of(context)
-                          .requestFocus(cubit.passwordFocusNode);
-                    },
-                    validator: (value) => checkFieldValidation(
-                        val: cubit.emailController.text,
-                        fieldName: S.of(context).email,
-                        fieldType: ValidationType.email)),
+                  label: S.of(context).email,
+                  hintText: S.of(context).enterYourEmail,
+                  controller: cubit.emailController,
+                  focusNode: cubit.emailFocusNode,
+                  readOnly: true,
+                  onSubmit: (value) {
+                    FocusScope.of(
+                      context,
+                    ).requestFocus(cubit.passwordFocusNode);
+                  },
+                  validator: (value) => checkFieldValidation(
+                    val: cubit.emailController.text,
+                    fieldName: S.of(context).email,
+                    fieldType: ValidationType.email,
+                  ),
+                ),
                 20.toHeight,
                 CustomTextField(
-                    label: S.of(context).password,
-                    hintText: S.of(context).enterYourPassword,
-                    controller: cubit.passwordController,
-                    obscureText: cubit.isObscure,
-                    suffixIcon: AssetsSvg.password,
-                    onSuffixTap: () {
-                      cubit.changeVisiblePassword();
-                    },
-                    focusNode: cubit.passwordFocusNode,
-                    onSubmit: (p0) {
-                      FocusScope.of(context)
-                          .requestFocus(cubit.confirmPasswordFocusNode);
-                    },
-                    validator: (value) => checkFieldValidation(
-                        val: cubit.passwordController.text,
-                        fieldName: S.of(context).password,
-                        fieldType: ValidationType.password)),
+                  label: S.of(context).newPassword,
+                  hintText: S.of(context).enterYourPassword,
+                  controller: cubit.passwordController,
+                  obscureText: cubit.isObscure,
+                  suffixIcon: AssetsSvg.password,
+                  onSuffixTap: () {
+                    cubit.changeVisiblePassword();
+                  },
+                  focusNode: cubit.passwordFocusNode,
+                  onSubmit: (p0) {
+                    FocusScope.of(
+                      context,
+                    ).requestFocus(cubit.confirmPasswordFocusNode);
+                  },
+                  validator: (value) => checkFieldValidation(
+                    val: cubit.passwordController.text,
+                    fieldName: S.of(context).newPassword,
+                    fieldType: ValidationType.password,
+                  ),
+                ),
                 20.toHeight,
                 CustomTextField(
                   label: S.of(context).confirmPassword,
@@ -67,35 +86,23 @@ class ResetPasswordForm extends StatelessWidget {
                   },
                   focusNode: cubit.confirmPasswordFocusNode,
                   onSubmit: (p0) {
-                    FocusScope.of(context).requestFocus(cubit.otpFocusNode);
+                    // No OTP field anymore, focus on submit button or do nothing
                   },
                   validator: (value) => checkFieldValidation(
-                      val: cubit.confirmPasswordController.text,
-                      fieldName: S.of(context).confirmPassword,
-                      fieldType: ValidationType.confirmPassword,
-                      confirmPass: cubit.passwordController.text),
+                    val: cubit.confirmPasswordController.text,
+                    fieldName: S.of(context).confirmPassword,
+                    fieldType: ValidationType.confirmPassword,
+                    confirmPass: cubit.passwordController.text,
+                  ),
                 ),
-                20.toHeight,
-                CustomTextField(
-                    label: S.of(context).enterOtp,
-                    hintText: S.of(context).enterOtp,
-                    controller: cubit.otpController,
-                    focusNode: cubit.otpFocusNode,
-                    keyboardType: TextInputType.number,
-                    onSubmit: (p0) {
-                      cubit.submitNewPassword();
-                    },
-                    validator: (value) => checkFieldValidation(
-                        val: cubit.otpController.text,
-                        fieldName: S.of(context).enterOtp,
-                        fieldType: ValidationType.verificationCode)),
                 25.toHeight,
                 CustomButton(
-                        isLoading: state is ResetPasswordLoadingState,
-                        text: S.of(context).resetPassword,
-                        onTap: () {
-                          cubit.submitNewPassword();
-                        })
+                      isLoading: state is ResetPasswordLoadingState,
+                      text: S.of(context).resetPassword,
+                      onTap: () {
+                        cubit.submitNewPassword();
+                      },
+                    )
                     .animate()
                     .flipV(
                       duration: const Duration(milliseconds: 500),
@@ -105,7 +112,8 @@ class ResetPasswordForm extends StatelessWidget {
               ],
             );
           },
-        ));
+        ),
+      ),
+    );
   }
 }
-

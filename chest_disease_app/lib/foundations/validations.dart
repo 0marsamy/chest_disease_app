@@ -80,23 +80,23 @@ bool isPhone(String phoneNumber) {
 
 String? checkPassword(String val) {
   if (val.length < 6) {
-    return AppStrings.passwordLenghtError;
+    return S.of(context).passwordLengthError;
   }
 
   // if (!RegExp(r'[A-Z]').hasMatch(val)) {
-  //   return AppStrings.passwordMustContainAtLeastOneLowercaseLetter;
+  //   return S.of(context).passwordUppercaseError;
   // }
 
   if (!RegExp(r'[a-z]').hasMatch(val)) {
-    return AppStrings.passwordMustContainAtLeastOneUpperCaseLetter;
+    return S.of(context).passwordUppercaseError;
   }
 
   if (!RegExp(r'[0-9]').hasMatch(val)) {
-    return AppStrings.passwordMustContainAtLeastOneDigit;
+    return S.of(context).passwordDigitError;
   }
 
   if (!RegExp(r'[!@#\$&*~]').hasMatch(val)) {
-    return AppStrings.passwordMustContainAtLeastOneSpecialCharacter;
+    return S.of(context).passwordSpecialError;
   }
 
   return null;
@@ -114,11 +114,12 @@ bool isValidNationalNumber(String val) {
   return true;
 }
 
-String? checkFieldValidation(
-    {required String? val,
-    required String fieldName,
-    required ValidationType fieldType,
-    String? confirmPass}) {
+String? checkFieldValidation({
+  required String? val,
+  required String fieldName,
+  required ValidationType fieldType,
+  String? confirmPass,
+}) {
   String? errorMsg;
 
   if (fieldType == ValidationType.text) {
@@ -166,11 +167,11 @@ String? checkFieldValidation(
     if (isRequired(val!, fieldName) != null) {
       errorMsg = isRequired(val, fieldName);
     } else if (isContainNumbers(val)) {
-      errorMsg = AppStrings.nameMustNotContainNumbers;
+      errorMsg = S.of(context).nameNumbersError;
     } else if (!isValidFullName(val)) {
       errorMsg = AppStrings.fullNameMustContainOneSpace;
     } else if (isContainSpecialCharacters(val)) {
-      errorMsg = AppStrings.nameMustNotContainSpecialCharacters;
+      errorMsg = S.of(context).nameSpecialError;
     }
   }
 
@@ -183,7 +184,7 @@ String? checkFieldValidation(
     DateTime? parsedDate = DateTime.tryParse(input);
     if (parsedDate == null) {
       print("input : $input");
-      errorMsg = AppStrings.dateError;
+      errorMsg = S.of(context).invalidDate;
     } else {
       // check it's in a range
       // if (!isValidBirthdate(parsedDate)) {
@@ -196,7 +197,7 @@ String? checkFieldValidation(
     if (isRequired(val!, fieldName) != null) {
       errorMsg = isRequired(val, fieldName);
     } else if (!RegExp(r'^\d{6}$').hasMatch(val)) {
-      errorMsg = AppStrings.verificationCodeError;
+      errorMsg = S.of(context).verificationCodeError;
     }
   }
 
@@ -204,7 +205,7 @@ String? checkFieldValidation(
     if (isRequired(val!, fieldName) != null) {
       errorMsg = isRequired(val, fieldName);
     } else if (!emailRegex.hasMatch(val)) {
-      errorMsg = AppStrings.invalidEmail;
+      errorMsg = S.of(context).invalidEmail;
     }
   }
 
@@ -244,7 +245,7 @@ String? checkFieldValidation(
     } else if (checkPassword(val) != null) {
       errorMsg = checkPassword(val);
     } else if (val != confirmPass) {
-      errorMsg = AppStrings.confirmPasswordNotMatch;
+      errorMsg = S.of(context).confirmPasswordMismatch;
     }
   }
 
@@ -264,14 +265,13 @@ String? checkFieldValidation(
     if (isRequired(val!, fieldName) != null) {
       errorMsg = isRequired(val, fieldName);
     } else if (val.length < 11) {
-      errorMsg = AppStrings.phoneNumberMustBe11Digits;
+      errorMsg = S.of(context).phoneDigitsError;
     } else if (val.length > 11) {
-      errorMsg = AppStrings.phoneNumberMustBe11Digits;
+      errorMsg = S.of(context).phoneDigitsError;
     } else if (!regexPhone.hasMatch(val)) {
-      errorMsg = AppStrings.invalidPhoneNumber;
+      errorMsg = S.of(context).invalidPhone;
     }
   }
 
   return (errorMsg != null) ? errorMsg : null;
 }
-

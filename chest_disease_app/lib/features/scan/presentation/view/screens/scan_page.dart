@@ -1,12 +1,14 @@
 import 'dart:io';
-import 'package:chest_disease_app/core/components/widgets/custom_button.dart';
+
 import 'package:chest_disease_app/core/components/widgets/custom_image_view.dart';
 import 'package:chest_disease_app/core/components/widgets/custom_welcome_row.dart';
 import 'package:chest_disease_app/core/utils/assets/assets_svg.dart';
 import 'package:chest_disease_app/core/utils/extenstions/image_extentions.dart';
+import 'package:chest_disease_app/core/utils/theme/colors/app_colors.dart';
 import 'package:chest_disease_app/features/scan/presentation/view/widgets/scan_result_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../../generated/l10n.dart';
 import '../../view_model/scan_cubit.dart';
 import '../widgets/file_data_row.dart';
@@ -37,26 +39,32 @@ class ScanPage extends StatelessWidget {
           final cubit = context.watch<ScanCubit>();
           return CustomScrollView(
             slivers: [
-              const CustomWelcomeAppBar(), // Removed 'const'
+              const CustomWelcomeAppBar(),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 20,
+                  ),
                   child: GestureDetector(
                     onTap: () => cubit.pickFile(),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 48),
+                        horizontal: 24,
+                        vertical: 48,
+                      ),
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.0),
-                          boxShadow: const [
-                            BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                                spreadRadius: 2,
-                                offset: Offset(0, 2))
-                          ]),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 4,
+                            spreadRadius: 2,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,7 +74,7 @@ class ScanPage extends StatelessWidget {
                                   file: cubit.file,
                                   height: 100.0,
                                   radius: BorderRadius.circular(10.0),
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                 )
                               : CustomImageView(
                                   svgPath: AssetsSvg.file.toSVG(),
@@ -76,18 +84,20 @@ class ScanPage extends StatelessWidget {
                             S.of(context).pleaseUplaodClearImage,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                                color: Colors.green,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700),
+                              color: Colors.green,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             S.of(context).supportedFiles,
                             style: const TextStyle(
-                                color: Colors.lightGreen,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500),
-                          )
+                              color: Colors.lightGreen,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -101,37 +111,24 @@ class ScanPage extends StatelessWidget {
                     child: FileDataRow(),
                   ),
                 ),
-             SliverFillRemaining(
+              SliverFillRemaining(
                 hasScrollBody: false,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    // التعديل هنا: زودنا المسافة السفلية لـ 120 عشان نعدي الناف بار
                     padding: const EdgeInsets.only(
-                      left: 30, 
-                      right: 30, 
-                      top: 20, 
-                      bottom: 120 // 👈 ده الرقم السحري اللي هيظهر الزرار
+                      left: 24,
+                      right: 24,
+                      top: 20,
+                      bottom: 120,
                     ),
-                    child: CustomButton(
-                      raduis: 8.0,
-                      isLoading: state is UploadScanLoadingState,
-                      text: S.of(context).done,
-                      onTap: () {
-                        if (cubit.file == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(
-                                    S.of(context).pleasePickAFileToUpload)),
-                          );
-                          return;
-                        }
-                        cubit.uploadScan();
-                      },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [_buildActionButtons(context, cubit, state)],
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           );
         },
@@ -139,13 +136,99 @@ class ScanPage extends StatelessWidget {
     );
   }
 
+  Widget _buildActionButtons(
+    BuildContext context,
+    ScanCubit cubit,
+    ScanState state,
+  ) {
+    final isLoading = state is UploadScanLoadingState;
+
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      if (cubit.file == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              S.of(context).pleasePickAFileToUpload,
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      cubit.uploadScan();
+                    },
+              icon: isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.biotech_outlined, size: 20),
+              label: Text(S.of(context).analyze),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonsAndNav,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: OutlinedButton.icon(
+              onPressed: isLoading || cubit.file == null
+                  ? null
+                  : cubit.cancelUpload,
+              icon: const Icon(Icons.delete_outline, size: 20),
+              label: Text(S.of(context).clear),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.buttonsAndNav,
+                backgroundColor: const Color(0xFFF6FAFC),
+                side: BorderSide(
+                  color: AppColors.buttonsAndNav.withValues(alpha: 0.25),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _showResultBottomSheet(
-      BuildContext context, UploadScanSuccessState state, File originalImage) {
+    BuildContext context,
+    UploadScanSuccessState state,
+    File originalImage,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (ctx) {
-        // Provide the cubit to the bottom sheet's context
         return BlocProvider.value(
           value: context.read<ScanCubit>(),
           child: ScanResultView(
@@ -157,4 +240,3 @@ class ScanPage extends StatelessWidget {
     );
   }
 }
-

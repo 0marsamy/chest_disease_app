@@ -28,10 +28,7 @@ class ChatTile extends StatelessWidget {
               imageUrl: chat.user.profilePicture,
             ),
           ),
-          title: Text(
-            chat.name,
-            style: AppTextStyles.font16BlueW700,
-          ),
+          title: Text(chat.name, style: AppTextStyles.font16BlueW700),
           subtitle: Text(
             chat.message,
             overflow: TextOverflow.ellipsis,
@@ -39,17 +36,22 @@ class ChatTile extends StatelessWidget {
             style: AppTextStyles.font15BlackW700,
           ),
           trailing: Text(
-            DateFormat('hh:mm a').format(chat.time),
+            DateFormat(
+              'hh:mm a',
+              Localizations.localeOf(context).languageCode,
+            ).format(chat.time),
             style: AppTextStyles.font12BlueW500,
           ),
           onTap: () {
             context.read<ChatsCubit>().getConversationMessages(chat.chatId);
-            Navigator.pushNamed(context, AppRoutes.chatsScreen,
-                arguments: chat);
+            Navigator.pushNamed(
+              context,
+              AppRoutes.chatsScreen,
+              arguments: chat,
+            );
           },
         ),
       ],
     );
   }
 }
-

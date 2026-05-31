@@ -8,30 +8,40 @@ import '../models/login_model.dart';
 @singleton
 class LoginRemoteDataSource {
   Future<LoginResponseModel> login(LoginRequestModel parameters) async {
-    final response =
-        await Dio(
-          BaseOptions(
-            baseUrl: AppUrls.baseUrl,
-            connectTimeout: const Duration(minutes: 2),
-            receiveTimeout: const Duration(minutes: 2),
-          ),
-        ).post(
-          '/${AppUrls.login}',
-          data: parameters.toJson(),
-          options: Options(
-            contentType: Headers.formUrlEncodedContentType,
-            receiveTimeout: const Duration(minutes: 1),
-            sendTimeout: const Duration(minutes: 1),
-          ),
-        );
-    return LoginResponseModel.fromJson(response.data);
+    try {
+      final response =
+          await Dio(
+            BaseOptions(
+              baseUrl: AppUrls.baseUrl,
+              connectTimeout: const Duration(minutes: 2),
+              receiveTimeout: const Duration(minutes: 2),
+            ),
+          ).post(
+            '/${AppUrls.login}',
+            data: parameters.toJson(),
+            options: Options(
+              contentType: Headers.formUrlEncodedContentType,
+              receiveTimeout: const Duration(minutes: 1),
+              sendTimeout: const Duration(minutes: 1),
+            ),
+          );
+      return LoginResponseModel.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<String> forgetPassword(String email) async {
-    final response = await AppDio().post(
-      path: AppUrls.forgetPassword,
-      data: {"email": email},
-    );
-    return response.data['email'];
+    try {
+      final response = await AppDio().post(
+        path: AppUrls.forgetPassword,
+        data: {"email": email},
+      );
+      // Handle simple JSON response: {"message": "..."}
+      // Return the email that was sent for navigation
+      return email;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

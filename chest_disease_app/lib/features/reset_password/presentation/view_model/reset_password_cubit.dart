@@ -26,13 +26,15 @@ class ResetPasswordCubit extends Cubit<ResetPasswordState> {
   final otpFocusNode = FocusNode();
   bool isObscure = true;
   bool isConfirmObscure = true;
+  String? _savedCode;
 
-  void prefill({String? email, String? token}) {
+  void prefill({String? email, String? code}) {
     if (email != null && email.isNotEmpty) {
       emailController.text = email;
     }
-    if (token != null && token.isNotEmpty) {
-      otpController.text = token;
+    if (code != null && code.isNotEmpty) {
+      _savedCode = code;
+      otpController.text = code;
     }
   }
 
@@ -52,14 +54,14 @@ class ResetPasswordCubit extends Cubit<ResetPasswordState> {
       final response = await repository.resetPassword(
         ResetPasswordRequestModel(
           email: emailController.text,
-          token: otpController.text,
-          password: passwordController.text,
+          code: _savedCode ?? otpController.text,
+          newPassword: passwordController.text,
         ),
       );
       return response.fold(
         (l) {
           l.message!.showToast();
-          emit(ResetPasswordError());
+          emit(ResetPasswordError(message: l.message ?? 'Unknown error'));
         },
         (r) {
           r.showToast();

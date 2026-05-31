@@ -26,7 +26,7 @@ class DaySelector extends StatelessWidget {
               final day = cubit.startDate.add(Duration(days: index));
               final isSelected =
                   DateFormat('yyyy-MM-dd').format(cubit.selectedDay) ==
-                      DateFormat('yyyy-MM-dd').format(day);
+                  DateFormat('yyyy-MM-dd').format(day);
               return Expanded(
                 child: GestureDetector(
                   onTap: () => cubit.selectDay(day),
@@ -41,7 +41,9 @@ class DaySelector extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          DateFormat('EEE').format(day).substring(0, 3),
+                          DateFormat.EEEE(
+                            Localizations.localeOf(context).languageCode,
+                          ).format(day).substring(0, 3),
                           style: isSelected
                               ? AppTextStyles.font10WhiteW600
                               : AppTextStyles.font10BlueW600,
@@ -65,4 +67,3 @@ class DaySelector extends StatelessWidget {
     );
   }
 }
-

@@ -11,8 +11,9 @@ import 'package:injectable/injectable.dart';
 class EditProfileRepo {
   EditProfileRepo();
 
-  Future<Either<ApiErrorModel, String>> editProfile(
-      EditProfileRequestModel editProfileModel) async {
+  Future<Either<ApiErrorModel, User>> editProfile(
+    EditProfileRequestModel editProfileModel,
+  ) async {
     try {
       final dio = Dio(
         BaseOptions(
@@ -22,69 +23,107 @@ class EditProfileRepo {
         ),
       );
 
-      Map<String, dynamic> dataMap = await editProfileModel.toMap();
-      if (AppConstants.user != null) {
-        dataMap['email'] = AppConstants.user!.email;
+      final formData = FormData.fromMap(await editProfileModel.toMap());
+      final headers = <String, dynamic>{"Content-Type": "multipart/form-data"};
+      final token = await AppConstants.getToken();
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
       }
-
-      FormData formData = FormData.fromMap(dataMap);
 
       final response = await dio.post(
         "${AppUrls.baseUrl}/api/Account/UpdateProfile",
         data: formData,
         options: Options(
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: headers,
           receiveTimeout: const Duration(minutes: 1),
           sendTimeout: const Duration(minutes: 1),
         ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        try {
-          final responseData = response.data;
-          
-          if (responseData['data'] != null && responseData['data']['user'] != null) {
-            
-            // 1. استلام البيانات الجديدة من السيرفر
-            User serverUpdatedUser = User.fromJson(responseData['data']['user']);
-
-            // 2. الحفاظ على البيانات القديمة المهمة (Role + Token)
-            // إذا السيرفر لم يرسلهم، نستخدم القيم المخزنة حالياً
-            String finalRole = (serverUpdatedUser.role != null && serverUpdatedUser.role != "null") 
-                ? serverUpdatedUser.role! 
-                : (AppConstants.user?.role ?? "Doctor");
-
-            String? finalToken = serverUpdatedUser.token ?? AppConstants.user?.token;
-
-            // 3. دمج البيانات باستخدام copyWith
-            User finalUser = serverUpdatedUser.copyWith(
-              role: finalRole,
-              token: finalToken,
-            );
-
-            // 4. حفظ المستخدم النهائي
-            await AppConstants.setUser(finalUser);
-            
-            print("✅ User updated & merged. Role: ${finalUser.role}, Token preserved.");
-          }
-        } catch (e) {
-          print("⚠️ Warning: Failed to update local user data: $e");
-        }
-
-        return const Right("Profile Updated Successfully");
-      } else {
-        return Left(ApiErrorModel(message: "Failed to update profile"));
+        final updatedUser = _buildUpdatedUser(response.data, editProfileModel);
+        await AppConstants.setUser(updatedUser);
+        AppConstants.user = updatedUser;
+        return Right(updatedUser);
       }
 
+      return Left(ApiErrorModel(message: "Failed to update profile"));
     } catch (e) {
-      print("🔥 Edit Profile Error: $e");
       if (e is DioException) {
-        return Left(ApiErrorModel(
-            message: e.response?.data['detail'] ?? e.message ?? "Connection Error"));
+        return Left(ApiErrorModel(message: _dioErrorMessage(e)));
       }
       return Left(ApiErrorModel(message: e.toString()));
     }
+  }
+
+  User _buildUpdatedUser(
+    dynamic responseData,
+    EditProfileRequestModel request,
+  ) {
+    final currentUser = AppConstants.user;
+    User? serverUser;
+
+    if (responseData is Map<String, dynamic>) {
+      final data = responseData['data'];
+      final userJson = data is Map<String, dynamic> ? data['user'] : null;
+
+      if (userJson is Map<String, dynamic>) {
+        serverUser = User.fromJson(userJson);
+      } else if (responseData['user'] is Map<String, dynamic>) {
+        serverUser = User.fromJson(
+          responseData['user'] as Map<String, dynamic>,
+        );
+      } else if (responseData.containsKey('fullName') ||
+          responseData.containsKey('email') ||
+          responseData.containsKey('userName')) {
+        serverUser = User.fromJson(responseData);
+      }
+    }
+
+    final baseUser = serverUser ?? currentUser ?? User();
+    return baseUser.copyWith(
+      fullName:
+          _valueOrNull(request.fullName) ??
+          _valueOrNull(baseUser.fullName) ??
+          currentUser?.fullName,
+      userName:
+          _valueOrNull(request.userName) ??
+          _valueOrNull(baseUser.userName) ??
+          currentUser?.userName,
+      email:
+          _valueOrNull(request.email) ??
+          _valueOrNull(baseUser.email) ??
+          currentUser?.email,
+      role: _valueOrNull(baseUser.role) ?? currentUser?.role,
+      token: _valueOrNull(baseUser.token) ?? currentUser?.token,
+      profilePicture:
+          _valueOrNull(baseUser.profilePicture) ?? currentUser?.profilePicture,
+      phone: _valueOrNull(baseUser.phone) ?? currentUser?.phone,
+      dateOfBirth:
+          _valueOrNull(baseUser.dateOfBirth) ?? currentUser?.dateOfBirth,
+      gender: _valueOrNull(baseUser.gender) ?? currentUser?.gender,
+      latitude: baseUser.latitude ?? currentUser?.latitude,
+      longitude: baseUser.longitude ?? currentUser?.longitude,
+      age: baseUser.age ?? currentUser?.age,
+    );
+  }
+
+  String _dioErrorMessage(DioException e) {
+    final data = e.response?.data;
+    if (data is Map<String, dynamic>) {
+      return data['detail']?.toString() ??
+          data['message']?.toString() ??
+          e.message ??
+          "Connection Error";
+    }
+    return e.message ?? "Connection Error";
+  }
+
+  String? _valueOrNull(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty || trimmed == 'null') {
+      return null;
+    }
+    return trimmed;
   }
 }

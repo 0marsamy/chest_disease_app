@@ -5,9 +5,12 @@ import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chest_disease_app/core/components/widgets/custom_button.dart';
 import 'package:chest_disease_app/core/data/network_services/api_service.dart';
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
+import 'package:chest_disease_app/core/utils/theme/colors/app_colors.dart';
 import 'package:chest_disease_app/features/chats/presentation/view/screen/chat_list_screen.dart';
 import 'package:chest_disease_app/features/scan/domain/entities/chest_prediction_entity.dart';
 import 'package:chest_disease_app/foundations/app_urls.dart';
+import 'package:chest_disease_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -54,6 +57,9 @@ class _ScanResultViewState extends State<ScanResultView> {
     return prediction == 'not x-ray' || prediction == 'invalid image';
   }
 
+  String get _diagnosisLabel =>
+      formatDiagnosisLabel(widget.entity.prediction, context: context);
+
   Uint8List? _decodeBase64Image(String? raw) {
     if (raw == null || raw.isEmpty) return null;
     try {
@@ -71,7 +77,7 @@ class _ScanResultViewState extends State<ScanResultView> {
 
     try {
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-      final predictionSlug = widget.entity.prediction.replaceAll(' ', '_');
+      final predictionSlug = _diagnosisLabel.replaceAll(' ', '_');
       final filename =
           'scan_${predictionSlug}_${widget.entity.confidence.toStringAsFixed(1)}%_$timestamp.png';
 
@@ -110,14 +116,14 @@ class _ScanResultViewState extends State<ScanResultView> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Report saved to your device.')),
+          SnackBar(content: Text(S.of(context).reportSavedToDevice)),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to save report: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${S.of(context).failedToSaveReport} $e')),
+        );
       }
     } finally {
       if (mounted) {
@@ -129,6 +135,9 @@ class _ScanResultViewState extends State<ScanResultView> {
   Widget _buildImagePreview() {
     final segmentedBytes = _segmentedBytes;
     final heatmapBytes = _heatmapBytes;
+    final previewHeight = MediaQuery.sizeOf(context).height < 720
+        ? 300.0
+        : 350.0;
 
     final bytesToShow = switch (_effectiveImageMode) {
       _ImageMode.segmented => segmentedBytes,
@@ -136,36 +145,46 @@ class _ScanResultViewState extends State<ScanResultView> {
       _ImageMode.original => null,
     };
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: bytesToShow != null
-          ? Image.memory(
-              bytesToShow,
-              height: 300,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            )
-          : widget.originalImage != null
-          ? Image.file(
-              widget.originalImage!,
-              height: 300,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            )
-          : CachedNetworkImage(
-              imageUrl: widget.imageUrl!,
-              height: 300,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              progressIndicatorBuilder: (_, __, ___) => const SizedBox(
-                height: 300,
-                child: Center(child: CircularProgressIndicator()),
+    return Container(
+      height: previewHeight,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F7FA),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: bytesToShow != null
+            ? Image.memory(
+                bytesToShow,
+                height: previewHeight,
+                width: double.infinity,
+                fit: BoxFit.contain,
+              )
+            : widget.originalImage != null
+            ? Image.file(
+                widget.originalImage!,
+                height: previewHeight,
+                width: double.infinity,
+                fit: BoxFit.contain,
+              )
+            : CachedNetworkImage(
+                imageUrl: widget.imageUrl!,
+                height: previewHeight,
+                width: double.infinity,
+                fit: BoxFit.contain,
+                progressIndicatorBuilder: (_, __, ___) => const SizedBox(
+                  height: 300,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (_, __, ___) => const SizedBox(
+                  height: 300,
+                  child: Center(child: Icon(Icons.broken_image_outlined)),
+                ),
               ),
-              errorWidget: (_, __, ___) => const SizedBox(
-                height: 300,
-                child: Center(child: Icon(Icons.broken_image_outlined)),
-              ),
-            ),
+      ),
     );
   }
 
@@ -204,19 +223,19 @@ class _ScanResultViewState extends State<ScanResultView> {
           runSpacing: 8,
           children: [
             _buildImageModeButton(
-              label: 'Original X-ray',
+              label: S.of(context).originalXray,
               icon: Icons.image_outlined,
               mode: _ImageMode.original,
             ),
             if (segmentedBytes != null)
               _buildImageModeButton(
-                label: 'Show Segmented Lungs',
+                label: S.of(context).showSegmentedLungs,
                 icon: Icons.air,
                 mode: _ImageMode.segmented,
               ),
             if (heatmapBytes != null)
               _buildImageModeButton(
-                label: 'Show AI Heatmap',
+                label: S.of(context).showAiHeatmap,
                 icon: Icons.local_fire_department_outlined,
                 mode: _ImageMode.heatmap,
               ),
@@ -225,7 +244,7 @@ class _ScanResultViewState extends State<ScanResultView> {
         if (segmentedBytes == null && heatmapBytes == null) ...[
           const SizedBox(height: 8),
           Text(
-            'AI overlay images are not available for this scan.',
+            S.of(context).aiOverlayNotAvailable,
             style: TextStyle(color: Colors.grey.shade600),
           ),
         ],
@@ -233,13 +252,61 @@ class _ScanResultViewState extends State<ScanResultView> {
     );
   }
 
+  Widget _buildHeatmapLegend() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FBFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2EDF2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            S.of(context).heatmapColorLegend,
+            style: TextStyle(
+              color: AppColors.buttonsAndNav,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 10),
+          _LegendRow(color: Color(0xFFB00020), text: S.of(context).heatmapRed),
+          SizedBox(height: 8),
+          _LegendRow(
+            color: Color(0xFFE6C229),
+            text: S.of(context).heatmapYellow,
+          ),
+          SizedBox(height: 8),
+          _LegendRow(color: Color(0xFF2F80ED), text: S.of(context).heatmapBlue),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDisease = widget.entity.prediction.toLowerCase() != 'normal';
     final diagnosisColor = isDisease ? Colors.red[400] : Colors.green[400];
+    final confidenceProgress = (widget.entity.confidence / 100).clamp(0.0, 1.0);
+    final confidence = widget.entity.confidence;
+    final prediction = widget.entity.prediction.toLowerCase();
+
+    // Check confidence levels
+    final bool isHighConfidence = confidence >= 80.0;
+    final bool isMediumConfidence = confidence >= 60.0 && confidence < 80.0;
+    final bool isLowConfidence = confidence < 60.0;
+
+    // Determine if heatmap should be shown:
+    // - SHOW heatmap for confidence FROM 60% TO 100% (>= 60.0)
+    // - EXCEPT when prediction is exactly 'Normal'
+    // - This matches your exact requirement: heatmap shows from 60 to 100, but normal never shows it
+    final bool showHeatmap = confidence >= 60.0 && prediction != 'normal';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan Result'), centerTitle: true),
+      appBar: AppBar(title: Text(S.of(context).scanResult), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -248,9 +315,13 @@ class _ScanResultViewState extends State<ScanResultView> {
             _buildImagePreview(),
             const SizedBox(height: 16),
             _buildImageModeSelector(),
+            if (_effectiveImageMode == _ImageMode.heatmap && showHeatmap) ...[
+              const SizedBox(height: 16),
+              _buildHeatmapLegend(),
+            ],
             const SizedBox(height: 24),
             if (isInvalid)
-              const Center(
+              Center(
                 child: Column(
                   children: [
                     Icon(
@@ -260,7 +331,7 @@ class _ScanResultViewState extends State<ScanResultView> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      'Invalid Image',
+                      S.of(context).invalidImage,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -268,45 +339,109 @@ class _ScanResultViewState extends State<ScanResultView> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      'Please upload a valid chest X-ray image',
+                      S.of(context).uploadValidXray,
                       textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
             if (!isInvalid) ...[
-              Card(
-                color: diagnosisColor,
-                child: Padding(
+              if (isLowConfidence)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 16),
                   padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.yellow.shade100,
+                    border: Border.all(color: Colors.yellow.shade300),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Diagnosis',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        size: 48,
+                        color: Colors.orange,
                       ),
+                      const SizedBox(height: 12),
                       Text(
-                        widget.entity.prediction,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
+                        S.of(context).unreliablePrediction,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        S.of(context).imageUnclear,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              if (!isLowConfidence) ...[
+                Card(
+                  color: diagnosisColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          S.of(context).diagnosis,
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                        Text(
+                          _diagnosisLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  '${S.of(context).confidence} ${widget.entity.confidence.toStringAsFixed(1)}%',
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(value: confidenceProgress),
+              ],
+              if (isMediumConfidence)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    border: Border.all(color: Colors.orange.shade200),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.orange,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          S.of(context).lowConfidenceWarning,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.orange,
+                          ),
+                          overflow: TextOverflow.visible,
+                          maxLines: 3,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Confidence: ${widget.entity.confidence.toStringAsFixed(1)}%',
-              ),
-              const SizedBox(height: 8),
-              LinearProgressIndicator(value: widget.entity.confidence / 100),
-              const SizedBox(height: 20),
-              const Text('Recommendation'),
-              const SizedBox(height: 6),
-              Text(widget.entity.description),
             ],
           ],
         ),
@@ -317,7 +452,7 @@ class _ScanResultViewState extends State<ScanResultView> {
           children: [
             Expanded(
               child: CustomButton(
-                text: 'Save Report',
+                text: S.of(context).saveReport,
                 isLoading: _isSaving,
                 onTap: _saveReport,
               ),
@@ -325,7 +460,7 @@ class _ScanResultViewState extends State<ScanResultView> {
             const SizedBox(width: 10),
             Expanded(
               child: CustomButton(
-                text: 'Chat with Medical',
+                text: S.of(context).chatWithMedical,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -339,6 +474,39 @@ class _ScanResultViewState extends State<ScanResultView> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LegendRow extends StatelessWidget {
+  final Color color;
+  final String text;
+
+  const _LegendRow({required this.color, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          margin: const EdgeInsets.only(top: 4),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xFF455A64),
+              fontSize: 12.5,
+              height: 1.35,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

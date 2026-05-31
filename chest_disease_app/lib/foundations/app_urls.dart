@@ -9,6 +9,7 @@ class AppUrls {
   static const String verifyCode = "api/Auth/verifyEmail";
   static const String forgetPassword = "api/Auth/forgetPassword";
   static const String verifyForgetPassword = "api/Auth/verifyForgetPassword";
+  static const String verifyResetCode = "api/Auth/verifyResetCode";
   static const String resetPassword = "api/Auth/resetPassword";
   static const String addReview = "review";
 
@@ -53,9 +54,6 @@ class AppUrls {
   //Notification
   static const String getNotifications = "Notification";
   static const String sendDeviceToken = "UserDeviceToken";
-
-  // contact us
-  static const String contactUs = "ContactUs";
 
   // feed
   static const String post = "Post";

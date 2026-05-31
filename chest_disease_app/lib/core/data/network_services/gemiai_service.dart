@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
 import 'package:chest_disease_app/foundations/app_constants.dart';
 
 /// Wrapper for the Google Gemini generative text API.
@@ -55,9 +56,19 @@ class GemiaiService {
   /// Request: contents → parts → text, and optionally inline_data for images.
   /// Response: candidates[0].content.parts[0].text
   Future<String> generateText(String prompt, {File? imageFile}) async {
-    final url = '$_baseUrl?key=${AppConstants.gemiaiApiKey}';
+    const url = '$_baseUrl?key=${AppConstants.gemiaiApiKey}';
 
-    final parts = <Map<String, dynamic>>[];
+    const styleInstruction = '''
+You are a professional medical assistant inside a chest X-ray AI app.
+Answer naturally in plain text, like ChatGPT.
+Do not use markdown, bullets unless the user clearly asks, raw JSON, brackets, labels, or code-style formatting.
+Use COVID-19 when referring to the infection.
+Be concise and remind the user that AI findings need clinician confirmation when relevant.
+''';
+
+    final parts = <Map<String, dynamic>>[
+      {'text': styleInstruction},
+    ];
     if (prompt.isNotEmpty) {
       parts.add({'text': prompt});
     }
@@ -74,7 +85,9 @@ class GemiaiService {
           'inlineData': {'mimeType': mime, 'data': base64},
         });
         if (kDebugMode) {
-          debugPrint('GemiaiService: including image ${imageFile.path} ($mime)');
+          debugPrint(
+            'GemiaiService: including image ${imageFile.path} ($mime)',
+          );
         }
       }
     }
@@ -87,23 +100,24 @@ class GemiaiService {
       'contents': [
         {'parts': parts},
       ],
-      'generationConfig': {
-        'temperature': 0.7,
-        'maxOutputTokens': 4096,
-      },
+      'generationConfig': {'temperature': 0.45, 'maxOutputTokens': 700},
     };
 
     if (kDebugMode) {
       debugPrint('GemiaiService: POST $url');
-      debugPrint('GemiaiService: prompt length=${prompt.length}, hasImage=${imageFile != null}');
+      debugPrint(
+        'GemiaiService: prompt length=${prompt.length}, hasImage=${imageFile != null}',
+      );
     }
 
     try {
       // Use plain Dio as per Gemini API docs – key in URL, body as Map
-      final dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 60),
-        receiveTimeout: const Duration(seconds: 60),
-      ));
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
+        ),
+      );
       final response = await dio.post(
         url,
         data: body,
@@ -126,10 +140,10 @@ class GemiaiService {
       if (status >= 200 && status < 300) {
         final text = _extractText(data);
         if (text != null && text.isNotEmpty) {
-          return text.trim();
+          return cleanMedicalAssistantText(text);
         }
         debugPrint('GemiaiService: failed to extract text, raw=$data');
-        return "I received a response I couldn't parse. Please try again.";
+        return "I received a response I couldn't understand. Please try again.";
       }
 
       final errorDetail = data is Map ? (data['error'] ?? data) : data;

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:chest_disease_app/core/data/network_services/gemiai_service.dart';
+import 'package:chest_disease_app/core/helper/functions/diagnosis_label_formatter.dart';
+import 'package:chest_disease_app/generated/l10n.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +11,7 @@ class MedicalChatbotScreen extends StatefulWidget {
   const MedicalChatbotScreen({super.key});
 
   @override
-  _MedicalChatbotScreenState createState() => _MedicalChatbotScreenState();
+  State<MedicalChatbotScreen> createState() => _MedicalChatbotScreenState();
 }
 
 class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
@@ -17,7 +19,6 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
 
-  // Gemiai (Gemini) chatbot service used to generate replies.
   final GemiaiService _gemiaiService = GemiaiService();
   bool _isSending = false;
 
@@ -27,16 +28,15 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
   @override
   void initState() {
     super.initState();
-    // Add initial bot message
-    _addBotMessage(
-      "Hello! I am your Medical Assistant. I can help you interpret X-Ray results. "
-      "You can also upload an image or report using the upload button.",
-    );
+    _addBotMessage(S.of(context).chatbotWelcome);
   }
 
   void _addBotMessage(String text) {
     setState(() {
-      _messages.insert(0, {"sender": "bot", "text": text});
+      _messages.insert(0, {
+        "sender": "bot",
+        "text": cleanMedicalAssistantText(text),
+      });
     });
   }
 
@@ -58,14 +58,13 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
     final text = _controller.text.trim();
     if (text.isEmpty && _attachedFile == null) return;
 
-    // Capture file before clearing (needed for image analysis)
     final fileToSend = _attachedFile;
     final attachmentName = _attachedFileName;
 
     setState(() {
       _messages.insert(0, {
         "sender": "user",
-        "text": text.isEmpty ? (attachmentName ?? "[Image]") : text,
+        "text": text.isEmpty ? (attachmentName ?? S.of(context).image) : text,
         if (attachmentName != null) "attachment": attachmentName,
       });
       _isSending = true;
@@ -75,41 +74,42 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
     _attachedFile = null;
     _attachedFileName = null;
 
-    // Scroll to the bottom quickly so user sees their message.
-    Timer(const Duration(milliseconds: 100), () {
-      _scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
+    _scrollToLatestMessage();
 
     final prompt = text.isEmpty
-        ? "Please analyze this medical/X-ray image and describe what you see. If it's an X-ray, note any findings, abnormalities, or areas of concern."
+        ? "Please review this chest X-ray image in a natural, professional way. Mention visible concerns carefully and remind me that a clinician should confirm the result."
         : text;
 
     String botReply;
     try {
-      botReply = await _gemiaiService.generateText(prompt, imageFile: fileToSend);
+      botReply = await _gemiaiService.generateText(
+        prompt,
+        imageFile: fileToSend,
+      );
     } catch (e, st) {
-      // Include error details for easier troubleshooting.
       final errorMessage = e.toString();
       debugPrint('GemiaiService error: $errorMessage');
       debugPrintStack(label: 'GemiaiService stacktrace', stackTrace: st);
 
-      final msg = errorMessage.contains('Rate limit')
-          ? 'Rate limit reached. Please try again in a minute. '
-            'If you\'re on the free tier, you may have hit the daily limit—try again tomorrow.'
-          : "Sorry, I couldn't reach the AI service.\n$errorMessage";
-      botReply = msg;
+      botReply = errorMessage.contains('Rate limit')
+          ? S.of(context).assistantBusy
+          : S.of(context).assistantUnavailable;
     }
 
     setState(() {
-      _messages.insert(0, {"sender": "bot", "text": botReply});
+      _messages.insert(0, {
+        "sender": "bot",
+        "text": cleanMedicalAssistantText(botReply),
+      });
       _isSending = false;
     });
 
+    _scrollToLatestMessage();
+  }
+
+  void _scrollToLatestMessage() {
     Timer(const Duration(milliseconds: 100), () {
+      if (!_scrollController.hasClients) return;
       _scrollController.animateTo(
         0.0,
         duration: const Duration(milliseconds: 300),
@@ -123,11 +123,11 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Medical Assistant 🤖"),
+        title: Text(S.of(context).medicalAssistant),
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
-        foregroundColor: const Color(0xFF007AFF), // A nice blue
+        foregroundColor: const Color(0xFF007AFF),
       ),
       body: Column(
         children: [
@@ -160,7 +160,7 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(0, -3),
@@ -218,7 +218,7 @@ class _MedicalChatbotScreenState extends State<MedicalChatbotScreen> {
                     controller: _controller,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      hintText: "Type a message...",
+                      hintText: S.of(context).typeMessage,
                       filled: true,
                       fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
